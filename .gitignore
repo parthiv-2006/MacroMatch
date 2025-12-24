@@ -1,0 +1,71 @@
+# ===== Dependencies =====
+node_modules/
+bower_components/
+
+# ===== Logs =====
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===== Runtime data / PIDs =====
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ===== Environment / Secrets =====
+.env
+.env.*
+!.env.example
+
+# ===== Build outputs =====
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.vite/
+.svelte-kit/
+tmp/
+temp/
+
+# ===== Coverage =====
+coverage/
+.nyc_output/
+
+# ===== Debug / profiling =====
+*.lcov
+*.prof
+*.profile
+
+# ===== OS / Editor files =====
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ===== IDEs =====
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.iml
+
+# ===== TypeScript =====
+*.tsbuildinfo
+
+# ===== MongoDB / local data =====
+data/
+dump/
+
+# ===== Uploads / user-generated (optional; remove if you want tracked) =====
+uploads/
+
+# ===== Misc =====
+*.swp
+*.swo
+*.bak
+*.tmp
