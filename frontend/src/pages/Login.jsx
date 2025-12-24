@@ -1,11 +1,17 @@
-import {useState, useContext} from 'react'
+import {useState, useContext, useEffect} from 'react'
 import AuthContext from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
   const [formData, setFormData] = useState({email: '', password: ''})
-  const {login} = useContext(AuthContext)
+  const {login, logout} = useContext(AuthContext)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user')
+    if (storedUser) logout()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()

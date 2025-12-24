@@ -5,16 +5,24 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 
+import ProtectedRoute from './components/ProtectedRoute'
+
+import { AuthProvider } from './context/AuthContext'
+
 function App() {
 
   return (
-    <div className='main-container'>
-      <Routes>
-          <Route path='/' element={<Dashboard />}/>
-          <Route path='/login' element={<Login />}/>
-          <Route path='/register' element={<Register />}/>
-      </Routes>
-    </div>
+    <AuthProvider>
+      <div className='main-container'>
+        <Routes>
+            <Route element={<ProtectedRoute />}>
+              <Route path='/' element={<Dashboard />}/>
+            </Route>
+            <Route path='/login' element={<Login />}/>
+            <Route path='/register' element={<Register />}/>
+        </Routes>
+      </div>
+    </AuthProvider>
   )
 }
 
