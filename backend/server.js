@@ -6,11 +6,13 @@ const PORT = process.env.PORT || 3000
 
 const app = express()
 const userRoutes = require("./routes/userRoutes")
+const pantryRoutes = require("./routes/pantryRoutes")
 
 app.use(express.json())
 app.use(cors())
 
 app.use("/api/user", userRoutes)
+app.use("/api/pantry", pantryRoutes)
 
 app.get("/", (req, res) => {
     res.send("Server Working")
