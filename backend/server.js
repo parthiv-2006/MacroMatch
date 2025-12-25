@@ -7,17 +7,18 @@ const PORT = process.env.PORT || 3000
 const app = express()
 const userRoutes = require("./routes/userRoutes")
 const pantryRoutes = require("./routes/pantryRoutes")
+const ingredientRoutes = require("./routes/ingredientRoutes")
 
 app.use(express.json())
 app.use(cors())
 
 app.use("/api/user", userRoutes)
 app.use("/api/pantry", pantryRoutes)
+app.use("/api/ingredients", ingredientRoutes)
 
 app.get("/", (req, res) => {
     res.send("Server Working")
 })
-
 
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {
