@@ -39,6 +39,16 @@ const Dashboard = () => {
     navigate('/new-ingredient')
   }
 
+  const handleUpdate = async (id, newQuantity) => {
+    try {
+    await pantryServices.updatePantryItem(id, { quantity: newQuantity })
+    setPantryItems(items => items.map(item => 
+      item._id === id ? { ...item, quantity: newQuantity } : item
+    ))
+  } catch (err) {
+    alert('Failed to update item')
+  }
+  }
 
   return (
     <div className='dashboard-container'>
@@ -56,7 +66,7 @@ const Dashboard = () => {
 
       {loading ? (<p>Loading Pantry...</p>) : 
       error ? (<p>{error}</p>): 
-      (<PantryList items={pantryItems} onDelete={handleDelete}/>)}
+      (<PantryList items={pantryItems} onDelete={handleDelete} onUpdate={handleUpdate}/>)}
     </div>
   )
 }
