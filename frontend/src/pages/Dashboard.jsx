@@ -2,11 +2,13 @@ import {useState, useEffect} from 'react'
 import AddItemForm from '../components/AddItemForm'
 import PantryList from '../components/PantryList'
 import pantryServices from '../services/pantryServices'
+import { useNavigate } from 'react-router-dom'
 
 const Dashboard = () => {
   const [pantryItems, setPantryItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const navigate = useNavigate()
 
   const fetchPantry = async () => {
     try {
@@ -33,6 +35,9 @@ const Dashboard = () => {
       alert("Failed to delete Pantry Item")
   }
 }
+  const handleNavigate = () => {
+    navigate('/new-ingredient')
+  }
 
 
   return (
@@ -42,6 +47,12 @@ const Dashboard = () => {
       <div className='add-item-section'>
         <AddItemForm onItemAdded={fetchPantry}/>
       </div>
+
+      <div>
+        <p>Can't find what you're looking for?</p>
+        <button onClick={handleNavigate}>Create Ingredient</button>
+      </div>
+      
 
       {loading ? (<p>Loading Pantry...</p>) : 
       error ? (<p>{error}</p>): 
