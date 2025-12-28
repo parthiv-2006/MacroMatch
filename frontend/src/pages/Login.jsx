@@ -1,6 +1,6 @@
 import {useState, useContext, useEffect} from 'react'
 import AuthContext from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 const Login = () => {
   const [formData, setFormData] = useState({email: '', password: ''})
@@ -27,6 +27,7 @@ const Login = () => {
     return (
     <div className='login-form'>
         <h1>Login Page</h1>
+        <p>Don't have an Account? <Link to="/register">Register Here</Link></p>
       <form onSubmit={handleSubmit}>
         <label>
             Email:
