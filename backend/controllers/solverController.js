@@ -39,7 +39,7 @@ const generateMeal = async(req, res) => {
 
     } catch (err) {
         console.error(err)
-        res.status(500).json({message: "Solver Error" + err.message})
+        res.status(500).json({message: "Solver Error: " + err.message})
     }
 }
 
