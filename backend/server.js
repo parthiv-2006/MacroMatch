@@ -8,6 +8,7 @@ const app = express()
 const userRoutes = require("./routes/userRoutes")
 const pantryRoutes = require("./routes/pantryRoutes")
 const ingredientRoutes = require("./routes/ingredientRoutes")
+const solverRoutes = require("./routes/solverRoutes")
 
 app.use(express.json())
 app.use(cors())
@@ -15,6 +16,7 @@ app.use(cors())
 app.use("/api/user", userRoutes)
 app.use("/api/pantry", pantryRoutes)
 app.use("/api/ingredients", ingredientRoutes)
+app.use("/api/generate", solverRoutes)
 
 app.get("/", (req, res) => {
     res.send("Server Working")
