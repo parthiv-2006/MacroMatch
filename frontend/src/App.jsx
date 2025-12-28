@@ -15,7 +15,7 @@ function App() {
 
   return (
     <AuthProvider>
-      <div className='main-container'>
+      <div>
         <Routes>
             <Route element={<ProtectedRoute />}>
               <Route path='/' element={<Dashboard />}/>
