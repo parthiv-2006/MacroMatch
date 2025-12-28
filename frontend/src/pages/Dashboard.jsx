@@ -35,8 +35,8 @@ const Dashboard = () => {
       alert("Failed to delete Pantry Item")
   }
 }
-  const handleNavigate = () => {
-    navigate('/new-ingredient')
+  const handleNavigate = (url) => {
+    navigate(url)
   }
 
   const handleUpdate = async (id, newQuantity) => {
@@ -60,7 +60,12 @@ const Dashboard = () => {
 
       <div>
         <p>Can't find what you're looking for?</p>
-        <button onClick={handleNavigate}>Create Ingredient</button>
+        <button onClick={() => handleNavigate('/new-ingredient')}>Create Ingredient</button>
+      </div>
+
+      <div>
+        <p>Enter Your Macros and Generate a Meal Plan</p>
+        <button onClick={() => handleNavigate('/generate')}>Generate Mealplan</button>
       </div>
       
 

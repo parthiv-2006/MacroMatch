@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import CreateIngredient from './pages/CreateIngredient'
+import Generator from './pages/Generator'
 
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -21,6 +22,9 @@ function App() {
             </Route>
             <Route element={<ProtectedRoute />}>
               <Route path='/new-ingredient' element={<CreateIngredient />}/>
+            </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route path='/generate' element={<Generator />}/>
             </Route>
             <Route path='/login' element={<Login />}/>
             <Route path='/register' element={<Register />}/>
