@@ -1,14 +1,17 @@
-import {useState, useEffect} from 'react'
+import {useState, useEffect, useContext} from 'react'
 import AddItemForm from '../components/AddItemForm'
 import PantryList from '../components/PantryList'
 import pantryServices from '../services/pantryServices'
 import { useNavigate } from 'react-router-dom'
+import AuthContext from '../context/AuthContext'
 
 const Dashboard = () => {
   const [pantryItems, setPantryItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const navigate = useNavigate()
+
+  const { logout } = useContext(AuthContext)
 
   const fetchPantry = async () => {
     try {
@@ -52,6 +55,7 @@ const Dashboard = () => {
 
   return (
     <div className='dashboard-container'>
+      <button onClick={() => logout()}>Logout</button>
       <h1>My Kitchen Pantry</h1>
 
       <div className='add-item-section'>
