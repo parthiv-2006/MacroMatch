@@ -3,7 +3,10 @@ import { Navigate, Outlet } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 
 export default function ProtectedRoute() {
-  const { user } = useContext(AuthContext)
+  const { user, loading } = useContext(AuthContext)
+  
+  if (loading) return <div>Loading...</div>
+
   const token = user?.token
 
   if (!token) return <Navigate to="/login" replace />
