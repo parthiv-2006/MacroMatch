@@ -1,5 +1,5 @@
 const PantryItem = require("../models/PantryItem")
-const { solveMeal } = require("../utils/macroSolver")
+const { solveMultipleMeals } = require("../utils/macroSolver")
 
 const generateMeal = async(req, res) => {
     const { targetProtein, targetCarbs, targetFats } = req.body
@@ -21,21 +21,13 @@ const generateMeal = async(req, res) => {
             fats: Number(targetFats)
         }
 
-        const result = solveMeal(targets, pantryItems)
+        const mealPlans = solveMultipleMeals(targets, pantryItems, 3)
 
-        if (!result.feasible) {
+        if (mealPlans.length === 0) {
             return res.status(400).json({message: "No solution found. Try adjusting your targets or adding more variety to your pantry." })
         }
 
-        const mealPlan = {}
-        Object.keys(result).forEach(key => {
-            if (key !== 'feasible' && key !== 'result' && key !== 'bounded') {
-                // Round to nearest gram for cleanliness
-                mealPlan[key] = Math.round(result[key])
-            }
-        })
-
-        res.status(200).json({success: true, mealPlan})
+        res.status(200).json({success: true, mealPlans})
 
     } catch (err) {
         console.error(err)
