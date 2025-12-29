@@ -16,6 +16,12 @@ const getPantryItems = async() => {
         return response.data
 }
 
+const getLowStockItems = async () => {
+    const config = { headers: getAuthHeader() }
+    const response = await axios.get(API_URL + 'low-stock', config)
+    return response.data
+}
+
 const addPantryItem = async (itemData) => {
     const config = { headers: getAuthHeader()}
     const response = await axios.post(API_URL, itemData, config)
@@ -46,5 +52,5 @@ const getMealHistory = async () => {
     return response.data
 }
 
-const pantryServices = {getPantryItems, addPantryItem, updatePantryItem, deletePantryItem, consumePantryItems, getMealHistory}
+const pantryServices = {getPantryItems, getLowStockItems, addPantryItem, updatePantryItem, deletePantryItem, consumePantryItems, getMealHistory}
 export default pantryServices

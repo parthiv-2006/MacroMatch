@@ -9,6 +9,8 @@ const Dashboard = () => {
   const [pantryItems, setPantryItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [lowStock, setLowStock] = useState([])
+  const [loadingLowStock, setLoadingLowStock] = useState(true)
   const navigate = useNavigate()
 
   const { logout } = useContext(AuthContext)
@@ -17,6 +19,8 @@ const Dashboard = () => {
     try {
       const data = await pantryServices.getPantryItems()
       setPantryItems(data)
+      setLoadingLowStock(true)
+      fetchLowStock()
     } catch(err) {
       setError('Failed to load pantry items')
       console.error(err)
@@ -25,8 +29,20 @@ const Dashboard = () => {
     }
   }
 
+  const fetchLowStock = async () => {
+    try {
+      const data = await pantryServices.getLowStockItems()
+      setLowStock(data)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoadingLowStock(false)
+    }
+  }
+
   useEffect(() => {
     fetchPantry()
+    fetchLowStock()
   }, [])
 
   const handleDelete = async (id) => {
@@ -34,6 +50,7 @@ const Dashboard = () => {
     try {
     await pantryServices.deletePantryItem(id)
     setPantryItems(items => items.filter(item => item._id !== id))
+    fetchLowStock()
   }  catch(err) {
       alert("Failed to delete Pantry Item")
   }
@@ -44,13 +61,25 @@ const Dashboard = () => {
 
   const handleUpdate = async (id, newQuantity) => {
     try {
-    await pantryServices.updatePantryItem(id, { quantity: newQuantity })
-    setPantryItems(items => items.map(item => 
-      item._id === id ? { ...item, quantity: newQuantity } : item
-    ))
-  } catch (err) {
-    alert('Failed to update item')
+      const updated = await pantryServices.updatePantryItem(id, { quantity: newQuantity })
+      setPantryItems(items => items.map(item => 
+        item._id === id ? updated : item
+      ))
+      setLowStock(list => list.map(item => item._id === updated._id ? updated : item))
+    } catch (err) {
+      alert('Failed to update item')
+    }
   }
+
+  const handleUpdateThreshold = async (id, newThreshold) => {
+    try {
+      const updated = await pantryServices.updatePantryItem(id, { threshold: newThreshold })
+      setPantryItems(items => items.map(item => item._id === id ? updated : item))
+      // refresh low-stock list to reflect new threshold status
+      fetchLowStock()
+    } catch (err) {
+      alert('Failed to update threshold')
+    }
   }
 
   return (
@@ -90,6 +119,41 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Left Column: Add Item & Actions */}
           <div className="space-y-8 lg:col-span-1">
+            {/* Low Stock Alert */}
+            <div className="bg-white shadow-sm rounded-xl p-6 border border-slate-200">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-semibold text-slate-900">Low Stock Alerts</h3>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 border border-amber-200">
+                  {loadingLowStock ? '...' : lowStock.length}
+                </span>
+              </div>
+              {loadingLowStock ? (
+                <p className="text-sm text-slate-500">Loading...</p>
+              ) : lowStock.length === 0 ? (
+                <p className="text-sm text-slate-500">All good! Nothing is below threshold.</p>
+              ) : (
+                <ul className="divide-y divide-slate-100">
+                  {lowStock.slice(0, 4).map(item => (
+                    <li key={item._id} className="py-3 flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-slate-900">{item.ingredient?.name || 'Unknown'}</p>
+                        <p className="text-xs text-slate-500">{Math.round(item.quantity)}g left • threshold {item.threshold ?? 100}g</p>
+                      </div>
+                      <button
+                        onClick={() => handleUpdateThreshold(item._id, item.threshold ?? 100)}
+                        className="text-xs font-semibold text-emerald-600 hover:underline"
+                      >
+                        Adjust
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {lowStock.length > 4 && (
+                <p className="mt-2 text-xs text-slate-500">Showing first 4 items.</p>
+              )}
+            </div>
+
             {/* Add Item Card */}
             <div className="bg-white shadow-sm rounded-xl p-6 border border-slate-200">
               <AddItemForm onItemAdded={fetchPantry}/>
@@ -162,7 +226,7 @@ const Dashboard = () => {
                 ) : error ? (
                   <div className="text-red-500 text-center py-10 bg-red-50 m-6 rounded-lg border border-red-100">{error}</div>
                 ) : (
-                  <PantryList items={pantryItems} onDelete={handleDelete} onUpdate={handleUpdate}/>
+                  <PantryList items={pantryItems} onDelete={handleDelete} onUpdate={handleUpdate} onUpdateThreshold={handleUpdateThreshold}/>
                 )}
               </div>
             </div>

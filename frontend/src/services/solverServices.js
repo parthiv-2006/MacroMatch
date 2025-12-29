@@ -16,5 +16,11 @@ const generateMeal = async(targets) => {
     return response.data
 }
 
-const solverServices = { generateMeal }
+const generateReverseMeal = async(targets) => {
+    const config = { headers: getAuthHeader() }
+    const response = await axios.post(API_URL + 'reverse', targets, config)
+    return response.data
+}
+
+const solverServices = { generateMeal, generateReverseMeal }
 export default solverServices

@@ -1,12 +1,21 @@
 import {useState} from 'react'
 
-const PantryList = ({ items, onDelete, onUpdate }) => {
+const PantryList = ({ items, onDelete, onUpdate, onUpdateThreshold }) => {
 
   const [editingId, setEditingId] = useState(null)
   const [editQty, setEditQty] = useState('')
 
   if (!items || items.length === 0) {
     return <p>Your pantry is empty. Add some food!</p>
+  }
+
+  const handleThreshold = (item) => {
+    if (!onUpdateThreshold) return
+    const next = window.prompt('Set low-stock threshold (grams)', item.threshold ?? 100)
+    if (next === null || next === '') return
+    const numeric = Number(next)
+    if (Number.isNaN(numeric) || numeric < 0) return alert('Please enter a valid non-negative number')
+    onUpdateThreshold(item._id, numeric)
   }
 
   const startEditing = (item) => {
@@ -44,6 +53,7 @@ const PantryList = ({ items, onDelete, onUpdate }) => {
             <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Carbs</th>
             <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Fats</th>
             <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Cals</th>
+            <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Threshold</th>
             <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
@@ -63,7 +73,12 @@ const PantryList = ({ items, onDelete, onUpdate }) => {
                 className="hover:bg-slate-50/80 transition-colors animate-fade-in opacity-0"
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
-                <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-slate-900">{ingredient.name}</td>
+                <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-slate-900 flex items-center space-x-2">
+                  <span>{ingredient.name}</span>
+                  {item.isLowStock && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-700 border border-amber-200">Low</span>
+                  )}
+                </td>
 
                 <td className="px-6 py-5 whitespace-nowrap text-sm text-slate-500">
                   {isEditing ? (
@@ -85,6 +100,19 @@ const PantryList = ({ items, onDelete, onUpdate }) => {
                 <td className="px-6 py-5 whitespace-nowrap text-sm text-slate-600">{(ingredient.carbs * ratio).toFixed(1)}g</td>
                 <td className="px-6 py-5 whitespace-nowrap text-sm text-slate-600">{(ingredient.fats * ratio).toFixed(1)}g</td>
                 <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-slate-900">{Math.round(ingredient.calories * ratio)}</td>
+                <td className="px-6 py-5 whitespace-nowrap text-sm text-slate-500">
+                  <div className="flex flex-col items-end space-y-1">
+                    <span className="text-xs text-slate-500">Threshold: {item.threshold ?? 100}g</span>
+                    {onUpdateThreshold && (
+                      <button
+                        onClick={() => handleThreshold(item)}
+                        className="text-emerald-600 text-xs font-semibold hover:underline"
+                      >
+                        Adjust
+                      </button>
+                    )}
+                  </div>
+                </td>
                 <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
                   {isEditing ? (
                     <div className="flex justify-end space-x-2">

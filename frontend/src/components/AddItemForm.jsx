@@ -9,7 +9,8 @@ const AddItemForm = ({ onItemAdded }) => {
   const [selectedIngredient, setSelectedIngredient] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
-  const [quantity, setQuantity] = useState('')
+    const [quantity, setQuantity] = useState('')
+    const [threshold, setThreshold] = useState('100')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -43,9 +44,11 @@ const AddItemForm = ({ onItemAdded }) => {
     try {
         await pantryServices.addPantryItem({
             ingredientId: selectedIngredient,
-            quantity: Number(quantity)
+            quantity: Number(quantity),
+            threshold: threshold ? Number(threshold) : undefined
         })
         setQuantity('')
+        setThreshold('100')
         setSearchTerm('')
         setSelectedIngredient('')
         if (onItemAdded) onItemAdded()
@@ -132,6 +135,20 @@ const AddItemForm = ({ onItemAdded }) => {
                     required
                     className="appearance-none block w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 sm:text-sm transition-all duration-200"
                 />
+            </div>
+
+            <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                    Low-stock threshold (grams)
+                </label>
+                <input
+                    type="number"
+                    min="0"
+                    value={threshold}
+                    onChange={(e) => setThreshold(e.target.value)}
+                    className="appearance-none block w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 sm:text-sm transition-all duration-200"
+                />
+                <p className="mt-1 text-xs text-slate-500">We will flag this item when it drops below this amount. Default: 100g.</p>
             </div>
 
             <button 

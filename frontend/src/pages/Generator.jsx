@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import solverServices from "../services/solverServices";
 import pantryServices from "../services/pantryServices";
@@ -11,6 +11,8 @@ const Generator = () => {
     const [mealPlans, setMealPlans] = useState([])
     const [selectedMeals, setSelectedMeals] = useState([])
     const [consuming, setConsuming] = useState(false)
+    const [reverseLoading, setReverseLoading] = useState(false)
+    const [reverseResult, setReverseResult] = useState(null)
     const navigate = useNavigate()
     
     const onChange = (e) => {
@@ -24,6 +26,7 @@ const Generator = () => {
         setLoading(true)
         setMealPlans([])
         setSelectedMeals([])
+      setReverseResult(null)
 
         try {
             const response = await solverServices.generateMeal(formData)
@@ -34,6 +37,21 @@ const Generator = () => {
             setLoading(false)
         }
     }
+
+      const onSubmitReverse = async (e) => {
+        e.preventDefault()
+        setReverseLoading(true)
+        setReverseResult(null)
+
+        try {
+          const response = await solverServices.generateReverseMeal(formData)
+          setReverseResult(response)
+        } catch (err) {
+          toast.error(err.response?.data?.message || err.message || 'Failed to generate shopping list')
+        } finally {
+          setReverseLoading(false)
+        }
+      }
 
     const toggleMealSelection = (index) => {
         if (selectedMeals.includes(index)) {
@@ -182,25 +200,40 @@ const Generator = () => {
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white transition-all duration-200
-                  ${loading 
-                    ? 'bg-emerald-400 cursor-not-allowed' 
-                    : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 hover:shadow-md hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500'
-                  }`}
-              >
-                {loading ? (
-                  <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Calculating...
-                  </span>
-                ) : 'Generate Meal Plan'}
-              </button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white transition-all duration-200
+                    ${loading 
+                      ? 'bg-emerald-400 cursor-not-allowed' 
+                      : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 hover:shadow-md hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500'
+                    }`}
+                >
+                  {loading ? (
+                    <span className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Pantry-Based
+                    </span>
+                  ) : 'Generate (Pantry)'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onSubmitReverse}
+                  disabled={reverseLoading}
+                  className={`w-full flex justify-center py-2.5 px-4 border border-slate-200 rounded-xl shadow-sm text-sm font-medium transition-all duration-200
+                    ${reverseLoading 
+                      ? 'bg-slate-100 text-slate-500 cursor-not-allowed' 
+                      : 'bg-white text-slate-800 hover:border-emerald-300 hover:text-emerald-700 hover:shadow-md hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500'
+                    }`}
+                >
+                  {reverseLoading ? 'Building list...' : 'Generate Shopping List'}
+                </button>
+              </div>
             </form>
             
           </div>
@@ -284,6 +317,120 @@ const Generator = () => {
                 <h3 className="text-base font-medium text-slate-900">No Meal Plan Generated</h3>
                 <p className="mt-1 text-sm text-slate-500">Enter your targets on the left to get started.</p>
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* Reverse Generator Output */}
+        <div className="mt-10">
+          <div className="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Shopping List (Full Library)</h3>
+                <p className="text-sm text-slate-500">We use every ingredient in the database, then show what you need to buy to hit your targets.</p>
+              </div>
+              {reverseResult && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">
+                  Plan ready
+                </span>
+              )}
+            </div>
+
+            {reverseResult ? (
+              <div className="p-6 space-y-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                    <div className="text-xs text-slate-500 mb-1">Target Protein</div>
+                    <div className="font-semibold text-slate-900">{reverseResult.macros?.target?.protein}g</div>
+                  </div>
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                    <div className="text-xs text-slate-500 mb-1">Target Carbs</div>
+                    <div className="font-semibold text-slate-900">{reverseResult.macros?.target?.carbs}g</div>
+                  </div>
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                    <div className="text-xs text-slate-500 mb-1">Target Fats</div>
+                    <div className="font-semibold text-slate-900">{reverseResult.macros?.target?.fats}g</div>
+                  </div>
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                    <div className="text-xs text-slate-500 mb-1">Calories (achieved)</div>
+                    <div className="font-semibold text-slate-900">{reverseResult.macros?.achieved?.calories?.toFixed?.(1) || reverseResult.macros?.achieved?.calories}</div>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="border border-slate-100 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-semibold text-slate-800">Meal Plan (grams)</h4>
+                      <span className="text-xs text-slate-500">From full ingredient library</span>
+                    </div>
+                    {reverseResult.plan && Object.keys(reverseResult.plan).length > 0 ? (
+                      <ul className="divide-y divide-slate-100">
+                        {Object.entries(reverseResult.plan).map(([name, grams]) => (
+                          <li key={name} className="py-2 flex justify-between items-center">
+                            <span className="text-sm text-slate-900 font-medium">{name}</span>
+                            <span className="text-xs font-semibold text-slate-700 bg-slate-100 rounded-full px-2.5 py-1">{grams}g</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-slate-500">No ingredients selected.</p>
+                    )}
+                  </div>
+
+                  <div className="border border-slate-100 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-semibold text-slate-800">Shopping List</h4>
+                      <span className="text-xs text-slate-500">What you need beyond your pantry</span>
+                    </div>
+                    {reverseResult.shoppingList && reverseResult.shoppingList.length > 0 ? (
+                      <ul className="divide-y divide-slate-100">
+                        {reverseResult.shoppingList.map(item => (
+                          <li key={item.name} className="py-2 flex justify-between items-center">
+                            <span className="text-sm text-slate-900 font-medium">{item.name}</span>
+                            <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full px-2.5 py-1">{Math.round(item.amount)}g</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-slate-500">Nothing to buy — your pantry covers this plan.</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="border border-slate-100 rounded-xl p-4">
+                  <h4 className="text-sm font-semibold text-slate-800 mb-2">Pantry Usage</h4>
+                  {reverseResult.pantryUsage && reverseResult.pantryUsage.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-slate-100 text-sm">
+                        <thead className="bg-slate-50">
+                          <tr>
+                            <th className="px-3 py-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Ingredient</th>
+                            <th className="px-3 py-2 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Needed</th>
+                            <th className="px-3 py-2 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">From Pantry</th>
+                            <th className="px-3 py-2 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Shortfall</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {reverseResult.pantryUsage.map(row => (
+                            <tr key={row.name}>
+                              <td className="px-3 py-2 text-slate-900 font-medium">{row.name}</td>
+                              <td className="px-3 py-2 text-right text-slate-700">{Math.round(row.needed)}g</td>
+                              <td className="px-3 py-2 text-right text-slate-700">{Math.round(row.fromPantry)}g</td>
+                              <td className={`px-3 py-2 text-right font-semibold ${row.shortfall > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
+                                {Math.round(row.shortfall)}g
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-slate-500">No pantry data available.</p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 text-sm text-slate-500">Run "Generate Shopping List" to see what to buy.</div>
             )}
           </div>
         </div>
