@@ -2,18 +2,28 @@ const PantryItem = require("../models/PantryItem")
 const Ingredient = require("../models/Ingredient")
 const MealLog = require("../models/MealLog")
 
+const toPantryItemResponse = (item) => {
+    const plain = item.toObject ? item.toObject() : item
+    const threshold = plain.threshold != null ? plain.threshold : 100
+    return {
+        ...plain,
+        threshold,
+        isLowStock: plain.quantity < threshold
+    }
+}
+
 
 const getPantryItems = async(req, res) => {
     try {
         const pantryItems = await PantryItem.find({user: req.user.id}).populate('ingredient')
-        res.status(200).json(pantryItems)
+        res.status(200).json(pantryItems.map(toPantryItemResponse))
     } catch (err) {
         res.status(500).json({message: err.message})
     }
 }
 
 const postPantryItem = async(req, res) => {
-    const { ingredientId, quantity} = req.body
+    const { ingredientId, quantity, threshold } = req.body
 
     if (!ingredientId || quantity == undefined) {
         return res.status(400).json({message: "Please complete all fields"})
@@ -33,13 +43,14 @@ const postPantryItem = async(req, res) => {
         const newItem = await PantryItem.create({
             user: req.user.id,
             ingredient: ingredientId,
-            quantity
+            quantity,
+            threshold: threshold != null ? threshold : 100
         })
 
         // Populate immediately so frontend can display it
         const populatedItem = await newItem.populate('ingredient')
         
-        res.status(201).json(populatedItem)
+        res.status(201).json(toPantryItemResponse(populatedItem))
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
@@ -47,17 +58,29 @@ const postPantryItem = async(req, res) => {
 
 const updatePantryItem = async(req, res) => {
     const { id } = req.params
-    const { quantity } = req.body
+    const { quantity, threshold } = req.body
 
-    if (quantity === undefined || quantity < 0) {
-        return res.status(400).json({ message: "Please provide a valid quantity" })
+    const updateFields = {}
+
+    if (quantity !== undefined) {
+        if (quantity < 0) return res.status(400).json({ message: "Please provide a valid quantity" })
+        updateFields.quantity = quantity
+    }
+
+    if (threshold !== undefined) {
+        if (threshold < 0) return res.status(400).json({ message: "Please provide a valid threshold" })
+        updateFields.threshold = threshold
+    }
+
+    if (Object.keys(updateFields).length === 0) {
+        return res.status(400).json({ message: "No valid fields to update" })
     }
 
     try {
         // Ensure user owns the item they are updating
         const updatedItem = await PantryItem.findOneAndUpdate(
             { _id: id, user: req.user.id },
-            { quantity },
+            updateFields,
             { new: true } // Return the updated document
         ).populate('ingredient')
 
@@ -65,7 +88,7 @@ const updatePantryItem = async(req, res) => {
             return res.status(404).json({ message: "Pantry item not found" })
         }
 
-        res.status(200).json(updatedItem)
+        res.status(200).json(toPantryItemResponse(updatedItem))
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
@@ -182,4 +205,20 @@ const getMealHistory = async (req, res) => {
     }
 }
 
-module.exports = {getPantryItems, postPantryItem, deletePantryItem, updatePantryItem, consumePantryItems, getMealHistory}
+const getLowStockItems = async (req, res) => {
+    try {
+        const pantryItems = await PantryItem.find({ user: req.user.id }).populate('ingredient')
+        const lowStock = pantryItems
+            .filter(item => {
+                const threshold = item.threshold != null ? item.threshold : 100
+                return item.quantity < threshold
+            })
+            .map(toPantryItemResponse)
+
+        res.status(200).json(lowStock)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+}
+
+module.exports = {getPantryItems, postPantryItem, deletePantryItem, updatePantryItem, consumePantryItems, getMealHistory, getLowStockItems}

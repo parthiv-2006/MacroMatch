@@ -3,7 +3,8 @@ const mongoose = require("mongoose")
 const PantryItemSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
     ingredient: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Ingredient' },
-    quantity: { type: Number, required: true, min: 0 }
+    quantity: { type: Number, required: true, min: 0 },
+    threshold: { type: Number, default: 100, min: 0 }
 }, { timestamps: true })
 
 // Ensure a user can only have one entry per ingredient
