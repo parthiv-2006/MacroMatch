@@ -54,18 +54,18 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#f8fafc]">
       {/* Navigation Bar */}
-      <nav className="bg-white shadow-sm border-b border-slate-200">
+      <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <span className="text-2xl font-bold text-emerald-600 tracking-tight">MacroMatch</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-emerald-500 to-teal-500 text-transparent bg-clip-text tracking-tight">MacroMatch</span>
             </div>
             <div className="flex items-center">
               <button 
                 onClick={() => logout()}
-                className="ml-4 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-slate-600 bg-slate-100 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors"
+                className="ml-4 px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all duration-200"
               >
                 Logout
               </button>
@@ -78,71 +78,89 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         <div className="md:flex md:items-center md:justify-between mb-8">
           <div className="flex-1 min-w-0">
-            <h2 className="text-2xl font-bold leading-7 text-slate-900 sm:text-3xl sm:truncate">
+            <h2 className="text-3xl font-bold leading-7 text-slate-900 sm:truncate tracking-tight">
               My Kitchen Pantry
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-500">
               Manage your ingredients and track your inventory.
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Left Column: Add Item & Actions */}
-          <div className="space-y-6 lg:col-span-1">
+          <div className="space-y-8 lg:col-span-1">
             {/* Add Item Card */}
-            <div className="bg-white shadow rounded-lg p-6 border border-slate-100">
+            <div className="bg-white shadow-sm rounded-xl p-6 border border-slate-200">
               <AddItemForm onItemAdded={fetchPantry}/>
             </div>
 
             {/* Quick Actions Card */}
-            <div className="bg-white shadow rounded-lg p-6 border border-slate-100">
-              <h3 className="text-lg font-medium text-slate-900 mb-4">Quick Actions</h3>
-              <div className="space-y-3">
+            <div className="bg-white shadow-sm rounded-xl p-6 border border-slate-200">
+              <h3 className="text-lg font-semibold text-slate-900 mb-6">Quick Actions</h3>
+              <div className="space-y-4">
                 <button 
                   onClick={() => handleNavigate('/new-ingredient')}
-                  className="w-full flex items-center justify-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors"
+                  className="w-full group flex items-center justify-center px-4 py-3 border border-slate-200 shadow-sm text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02]"
                 >
-                  <span className="mr-2">+</span> Create New Ingredient
+                  <span className="mr-3 text-emerald-500 bg-emerald-50 rounded-full p-1 group-hover:bg-emerald-100 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </span>
+                  Create New Ingredient
                 </button>
                 <button 
                   onClick={() => handleNavigate('/generate')}
-                  className="w-full flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors"
+                  className="w-full flex items-center justify-center px-4 py-3 border border-transparent shadow-sm text-sm font-medium rounded-xl text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
                 >
                   <span className="mr-2">⚡</span> Generate Meal Plan
                 </button>
                 <button 
                   onClick={() => handleNavigate('/history')}
-                  className="w-full flex items-center justify-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors"
+                  className="w-full group flex items-center justify-center px-4 py-3 border border-slate-200 shadow-sm text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02]"
                 >
-                  <span className="mr-2">📅</span> View Meal History
+                  <span className="mr-3 text-blue-500 bg-blue-50 rounded-full p-1 group-hover:bg-blue-100 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </span>
+                  View Meal History
                 </button>
                 <button 
                   onClick={() => handleNavigate('/recipes')}
-                  className="w-full flex items-center justify-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors"
+                  className="w-full group flex items-center justify-center px-4 py-3 border border-slate-200 shadow-sm text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02]"
                 >
-                  <span className="mr-2">📖</span> My Recipes
+                  <span className="mr-3 text-amber-500 bg-amber-50 rounded-full p-1 group-hover:bg-amber-100 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </span>
+                  My Recipes
                 </button>
               </div>
-              <p className="mt-4 text-xs text-slate-400 text-center">
-                Can't find an ingredient? Create it first.
+              <p className="mt-6 text-xs text-slate-400 text-center font-medium">
+                Can't find an ingredient? <button onClick={() => handleNavigate('/new-ingredient')} className="text-emerald-600 hover:text-emerald-700 hover:underline">Create it first</button>.
               </p>
             </div>
           </div>
 
           {/* Right Column: Pantry List */}
           <div className="lg:col-span-2">
-            <div className="bg-white shadow rounded-lg border border-slate-100 overflow-hidden">
-              <div className="p-6 border-b border-slate-100">
-                <h3 className="text-lg font-medium text-slate-900">Current Inventory</h3>
+            <div className="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden h-full flex flex-col">
+              <div className="px-6 py-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-slate-900">Current Inventory</h3>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                  {pantryItems.length} Items
+                </span>
               </div>
-              <div className="p-6">
+              <div className="p-0 flex-grow">
                 {loading ? (
-                  <div className="flex justify-center py-10">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                  <div className="flex justify-center py-20">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-500"></div>
                   </div>
                 ) : error ? (
-                  <div className="text-red-500 text-center py-4">{error}</div>
+                  <div className="text-red-500 text-center py-10 bg-red-50 m-6 rounded-lg border border-red-100">{error}</div>
                 ) : (
                   <PantryList items={pantryItems} onDelete={handleDelete} onUpdate={handleUpdate}/>
                 )}
