@@ -5,6 +5,7 @@ const { protect } = require("../middleware/authMiddleware")
 
 
 router.get("/", protect, pantryController.getPantryItems)
+router.get("/history", protect, pantryController.getMealHistory)
 router.post("/", protect, pantryController.postPantryItem)
 router.post("/consume", protect, pantryController.consumePantryItems)
 router.put("/:id", protect, pantryController.updatePantryItem)

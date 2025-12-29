@@ -1,5 +1,6 @@
 const PantryItem = require("../models/PantryItem")
 const Ingredient = require("../models/Ingredient")
+const MealLog = require("../models/MealLog")
 
 
 const getPantryItems = async(req, res) => {
@@ -96,6 +97,10 @@ const consumePantryItems = async (req, res) => {
     try {
         const updates = []
         const errors = []
+        
+        // For Meal Logging
+        const mealItems = []
+        const mealTotalMacros = { calories: 0, protein: 0, carbs: 0, fats: 0 }
 
         for (const [name, amountToConsume] of Object.entries(ingredients)) {
             // 1. Find Ingredient ID
@@ -129,6 +134,36 @@ const consumePantryItems = async (req, res) => {
                 await pantryItem.save()
                 updates.push({ name, status: "Updated", remaining: newQuantity })
             }
+
+            // 4. Calculate Macros for Log
+            const ratio = amountToConsume / ingredientDoc.servingSize
+            const itemMacros = {
+                calories: ingredientDoc.calories * ratio,
+                protein: ingredientDoc.protein * ratio,
+                carbs: ingredientDoc.carbs * ratio,
+                fats: ingredientDoc.fats * ratio
+            }
+
+            mealItems.push({
+                ingredientName: name,
+                ingredient: ingredientDoc._id,
+                amount: amountToConsume,
+                macros: itemMacros
+            })
+
+            mealTotalMacros.calories += itemMacros.calories
+            mealTotalMacros.protein += itemMacros.protein
+            mealTotalMacros.carbs += itemMacros.carbs
+            mealTotalMacros.fats += itemMacros.fats
+        }
+
+        // 5. Create Meal Log if items were consumed
+        if (mealItems.length > 0) {
+            await MealLog.create({
+                user: req.user.id,
+                items: mealItems,
+                totalMacros: mealTotalMacros
+            })
         }
 
         res.status(200).json({ success: true, updates, errors })
@@ -138,4 +173,13 @@ const consumePantryItems = async (req, res) => {
     }
 }
 
-module.exports = {getPantryItems, postPantryItem, deletePantryItem, updatePantryItem, consumePantryItems}
+const getMealHistory = async (req, res) => {
+    try {
+        const history = await MealLog.find({ user: req.user.id }).sort({ date: -1 })
+        res.status(200).json(history)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+}
+
+module.exports = {getPantryItems, postPantryItem, deletePantryItem, updatePantryItem, consumePantryItems, getMealHistory}
