@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import pantryServices from '../services/pantryServices'
+import recipeServices from '../services/recipeServices'
 import { toast } from 'react-toastify'
 
 const History = () => {
@@ -22,6 +23,30 @@ const History = () => {
 
         fetchHistory()
     }, [])
+
+    const handleSaveRecipe = async (log) => {
+        const name = window.prompt('Enter a name for this recipe:', `Meal from ${new Date(log.date).toLocaleDateString()}`)
+        if (!name) return
+
+        try {
+            // Transform ingredients array to object { "Name": Amount } expected by backend
+            const ingredientsObj = {}
+            log.items.forEach(item => {
+                ingredientsObj[item.ingredientName] = item.amount
+            })
+
+            const recipeData = {
+                name,
+                ingredients: ingredientsObj
+            }
+            
+            await recipeServices.createRecipe(recipeData)
+            toast.success('Recipe saved successfully!')
+        } catch (err) {
+            console.error(err)
+            toast.error('Failed to save recipe')
+        }
+    }
 
     const formatDate = (dateString) => {
         const options = { 
@@ -74,8 +99,20 @@ const History = () => {
                                         </div>
                                         <span className="font-medium text-slate-700">{formatDate(log.date)}</span>
                                     </div>
-                                    <div className="text-sm text-slate-500">
-                                        {log.items.length} item{log.items.length !== 1 ? 's' : ''}
+                                    <div className="flex items-center space-x-4">
+                                        <button
+                                            onClick={() => handleSaveRecipe(log)}
+                                            className="text-sm text-emerald-600 hover:text-emerald-700 font-medium flex items-center transition-colors"
+                                            title="Save as Recipe"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                            </svg>
+                                            Save
+                                        </button>
+                                        <div className="text-sm text-slate-500">
+                                            {log.items.length} item{log.items.length !== 1 ? 's' : ''}
+                                        </div>
                                     </div>
                                 </div>
                                 
