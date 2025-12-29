@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import solverServices from "../services/solverServices";
 import pantryServices from "../services/pantryServices";
@@ -13,6 +13,7 @@ const Generator = () => {
     const [consuming, setConsuming] = useState(false)
     const [reverseLoading, setReverseLoading] = useState(false)
     const [reverseResult, setReverseResult] = useState(null)
+    const shoppingListRef = useRef(null)
     const navigate = useNavigate()
     
     const onChange = (e) => {
@@ -46,6 +47,7 @@ const Generator = () => {
         try {
           const response = await solverServices.generateReverseMeal(formData)
           setReverseResult(response)
+          shoppingListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
         } catch (err) {
           toast.error(err.response?.data?.message || err.message || 'Failed to generate shopping list')
         } finally {
@@ -110,7 +112,7 @@ const Generator = () => {
     
     return (
     <div className="min-h-screen bg-[#f8fafc] py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Header with Back Button */}
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center">
@@ -141,9 +143,9 @@ const Generator = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Input Section */}
-          <div className="bg-white shadow-sm rounded-xl p-6 border border-slate-200 h-fit">
+          <div className="bg-white shadow-sm rounded-xl p-6 border border-slate-200 h-fit lg:col-span-1">
             <h2 className="text-lg font-semibold text-slate-900 mb-6">Target Macros</h2>
             <form onSubmit={onSubmit} className="space-y-5">
               <div>
@@ -216,7 +218,7 @@ const Generator = () => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Pantry-Based
+                      Pantry mode
                     </span>
                   ) : 'Generate (Pantry)'}
                 </button>
@@ -234,19 +236,27 @@ const Generator = () => {
                   {reverseLoading ? 'Building list...' : 'Generate Shopping List'}
                 </button>
               </div>
+
+              <div className="pt-1">
+                <p className="text-xs text-slate-500">
+                  <span className="font-semibold text-slate-700">Pantry:</span> uses only what you own.{' '}
+                  <span className="font-semibold text-slate-700">Shopping list:</span> uses the full ingredient library and shows what you're missing.
+                </p>
+              </div>
             </form>
             
           </div>
 
           {/* Results Section */}
-          <div className="space-y-6">
+          <div className="lg:col-span-2">
             {mealPlans.length > 0 ? (
-              mealPlans.map((plan, index) => (
-              <div 
-                key={index} 
-                className={`bg-white shadow-sm rounded-xl border overflow-hidden transition-all duration-200 cursor-pointer ${selectedMeals.includes(index) ? 'ring-2 ring-emerald-500 border-emerald-500 shadow-md' : 'border-slate-200 hover:border-emerald-300 hover:shadow-md'}`}
-                onClick={() => toggleMealSelection(index)}
-              >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {mealPlans.map((plan, index) => (
+                <div 
+                  key={index} 
+                  className={`bg-white shadow-sm rounded-xl border overflow-hidden transition-all duration-200 cursor-pointer ${selectedMeals.includes(index) ? 'ring-2 ring-emerald-500 border-emerald-500 shadow-md' : 'border-slate-200 hover:border-emerald-300 hover:shadow-md'}`}
+                  onClick={() => toggleMealSelection(index)}
+                >
                 <div className={`px-6 py-4 flex justify-between items-center ${selectedMeals.includes(index) ? 'bg-gradient-to-r from-emerald-600 to-teal-600' : 'bg-gradient-to-r from-emerald-500 to-teal-500'}`}>
                   <h2 className="text-lg font-medium text-white flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -305,35 +315,43 @@ const Generator = () => {
                     </div>
                   </div>
                 </div>
+                </div>
+                ))}
               </div>
-              ))
             ) : (
-              <div className="bg-white rounded-xl border-2 border-dashed border-slate-200 p-12 text-center h-full flex flex-col justify-center items-center">
+              <div className="bg-white rounded-xl border-2 border-dashed border-slate-200 p-12 text-center flex flex-col justify-center items-center">
                 <div className="bg-slate-50 p-4 rounded-full mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                   </svg>
                 </div>
                 <h3 className="text-base font-medium text-slate-900">No Meal Plan Generated</h3>
-                <p className="mt-1 text-sm text-slate-500">Enter your targets on the left to get started.</p>
+                <p className="mt-1 text-sm text-slate-500">Enter your targets to get started.</p>
               </div>
             )}
           </div>
         </div>
 
         {/* Reverse Generator Output */}
-        <div className="mt-10">
+        <div ref={shoppingListRef} className="mt-10">
           <div className="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-slate-900">Shopping List (Full Library)</h3>
                 <p className="text-sm text-slate-500">We use every ingredient in the database, then show what you need to buy to hit your targets.</p>
               </div>
-              {reverseResult && (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">
-                  Plan ready
-                </span>
-              )}
+              <div className="flex items-center space-x-2">
+                {reverseResult?.shoppingList && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 border border-amber-200">
+                    {reverseResult.shoppingList.length} to buy
+                  </span>
+                )}
+                {reverseResult && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">
+                    Ready
+                  </span>
+                )}
+              </div>
             </div>
 
             {reverseResult ? (
@@ -357,14 +375,14 @@ const Generator = () => {
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid lg:grid-cols-2 gap-6">
                   <div className="border border-slate-100 rounded-xl p-4">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="text-sm font-semibold text-slate-800">Meal Plan (grams)</h4>
                       <span className="text-xs text-slate-500">From full ingredient library</span>
                     </div>
                     {reverseResult.plan && Object.keys(reverseResult.plan).length > 0 ? (
-                      <ul className="divide-y divide-slate-100">
+                      <ul className="divide-y divide-slate-100 max-h-72 overflow-auto pr-1">
                         {Object.entries(reverseResult.plan).map(([name, grams]) => (
                           <li key={name} className="py-2 flex justify-between items-center">
                             <span className="text-sm text-slate-900 font-medium">{name}</span>
@@ -383,7 +401,7 @@ const Generator = () => {
                       <span className="text-xs text-slate-500">What you need beyond your pantry</span>
                     </div>
                     {reverseResult.shoppingList && reverseResult.shoppingList.length > 0 ? (
-                      <ul className="divide-y divide-slate-100">
+                      <ul className="divide-y divide-slate-100 max-h-72 overflow-auto pr-1">
                         {reverseResult.shoppingList.map(item => (
                           <li key={item.name} className="py-2 flex justify-between items-center">
                             <span className="text-sm text-slate-900 font-medium">{item.name}</span>
@@ -430,7 +448,7 @@ const Generator = () => {
                 </div>
               </div>
             ) : (
-              <div className="p-6 text-sm text-slate-500">Run "Generate Shopping List" to see what to buy.</div>
+              <div className="p-6 text-sm text-slate-500">Click “Generate Shopping List” to see what to buy.</div>
             )}
           </div>
         </div>

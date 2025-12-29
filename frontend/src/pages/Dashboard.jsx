@@ -82,6 +82,14 @@ const Dashboard = () => {
     }
   }
 
+  const promptAndUpdateThreshold = (item) => {
+    const next = window.prompt('Set low-stock threshold (grams)', item.threshold ?? 100)
+    if (next === null || next === '') return
+    const numeric = Number(next)
+    if (Number.isNaN(numeric) || numeric < 0) return alert('Please enter a valid non-negative number')
+    handleUpdateThreshold(item._id, numeric)
+  }
+
   return (
     <div className="min-h-screen bg-[#f8fafc]">
       {/* Navigation Bar */}
@@ -140,7 +148,7 @@ const Dashboard = () => {
                         <p className="text-xs text-slate-500">{Math.round(item.quantity)}g left • threshold {item.threshold ?? 100}g</p>
                       </div>
                       <button
-                        onClick={() => handleUpdateThreshold(item._id, item.threshold ?? 100)}
+                        onClick={() => promptAndUpdateThreshold(item)}
                         className="text-xs font-semibold text-emerald-600 hover:underline"
                       >
                         Adjust

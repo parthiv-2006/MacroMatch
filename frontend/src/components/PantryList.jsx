@@ -6,7 +6,17 @@ const PantryList = ({ items, onDelete, onUpdate, onUpdateThreshold }) => {
   const [editQty, setEditQty] = useState('')
 
   if (!items || items.length === 0) {
-    return <p>Your pantry is empty. Add some food!</p>
+    return (
+      <div className="p-10 text-center">
+        <div className="bg-slate-50 p-4 rounded-full inline-block mb-4 border border-slate-100">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h18v4H3V3zm2 6h14l-1 12H6L5 9zm4 2v8m6-8v8" />
+          </svg>
+        </div>
+        <h3 className="text-base font-semibold text-slate-900">Your pantry is empty</h3>
+        <p className="mt-1 text-sm text-slate-500">Add an item to start tracking quantities and macros.</p>
+      </div>
+    )
   }
 
   const handleThreshold = (item) => {
