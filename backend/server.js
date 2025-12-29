@@ -9,6 +9,7 @@ const userRoutes = require("./routes/userRoutes")
 const pantryRoutes = require("./routes/pantryRoutes")
 const ingredientRoutes = require("./routes/ingredientRoutes")
 const solverRoutes = require("./routes/solverRoutes")
+const { errorHandler } = require("./middleware/errorMiddleware")
 
 app.use(express.json())
 app.use(cors())
@@ -21,6 +22,8 @@ app.use("/api/generate", solverRoutes)
 app.get("/", (req, res) => {
     res.send("Server Working")
 })
+
+app.use(errorHandler)
 
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {
