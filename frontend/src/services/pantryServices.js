@@ -34,5 +34,11 @@ const deletePantryItem = async (id) => {
     return response.data
 }
 
-const pantryServices = {getPantryItems, addPantryItem, updatePantryItem, deletePantryItem}
+const consumePantryItems = async (ingredients) => {
+    const config = { headers: getAuthHeader() }
+    const response = await axios.post(API_URL + 'consume', { ingredients }, config)
+    return response.data
+}
+
+const pantryServices = {getPantryItems, addPantryItem, updatePantryItem, deletePantryItem, consumePantryItems}
 export default pantryServices

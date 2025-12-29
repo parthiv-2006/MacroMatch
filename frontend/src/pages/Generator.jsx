@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import solverServices from "../services/solverServices";
+import pantryServices from "../services/pantryServices";
 
 const Generator = () => {
     const [formData, setFormData] = useState({targetProtein: '', targetCarbs: '', targetFats: ''})
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
-    const [mealPlan, setMealPlan] = useState(null)
+    const [mealPlans, setMealPlans] = useState([])
+    const [selectedMeals, setSelectedMeals] = useState([])
+    const [consuming, setConsuming] = useState(false)
     const navigate = useNavigate()
     
     const onChange = (e) => {
@@ -19,15 +22,54 @@ const Generator = () => {
         e.preventDefault()
         setLoading(true)
         setError('')
-        setMealPlan(null)
+        setMealPlans([])
+        setSelectedMeals([])
 
         try {
             const response = await solverServices.generateMeal(formData)
-            setMealPlan(response.mealPlan)
+            setMealPlans(response.mealPlans)
         } catch (err) {
             setError(err.message || 'Failed to generate meal plan')
         } finally {
             setLoading(false)
+        }
+    }
+
+    const toggleMealSelection = (index) => {
+        if (selectedMeals.includes(index)) {
+            setSelectedMeals(selectedMeals.filter(i => i !== index))
+        } else {
+            setSelectedMeals([...selectedMeals, index])
+        }
+    }
+
+    const handleConsume = async () => {
+        if (selectedMeals.length === 0) return
+        if (!window.confirm(`Are you sure you want to consume ${selectedMeals.length} meal(s)? This will remove items from your pantry.`)) return
+
+        setConsuming(true)
+        try {
+            // Aggregate ingredients from all selected meals
+            const aggregatedIngredients = {}
+            
+            selectedMeals.forEach(index => {
+                const plan = mealPlans[index]
+                Object.entries(plan).forEach(([ingredient, amount]) => {
+                    if (aggregatedIngredients[ingredient]) {
+                        aggregatedIngredients[ingredient] += amount
+                    } else {
+                        aggregatedIngredients[ingredient] = amount
+                    }
+                })
+            })
+
+            await pantryServices.consumePantryItems(aggregatedIngredients)
+            alert("Meals consumed! Pantry updated.")
+            navigate('/')
+        } catch (err) {
+            setError(err.response?.data?.message || "Failed to consume meals")
+        } finally {
+            setConsuming(false)
         }
     }
     
@@ -36,21 +78,33 @@ const Generator = () => {
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         {/* Header with Back Button */}
-        <div className="mb-8 flex items-center">
-          <button 
-            onClick={() => navigate('/')}
-            className="mr-4 p-2 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-          </button>
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Meal Generator</h1>
-            <p className="mt-1 text-sm text-slate-500">
-              Let our algorithm build the perfect meal from your pantry.
-            </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div className="flex items-center">
+            <button 
+                onClick={() => navigate('/')}
+                className="mr-4 p-2 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </button>
+            <div>
+                <h1 className="text-3xl font-bold text-slate-900">Meal Generator</h1>
+                <p className="mt-1 text-sm text-slate-500">
+                Let our algorithm build the perfect meal from your pantry.
+                </p>
+            </div>
           </div>
+          
+          {selectedMeals.length > 0 && (
+              <button
+                onClick={handleConsume}
+                disabled={consuming}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+              >
+                  {consuming ? 'Updating...' : `Consume Selected (${selectedMeals.length})`}
+              </button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -151,21 +205,29 @@ const Generator = () => {
 
           {/* Results Section */}
           <div className="space-y-6">
-            {mealPlan ? (
-              <div className="bg-white shadow rounded-lg border border-slate-100 overflow-hidden">
-                <div className="bg-emerald-600 px-6 py-4">
+            {mealPlans.length > 0 ? (
+              mealPlans.map((plan, index) => (
+              <div 
+                key={index} 
+                className={`bg-white shadow rounded-lg border overflow-hidden transition-all cursor-pointer ${selectedMeals.includes(index) ? 'ring-2 ring-emerald-500 border-emerald-500' : 'border-slate-100 hover:border-emerald-300'}`}
+                onClick={() => toggleMealSelection(index)}
+              >
+                <div className={`px-6 py-4 flex justify-between items-center ${selectedMeals.includes(index) ? 'bg-emerald-700' : 'bg-emerald-600'}`}>
                   <h2 className="text-lg font-medium text-white flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Optimal Solution Found
+                    Option {index + 1}
                   </h2>
+                  {selectedMeals.includes(index) && (
+                      <span className="bg-white text-emerald-600 text-xs font-bold px-2 py-1 rounded-full">Selected</span>
+                  )}
                 </div>
                 <div className="p-6">
                   <div className="space-y-4">
-                    {Object.entries(mealPlan).length > 0 ? (
+                    {Object.entries(plan).length > 0 ? (
                       <ul className="divide-y divide-slate-100">
-                        {Object.entries(mealPlan).map(([ingredient, amount]) => (
+                        {Object.entries(plan).map(([ingredient, amount]) => (
                           <li key={ingredient} className="py-3 flex justify-between items-center">
                             <span className="text-slate-900 font-medium">{ingredient}</span>
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
@@ -198,6 +260,7 @@ const Generator = () => {
                   </div>
                 </div>
               </div>
+              ))
             ) : (
               <div className="bg-slate-50 rounded-lg border-2 border-dashed border-slate-300 p-12 text-center h-full flex flex-col justify-center items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-slate-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
