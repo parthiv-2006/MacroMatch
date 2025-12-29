@@ -9,6 +9,7 @@ const userRoutes = require("./routes/userRoutes")
 const pantryRoutes = require("./routes/pantryRoutes")
 const ingredientRoutes = require("./routes/ingredientRoutes")
 const solverRoutes = require("./routes/solverRoutes")
+const recipeRoutes = require("./routes/recipeRoutes")
 const { errorHandler } = require("./middleware/errorMiddleware")
 
 app.use(express.json())
@@ -18,6 +19,7 @@ app.use("/api/user", userRoutes)
 app.use("/api/pantry", pantryRoutes)
 app.use("/api/ingredients", ingredientRoutes)
 app.use("/api/generate", solverRoutes)
+app.use("/api/recipes", recipeRoutes)
 
 app.get("/", (req, res) => {
     res.send("Server Working")
