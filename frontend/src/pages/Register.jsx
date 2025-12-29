@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import AuthContext from '../context/AuthContext'
 import { useNavigate, Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 const Register = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' })
@@ -26,7 +27,7 @@ const Register = () => {
       navigate('/', { replace: true })
     } catch (err) {
       const message = err.response?.data?.message || 'Registration Failed'
-      alert(message)
+      toast.error(message)
     }
   }
 

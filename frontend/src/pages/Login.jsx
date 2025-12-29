@@ -1,6 +1,7 @@
 import {useState, useContext, useEffect} from 'react'
 import AuthContext from '../context/AuthContext'
 import { useNavigate, Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 const Login = () => {
   const [formData, setFormData] = useState({email: '', password: ''})
@@ -20,7 +21,7 @@ const Login = () => {
         navigate('/')
     } catch (err) {
         const message = err?.response?.data?.message || err?.message || 'Login Failed'
-        alert(message)
+        toast.error(message)
     }
   }
   

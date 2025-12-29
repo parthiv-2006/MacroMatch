@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import solverServices from "../services/solverServices";
 import pantryServices from "../services/pantryServices";
+import { toast } from "react-toastify";
 
 const Generator = () => {
     const [formData, setFormData] = useState({targetProtein: '', targetCarbs: '', targetFats: ''})
     const [loading, setLoading] = useState(false)
-    const [error, setError] = useState('')
     const [mealPlans, setMealPlans] = useState([])
     const [selectedMeals, setSelectedMeals] = useState([])
     const [consuming, setConsuming] = useState(false)
@@ -21,7 +21,6 @@ const Generator = () => {
     const onSubmit = async(e) => {
         e.preventDefault()
         setLoading(true)
-        setError('')
         setMealPlans([])
         setSelectedMeals([])
 
@@ -29,7 +28,7 @@ const Generator = () => {
             const response = await solverServices.generateMeal(formData)
             setMealPlans(response.mealPlans)
         } catch (err) {
-            setError(err.message || 'Failed to generate meal plan')
+            toast.error(err.message || 'Failed to generate meal plan')
         } finally {
             setLoading(false)
         }
@@ -64,10 +63,10 @@ const Generator = () => {
             })
 
             await pantryServices.consumePantryItems(aggregatedIngredients)
-            alert("Meals consumed! Pantry updated.")
+            toast.success("Meals consumed! Pantry updated.")
             navigate('/')
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to consume meals")
+            toast.error(err.response?.data?.message || "Failed to consume meals")
         } finally {
             setConsuming(false)
         }
@@ -187,20 +186,6 @@ const Generator = () => {
               </button>
             </form>
             
-            {error && (
-              <div className="mt-4 p-3 rounded-md bg-red-50 border border-red-200">
-                <div className="flex">
-                  <div className="shrink-0">
-                    <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-red-700">{error}</p>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Results Section */}
