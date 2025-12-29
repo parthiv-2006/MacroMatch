@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import solverServices from "../services/solverServices";
 import pantryServices from "../services/pantryServices";
+import recipeServices from "../services/recipeServices";
 import { toast } from "react-toastify";
 
 const Generator = () => {
@@ -69,6 +70,22 @@ const Generator = () => {
             toast.error(err.response?.data?.message || "Failed to consume meals")
         } finally {
             setConsuming(false)
+        }
+    }
+
+    const handleSaveRecipe = async (e, plan) => {
+        e.stopPropagation() // Prevent card selection
+        const name = prompt("Enter a name for this recipe:")
+        if (!name) return
+
+        try {
+            await recipeServices.createRecipe({
+                name,
+                ingredients: plan
+            })
+            toast.success("Recipe saved successfully!")
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Failed to save recipe")
         }
     }
     
@@ -204,9 +221,20 @@ const Generator = () => {
                     </svg>
                     Option {index + 1}
                   </h2>
-                  {selectedMeals.includes(index) && (
-                      <span className="bg-white text-emerald-600 text-xs font-bold px-2 py-1 rounded-full">Selected</span>
-                  )}
+                  <div className="flex items-center space-x-2">
+                    <button
+                        onClick={(e) => handleSaveRecipe(e, plan)}
+                        className="p-1 rounded-full hover:bg-emerald-500 text-white transition-colors"
+                        title="Save as Recipe"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </button>
+                    {selectedMeals.includes(index) && (
+                        <span className="bg-white text-emerald-600 text-xs font-bold px-2 py-1 rounded-full">Selected</span>
+                    )}
+                  </div>
                 </div>
                 <div className="p-6">
                   <div className="space-y-4">

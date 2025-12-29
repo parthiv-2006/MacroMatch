@@ -1,0 +1,159 @@
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import recipeServices from '../services/recipeServices'
+import pantryServices from '../services/pantryServices'
+import { toast } from 'react-toastify'
+
+const Recipes = () => {
+    const [recipes, setRecipes] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [consuming, setConsuming] = useState(false)
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        const fetchRecipes = async () => {
+            try {
+                const data = await recipeServices.getRecipes()
+                setRecipes(data)
+            } catch (err) {
+                toast.error('Failed to load recipes')
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchRecipes()
+    }, [])
+
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this recipe?")) return
+        try {
+            await recipeServices.deleteRecipe(id)
+            setRecipes(recipes.filter(r => r._id !== id))
+            toast.success("Recipe deleted")
+        } catch (err) {
+            toast.error("Failed to delete recipe")
+        }
+    }
+
+    const handleCook = async (recipe) => {
+        if (!window.confirm(`Cook "${recipe.name}"? This will remove items from your pantry.`)) return
+        
+        setConsuming(true)
+        try {
+            // Convert recipe ingredients array back to object format expected by consumePantryItems
+            const ingredientsToConsume = {}
+            recipe.ingredients.forEach(item => {
+                ingredientsToConsume[item.name] = item.amount
+            })
+
+            await pantryServices.consumePantryItems(ingredientsToConsume)
+            toast.success("Bon Appétit! Pantry updated.")
+            navigate('/')
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Failed to cook recipe")
+        } finally {
+            setConsuming(false)
+        }
+    }
+
+    return (
+        <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-6xl mx-auto">
+                {/* Header */}
+                <div className="mb-8 flex items-center justify-between">
+                    <div className="flex items-center">
+                        <button 
+                            onClick={() => navigate('/')}
+                            className="mr-4 p-2 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                        </button>
+                        <div>
+                            <h1 className="text-3xl font-bold text-slate-900">My Recipes</h1>
+                            <p className="mt-1 text-sm text-slate-500">
+                                Your saved meal combinations.
+                            </p>
+                        </div>
+                    </div>
+                    <button 
+                        onClick={() => navigate('/generate')}
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+                    >
+                        Create New
+                    </button>
+                </div>
+
+                {/* Content */}
+                {loading ? (
+                    <div className="flex justify-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+                    </div>
+                ) : recipes.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {recipes.map((recipe) => (
+                            <div key={recipe._id} className="bg-white shadow rounded-lg overflow-hidden border border-slate-100 flex flex-col">
+                                <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                                    <h3 className="text-lg font-medium text-slate-900 truncate" title={recipe.name}>{recipe.name}</h3>
+                                    <button 
+                                        onClick={() => handleDelete(recipe._id)}
+                                        className="text-slate-400 hover:text-red-500 transition-colors"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                
+                                <div className="p-6 flex-1">
+                                    <div className="flex justify-between text-sm text-slate-500 mb-4">
+                                        <span>{Math.round(recipe.totalMacros.calories)} kcal</span>
+                                        <span>P: {Math.round(recipe.totalMacros.protein)}g</span>
+                                        <span>C: {Math.round(recipe.totalMacros.carbs)}g</span>
+                                        <span>F: {Math.round(recipe.totalMacros.fats)}g</span>
+                                    </div>
+
+                                    <ul className="space-y-2 mb-6">
+                                        {recipe.ingredients.slice(0, 3).map((item, idx) => (
+                                            <li key={idx} className="flex justify-between text-sm">
+                                                <span className="text-slate-700 truncate">{item.name}</span>
+                                                <span className="text-slate-500">{item.amount}g</span>
+                                            </li>
+                                        ))}
+                                        {recipe.ingredients.length > 3 && (
+                                            <li className="text-xs text-slate-400 italic">
+                                                + {recipe.ingredients.length - 3} more ingredients
+                                            </li>
+                                        )}
+                                    </ul>
+                                </div>
+
+                                <div className="bg-slate-50 px-6 py-4 border-t border-slate-100">
+                                    <button
+                                        onClick={() => handleCook(recipe)}
+                                        disabled={consuming}
+                                        className="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-emerald-700 bg-emerald-100 hover:bg-emerald-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors"
+                                    >
+                                        {consuming ? 'Cooking...' : 'Cook Now'}
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-20 bg-white rounded-lg shadow border border-slate-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-slate-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        <h3 className="text-lg font-medium text-slate-900">No Saved Recipes</h3>
+                        <p className="mt-1 text-slate-500">Generate a meal plan and save it to see it here.</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
+export default Recipes

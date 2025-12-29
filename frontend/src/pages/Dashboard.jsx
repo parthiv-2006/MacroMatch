@@ -117,6 +117,12 @@ const Dashboard = () => {
                 >
                   <span className="mr-2">📅</span> View Meal History
                 </button>
+                <button 
+                  onClick={() => handleNavigate('/recipes')}
+                  className="w-full flex items-center justify-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors"
+                >
+                  <span className="mr-2">📖</span> My Recipes
+                </button>
               </div>
               <p className="mt-4 text-xs text-slate-400 text-center">
                 Can't find an ingredient? Create it first.
