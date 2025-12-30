@@ -8,6 +8,7 @@ import CreateIngredient from './pages/CreateIngredient'
 import Generator from './pages/Generator'
 import History from './pages/History'
 import Recipes from './pages/Recipes'
+import AnalyticsDashboard from './pages/AnalyticsDashboard'
 
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -23,6 +24,9 @@ function App() {
         <Routes>
             <Route element={<ProtectedRoute />}>
               <Route path='/' element={<Dashboard />}/>
+            </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route path='/dashboard' element={<AnalyticsDashboard />}/>
             </Route>
             <Route element={<ProtectedRoute />}>
               <Route path='/new-ingredient' element={<CreateIngredient />}/>

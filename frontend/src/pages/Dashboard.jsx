@@ -99,7 +99,13 @@ const Dashboard = () => {
             <div className="flex items-center">
               <span className="text-2xl font-bold bg-gradient-to-r from-emerald-500 to-teal-500 text-transparent bg-clip-text tracking-tight">MacroMatch</span>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => handleNavigate('/dashboard')}
+                className="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all duration-200"
+              >
+                Dashboard
+              </button>
               <button 
                 onClick={() => logout()}
                 className="ml-4 px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all duration-200"
@@ -171,6 +177,12 @@ const Dashboard = () => {
             <div className="bg-white shadow-sm rounded-xl p-6 border border-slate-200">
               <h3 className="text-lg font-semibold text-slate-900 mb-6">Quick Actions</h3>
               <div className="space-y-4">
+                <button 
+                  onClick={() => handleNavigate('/dashboard')}
+                  className="w-full flex items-center justify-center px-4 py-3 border border-transparent shadow-sm text-sm font-medium rounded-xl text-white bg-gradient-to-r from-slate-900 to-slate-700 hover:from-slate-800 hover:to-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-700 transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
+                >
+                  <span className="mr-2">📊</span> Dashboard
+                </button>
                 <button 
                   onClick={() => handleNavigate('/new-ingredient')}
                   className="w-full group flex items-center justify-center px-4 py-3 border border-slate-200 shadow-sm text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02]"
