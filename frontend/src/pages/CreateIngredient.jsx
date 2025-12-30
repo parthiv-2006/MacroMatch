@@ -45,45 +45,45 @@ function CreateIngredient() {
     }
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] py-10 px-4 sm:px-6 lg:px-8">
+        <div className="py-10 px-4 sm:px-6 lg:px-8">
             <div className="max-w-2xl mx-auto">
                 {/* Header with Back Button */}
                 <div className="mb-8 flex items-center">
                     <button 
                         onClick={() => navigate('/')}
-                        className="mr-4 p-2 rounded-full text-slate-400 hover:text-slate-600 hover:bg-white hover:shadow-sm transition-all duration-200"
+                        className="mr-4 p-2 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-all duration-200"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
                     </button>
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Add New Food</h1>
-                        <p className="mt-2 text-sm text-slate-500">
+                        <h1 className="text-3xl font-bold tracking-tight text-white">Add New Food</h1>
+                        <p className="mt-2 text-sm text-slate-400">
                             Add a new ingredient to your pantry database.
                         </p>
                     </div>
                 </div>
 
-                <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-slate-200">
+                <div className="bg-white/5 backdrop-blur-lg shadow-lg rounded-xl overflow-hidden border border-white/10">
                     <div className="p-6 sm:p-8">
 
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1.5">Food Name</label>
+                                <label className="block text-sm font-medium text-slate-300 mb-1.5">Food Name</label>
                                 <input 
                                     name="name" 
                                     value={ingredient.name} 
                                     onChange={handleChange} 
                                     required 
                                     placeholder="e.g. Greek Yogurt" 
-                                    className="focus:ring-emerald-500/20 focus:border-emerald-500 block w-full shadow-sm sm:text-sm border-slate-200 rounded-xl py-2.5 px-4 border transition-all duration-200"
+                                    className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full shadow-sm sm:text-sm bg-white/5 border-white/10 text-white rounded-xl py-2.5 px-4 border transition-all duration-200 placeholder-slate-500"
                                 />
                             </div>
 
                             <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Serving Size (g)</label>
+                                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Serving Size (g)</label>
                                     <div className="relative rounded-xl shadow-sm">
                                         <input 
                                             type="number" 
@@ -91,17 +91,17 @@ function CreateIngredient() {
                                             value={ingredient.servingSize} 
                                             onChange={handleChange} 
                                             required 
-                                            className="focus:ring-emerald-500/20 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm border-slate-200 rounded-xl py-2.5 px-4 border transition-all duration-200"
+                                            className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border-white/10 text-white rounded-xl py-2.5 px-4 border transition-all duration-200 placeholder-slate-500"
                                         />
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                            <span className="text-slate-500 sm:text-sm">g</span>
+                                            <span className="text-slate-400 sm:text-sm">g</span>
                                         </div>
                                     </div>
-                                    <p className="mt-1.5 text-xs text-slate-500">Standard serving size</p>
+                                    <p className="mt-1.5 text-xs text-slate-400">Standard serving size</p>
                                 </div>
                                 
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Calories</label>
+                                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Calories</label>
                                     <div className="relative rounded-xl shadow-sm">
                                         <input 
                                             type="number" 
@@ -109,21 +109,21 @@ function CreateIngredient() {
                                             value={ingredient.calories} 
                                             onChange={handleChange} 
                                             required 
-                                            className="focus:ring-emerald-500/20 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm border-slate-200 rounded-xl py-2.5 px-4 border transition-all duration-200"
+                                            className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border-white/10 text-white rounded-xl py-2.5 px-4 border transition-all duration-200 placeholder-slate-500"
                                         />
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                            <span className="text-slate-500 sm:text-sm">kcal</span>
+                                            <span className="text-slate-400 sm:text-sm">kcal</span>
                                         </div>
                                     </div>
-                                    <p className="mt-1.5 text-xs text-slate-500">Per serving</p>
+                                    <p className="mt-1.5 text-xs text-slate-400">Per serving</p>
                                 </div>
                             </div>
 
-                            <div className="border-t border-slate-100 pt-6">
-                                <h3 className="text-sm font-medium text-slate-900 mb-4">Macros (per serving)</h3>
+                            <div className="border-t border-white/10 pt-6">
+                                <h3 className="text-sm font-medium text-white mb-4">Macros (per serving)</h3>
                                 <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-3">
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Protein</label>
+                                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Protein</label>
                                         <div className="relative rounded-xl shadow-sm">
                                             <input 
                                                 type="number" 
@@ -131,15 +131,15 @@ function CreateIngredient() {
                                                 value={ingredient.protein} 
                                                 onChange={handleChange} 
                                                 required 
-                                                className="focus:ring-emerald-500/20 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm border-slate-200 rounded-xl py-2.5 px-4 border transition-all duration-200"
+                                                className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border-white/10 text-white rounded-xl py-2.5 px-4 border transition-all duration-200 placeholder-slate-500"
                                             />
                                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                <span className="text-slate-500 sm:text-sm">g</span>
+                                                <span className="text-slate-400 sm:text-sm">g</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Carbs</label>
+                                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Carbs</label>
                                         <div className="relative rounded-xl shadow-sm">
                                             <input 
                                                 type="number" 
@@ -147,15 +147,15 @@ function CreateIngredient() {
                                                 value={ingredient.carbs} 
                                                 onChange={handleChange} 
                                                 required 
-                                                className="focus:ring-emerald-500/20 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm border-slate-200 rounded-xl py-2.5 px-4 border transition-all duration-200"
+                                                className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border-white/10 text-white rounded-xl py-2.5 px-4 border transition-all duration-200 placeholder-slate-500"
                                             />
                                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                <span className="text-slate-500 sm:text-sm">g</span>
+                                                <span className="text-slate-400 sm:text-sm">g</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Fats</label>
+                                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Fats</label>
                                         <div className="relative rounded-xl shadow-sm">
                                             <input 
                                                 type="number" 
@@ -163,10 +163,10 @@ function CreateIngredient() {
                                                 value={ingredient.fats} 
                                                 onChange={handleChange} 
                                                 required 
-                                                className="focus:ring-emerald-500/20 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm border-slate-200 rounded-xl py-2.5 px-4 border transition-all duration-200"
+                                                className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border-white/10 text-white rounded-xl py-2.5 px-4 border transition-all duration-200 placeholder-slate-500"
                                             />
                                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                <span className="text-slate-500 sm:text-sm">g</span>
+                                                <span className="text-slate-400 sm:text-sm">g</span>
                                             </div>
                                         </div>
                                     </div>

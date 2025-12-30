@@ -91,40 +91,14 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
-      {/* Navigation Bar */}
-      <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <span className="text-2xl font-bold bg-gradient-to-r from-emerald-500 to-teal-500 text-transparent bg-clip-text tracking-tight">MacroMatch</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <button 
-                onClick={() => handleNavigate('/dashboard')}
-                className="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all duration-200"
-              >
-                Dashboard
-              </button>
-              <button 
-                onClick={() => logout()}
-                className="ml-4 px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all duration-200"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <div className="space-y-10 text-white">
+      <main className="max-w-7xl mx-auto py-6">
         <div className="md:flex md:items-center md:justify-between mb-8">
           <div className="flex-1 min-w-0">
-            <h2 className="text-3xl font-bold leading-7 text-slate-900 sm:truncate tracking-tight">
+            <h2 className="text-3xl font-bold leading-7 text-white sm:truncate tracking-tight">
               My Kitchen Pantry
             </h2>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-400">
               Manage your ingredients and track your inventory.
             </p>
           </div>
@@ -134,28 +108,28 @@ const Dashboard = () => {
           {/* Left Column: Add Item & Actions */}
           <div className="space-y-8 lg:col-span-1">
             {/* Low Stock Alert */}
-            <div className="bg-white shadow-sm rounded-xl p-6 border border-slate-200">
+            <div className="bg-white/5 shadow-lg rounded-2xl p-6 border border-white/10">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold text-slate-900">Low Stock Alerts</h3>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 border border-amber-200">
+                <h3 className="text-lg font-semibold text-white">Low Stock Alerts</h3>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/20 text-amber-200 border border-amber-500/30">
                   {loadingLowStock ? '...' : lowStock.length}
                 </span>
               </div>
               {loadingLowStock ? (
-                <p className="text-sm text-slate-500">Loading...</p>
+                <p className="text-sm text-slate-400">Loading...</p>
               ) : lowStock.length === 0 ? (
-                <p className="text-sm text-slate-500">All good! Nothing is below threshold.</p>
+                <p className="text-sm text-slate-400">All good! Nothing is below threshold.</p>
               ) : (
-                <ul className="divide-y divide-slate-100">
+                <ul className="divide-y divide-white/5">
                   {lowStock.slice(0, 4).map(item => (
                     <li key={item._id} className="py-3 flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-slate-900">{item.ingredient?.name || 'Unknown'}</p>
-                        <p className="text-xs text-slate-500">{Math.round(item.quantity)}g left • threshold {item.threshold ?? 100}g</p>
+                        <p className="text-sm font-medium text-white">{item.ingredient?.name || 'Unknown'}</p>
+                        <p className="text-xs text-slate-400">{Math.round(item.quantity)}g left • threshold {item.threshold ?? 100}g</p>
                       </div>
                       <button
                         onClick={() => promptAndUpdateThreshold(item)}
-                        className="text-xs font-semibold text-emerald-600 hover:underline"
+                        className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition"
                       >
                         Adjust
                       </button>
@@ -169,25 +143,25 @@ const Dashboard = () => {
             </div>
 
             {/* Add Item Card */}
-            <div className="bg-white shadow-sm rounded-xl p-6 border border-slate-200">
+            <div className="bg-white/5 shadow-lg rounded-2xl p-6 border border-white/10">
               <AddItemForm onItemAdded={fetchPantry}/>
             </div>
 
             {/* Quick Actions Card */}
-            <div className="bg-white shadow-sm rounded-xl p-6 border border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-900 mb-6">Quick Actions</h3>
+            <div className="bg-white/5 shadow-lg rounded-2xl p-6 border border-white/10">
+              <h3 className="text-lg font-semibold text-white mb-6">Quick Actions</h3>
               <div className="space-y-4">
                 <button 
                   onClick={() => handleNavigate('/dashboard')}
-                  className="w-full flex items-center justify-center px-4 py-3 border border-transparent shadow-sm text-sm font-medium rounded-xl text-white bg-gradient-to-r from-slate-900 to-slate-700 hover:from-slate-800 hover:to-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-700 transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
+                  className="w-full flex items-center justify-center px-4 py-3 border border-transparent shadow-lg text-sm font-medium rounded-xl text-slate-900 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
                 >
                   <span className="mr-2">📊</span> Dashboard
                 </button>
                 <button 
                   onClick={() => handleNavigate('/new-ingredient')}
-                  className="w-full group flex items-center justify-center px-4 py-3 border border-slate-200 shadow-sm text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02]"
+                  className="w-full group flex items-center justify-center px-4 py-3 border border-white/10 shadow-sm text-sm font-medium rounded-xl text-white bg-white/5 hover:bg-white/10 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02]"
                 >
-                  <span className="mr-3 text-emerald-500 bg-emerald-50 rounded-full p-1 group-hover:bg-emerald-100 transition-colors">
+                  <span className="mr-3 text-emerald-400 bg-emerald-500/10 rounded-full p-1 group-hover:bg-emerald-500/20 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
@@ -202,9 +176,9 @@ const Dashboard = () => {
                 </button>
                 <button 
                   onClick={() => handleNavigate('/history')}
-                  className="w-full group flex items-center justify-center px-4 py-3 border border-slate-200 shadow-sm text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02]"
+                  className="w-full group flex items-center justify-center px-4 py-3 border border-white/10 shadow-sm text-sm font-medium rounded-xl text-white bg-white/5 hover:bg-white/10 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02]"
                 >
-                  <span className="mr-3 text-blue-500 bg-blue-50 rounded-full p-1 group-hover:bg-blue-100 transition-colors">
+                  <span className="mr-3 text-blue-400 bg-blue-500/10 rounded-full p-1 group-hover:bg-blue-500/20 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
@@ -213,9 +187,9 @@ const Dashboard = () => {
                 </button>
                 <button 
                   onClick={() => handleNavigate('/recipes')}
-                  className="w-full group flex items-center justify-center px-4 py-3 border border-slate-200 shadow-sm text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02]"
+                  className="w-full group flex items-center justify-center px-4 py-3 border border-white/10 shadow-sm text-sm font-medium rounded-xl text-white bg-white/5 hover:bg-white/10 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02]"
                 >
-                  <span className="mr-3 text-amber-500 bg-amber-50 rounded-full p-1 group-hover:bg-amber-100 transition-colors">
+                  <span className="mr-3 text-amber-400 bg-amber-500/10 rounded-full p-1 group-hover:bg-amber-500/20 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
@@ -223,18 +197,18 @@ const Dashboard = () => {
                   My Recipes
                 </button>
               </div>
-              <p className="mt-6 text-xs text-slate-400 text-center font-medium">
-                Can't find an ingredient? <button onClick={() => handleNavigate('/new-ingredient')} className="text-emerald-600 hover:text-emerald-700 hover:underline">Create it first</button>.
+              <p className="mt-6 text-xs text-slate-500 text-center font-medium">
+                Can't find an ingredient? <button onClick={() => handleNavigate('/new-ingredient')} className="text-emerald-400 hover:text-emerald-300 hover:underline transition">Create it first</button>.
               </p>
             </div>
           </div>
 
           {/* Right Column: Pantry List */}
           <div className="lg:col-span-2">
-            <div className="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden h-full flex flex-col">
-              <div className="px-6 py-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-slate-900">Current Inventory</h3>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+            <div className="bg-white/5 shadow-lg rounded-2xl border border-white/10 overflow-hidden h-full flex flex-col">
+              <div className="px-6 py-5 border-b border-white/10 bg-white/5 flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-white">Current Inventory</h3>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-200 border border-emerald-500/30">
                   {pantryItems.length} Items
                 </span>
               </div>
@@ -244,7 +218,7 @@ const Dashboard = () => {
                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-500"></div>
                   </div>
                 ) : error ? (
-                  <div className="text-red-500 text-center py-10 bg-red-50 m-6 rounded-lg border border-red-100">{error}</div>
+                  <div className="text-red-200 text-center py-10 bg-red-500/10 m-6 rounded-lg border border-red-500/20">{error}</div>
                 ) : (
                   <PantryList items={pantryItems} onDelete={handleDelete} onUpdate={handleUpdate} onUpdateThreshold={handleUpdateThreshold}/>
                 )}

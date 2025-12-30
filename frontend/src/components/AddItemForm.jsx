@@ -68,12 +68,12 @@ const AddItemForm = ({ onItemAdded }) => {
 
     return (
     <div>
-        <h3 className="text-lg font-semibold text-slate-900 mb-6">Add to Pantry</h3>
-        {error && <p className="text-sm text-red-600 mb-4 bg-red-50 p-2 rounded border border-red-100">{error}</p>}
+        <h3 className="text-lg font-semibold text-white mb-6">Add to Pantry</h3>
+        {error && <p className="text-sm text-red-200 mb-4 bg-red-500/10 p-2 rounded border border-red-500/20">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-5">
             <div className="relative">
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">
                     Food Item
                 </label>
                 <input
@@ -86,33 +86,33 @@ const AddItemForm = ({ onItemAdded }) => {
                     }}
                     onFocus={() => setShowSuggestions(true)}
                     placeholder="Search for food..."
-                    className="block w-full pl-4 pr-10 py-2.5 text-base border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 sm:text-sm rounded-xl border transition-all duration-200 shadow-sm"
+                    className="block w-full pl-4 pr-10 py-2.5 text-base bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 sm:text-sm rounded-xl transition-all duration-200 shadow-sm"
                     autoComplete="off"
                 />
                 
                 {/* Suggestions Dropdown */}
                 {showSuggestions && searchTerm && !selectedIngredient && (
-                    <div className="absolute z-10 mt-1 w-full bg-white shadow-xl max-h-60 rounded-xl py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm border border-slate-100">
+                    <div className="absolute z-10 mt-1 w-full bg-[#0f1c2f] shadow-xl max-h-60 rounded-xl py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm border border-white/10">
                         {filteredIngredients.length > 0 ? (
                             filteredIngredients.map(ingredient => (
                                 <div
                                     key={ingredient._id}
-                                    className="cursor-pointer select-none relative py-2.5 pl-4 pr-9 hover:bg-slate-50 transition-colors"
+                                    className="cursor-pointer select-none relative py-2.5 pl-4 pr-9 hover:bg-white/5 transition-colors"
                                     onClick={() => handleSelectIngredient(ingredient)}
                                 >
                                     <div className="flex justify-between items-center">
-                                        <span className="font-medium text-slate-900 truncate">{ingredient.name}</span>
-                                        <span className="text-xs text-slate-500 ml-2 bg-slate-100 px-2 py-0.5 rounded-full">{ingredient.calories} kcal</span>
+                                        <span className="font-medium text-white truncate">{ingredient.name}</span>
+                                        <span className="text-xs text-slate-400 ml-2 bg-white/10 px-2 py-0.5 rounded-full">{ingredient.calories} kcal</span>
                                     </div>
                                 </div>
                             ))
                         ) : (
-                            <div className="cursor-default select-none relative py-3 px-4 text-slate-700">
-                                <p className="text-sm text-slate-500">No ingredients found.</p>
+                            <div className="cursor-default select-none relative py-3 px-4 text-slate-400">
+                                <p className="text-sm text-slate-400">No ingredients found.</p>
                                 <button 
                                     type="button"
                                     onClick={() => navigate('/new-ingredient')} 
-                                    className="text-emerald-600 hover:text-emerald-700 font-medium text-sm mt-2 flex items-center hover:underline"
+                                    className="text-emerald-400 hover:text-emerald-300 font-medium text-sm mt-2 flex items-center hover:underline"
                                 >
                                     <span className="mr-1">+</span> Create "{searchTerm}"
                                 </button>
@@ -123,7 +123,7 @@ const AddItemForm = ({ onItemAdded }) => {
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">
                     Quantity (grams)
                 </label>
                 <input 
@@ -133,12 +133,12 @@ const AddItemForm = ({ onItemAdded }) => {
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
                     required
-                    className="appearance-none block w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 sm:text-sm transition-all duration-200"
+                    className="appearance-none block w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl shadow-sm placeholder-slate-500 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 sm:text-sm transition-all duration-200"
                 />
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">
                     Low-stock threshold (grams)
                 </label>
                 <input
@@ -146,9 +146,9 @@ const AddItemForm = ({ onItemAdded }) => {
                     min="0"
                     value={threshold}
                     onChange={(e) => setThreshold(e.target.value)}
-                    className="appearance-none block w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 sm:text-sm transition-all duration-200"
+                    className="appearance-none block w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl shadow-sm placeholder-slate-500 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 sm:text-sm transition-all duration-200"
                 />
-                <p className="mt-1 text-xs text-slate-500">We will flag this item when it drops below this amount. Default: 100g.</p>
+                <p className="mt-1 text-xs text-slate-400">We will flag this item when it drops below this amount. Default: 100g.</p>
             </div>
 
             <button 

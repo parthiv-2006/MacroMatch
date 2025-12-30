@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import {Routes, Route} from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -11,40 +10,30 @@ import Recipes from './pages/Recipes'
 import AnalyticsDashboard from './pages/AnalyticsDashboard'
 
 import ProtectedRoute from './components/ProtectedRoute'
+import AppShell from './components/AppShell'
 
 import { AuthProvider } from './context/AuthContext'
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 function App() {
-
   return (
     <AuthProvider>
-      <div>
-        <Routes>
-            <Route element={<ProtectedRoute />}>
-              <Route path='/' element={<Dashboard />}/>
-            </Route>
-            <Route element={<ProtectedRoute />}>
-              <Route path='/dashboard' element={<AnalyticsDashboard />}/>
-            </Route>
-            <Route element={<ProtectedRoute />}>
-              <Route path='/new-ingredient' element={<CreateIngredient />}/>
-            </Route>
-            <Route element={<ProtectedRoute />}>
-              <Route path='/generate' element={<Generator />}/>
-            </Route>
-            <Route element={<ProtectedRoute />}>
-              <Route path='/history' element={<History />}/>
-            </Route>
-            <Route element={<ProtectedRoute />}>
-              <Route path='/recipes' element={<Recipes />}/>
-            </Route>
-            <Route path='/login' element={<Login />}/>
-            <Route path='/register' element={<Register />}/>
-        </Routes>
-        <ToastContainer position="top-right" autoClose={3000} />
-      </div>
+      <Routes>
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AppShell />}>
+            <Route path='/' element={<Dashboard />} />
+            <Route path='/dashboard' element={<AnalyticsDashboard />} />
+            <Route path='/new-ingredient' element={<CreateIngredient />} />
+            <Route path='/generate' element={<Generator />} />
+            <Route path='/history' element={<History />} />
+            <Route path='/recipes' element={<Recipes />} />
+          </Route>
+        </Route>
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
+      </Routes>
+      <ToastContainer position='top-right' autoClose={3000} />
     </AuthProvider>
   )
 }

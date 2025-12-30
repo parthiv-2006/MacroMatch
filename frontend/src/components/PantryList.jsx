@@ -9,13 +9,13 @@ const PantryList = ({ items, onDelete, onUpdate, onUpdateThreshold }) => {
   if (!items || items.length === 0) {
     return (
       <div className="p-10 text-center">
-        <div className="bg-slate-50 p-4 rounded-full inline-block mb-4 border border-slate-100">
+        <div className="bg-white/5 p-4 rounded-full inline-block mb-4 border border-white/10">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h18v4H3V3zm2 6h14l-1 12H6L5 9zm4 2v8m6-8v8" />
           </svg>
         </div>
-        <h3 className="text-base font-semibold text-slate-900">Your pantry is empty</h3>
-        <p className="mt-1 text-sm text-slate-500">Add an item to start tracking quantities and macros.</p>
+        <h3 className="text-base font-semibold text-white">Your pantry is empty</h3>
+        <p className="mt-1 text-sm text-slate-400">Add an item to start tracking quantities and macros.</p>
       </div>
     )
   }
@@ -99,36 +99,36 @@ const PantryList = ({ items, onDelete, onUpdate, onUpdateThreshold }) => {
           animation: fadeIn 0.4s ease-out forwards;
         }
       `}</style>
-      <table className="min-w-full divide-y divide-slate-100">
-        <thead className="bg-slate-50/80">
+      <table className="min-w-full divide-y divide-white/5">
+        <thead className="bg-white/5">
           <tr>
-            <th scope="col" onClick={() => handleSort('name')} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 group">
+            <th scope="col" onClick={() => handleSort('name')} className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white group">
               Food <SortIcon column="name" />
             </th>
-            <th scope="col" onClick={() => handleSort('quantity')} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 group">
+            <th scope="col" onClick={() => handleSort('quantity')} className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white group">
               Qty <SortIcon column="quantity" />
             </th>
-            <th scope="col" onClick={() => handleSort('protein')} className="px-2 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 group">
+            <th scope="col" onClick={() => handleSort('protein')} className="px-2 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white group">
               Prot <SortIcon column="protein" />
             </th>
-            <th scope="col" onClick={() => handleSort('carbs')} className="px-2 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 group">
+            <th scope="col" onClick={() => handleSort('carbs')} className="px-2 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white group">
               Carbs <SortIcon column="carbs" />
             </th>
-            <th scope="col" onClick={() => handleSort('fats')} className="px-2 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 group">
+            <th scope="col" onClick={() => handleSort('fats')} className="px-2 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white group">
               Fats <SortIcon column="fats" />
             </th>
-            <th scope="col" onClick={() => handleSort('calories')} className="px-2 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 group">
+            <th scope="col" onClick={() => handleSort('calories')} className="px-2 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white group">
               Cals <SortIcon column="calories" />
             </th>
-            <th scope="col" className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <th scope="col" className="px-4 py-3 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">
               Threshold
             </th>
-            <th scope="col" className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <th scope="col" className="px-4 py-3 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">
               Actions
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-slate-100">
+        <tbody className="divide-y divide-white/5">
           {sortedItems.map((item, index) => {
             // Safety check: if an ingredient was deleted from DB, skip rendering
             if (!item.ingredient) return null
@@ -141,51 +141,51 @@ const PantryList = ({ items, onDelete, onUpdate, onUpdateThreshold }) => {
             return (
               <tr 
                 key={item._id} 
-                className="hover:bg-slate-50/80 transition-colors animate-fade-in opacity-0"
+                className="hover:bg-white/5 transition-colors animate-fade-in opacity-0"
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
-                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-white">
                   <div className="flex items-center space-x-2">
                     <span className="truncate max-w-[120px] sm:max-w-[180px]" title={ingredient.name}>{ingredient.name}</span>
                     {item.isLowStock && (
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 border border-amber-200">Low</span>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-200 border border-amber-500/30">Low</span>
                     )}
                   </div>
                 </td>
 
-                <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-500">
+                <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-400">
                   {isEditing ? (
                     <input 
                       type="number" 
                       value={editQty}
                       onChange={(e) => setEditQty(e.target.value)}
-                      className="w-20 px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                      className="w-20 px-2 py-1 text-sm bg-white/5 border border-white/10 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
                       autoFocus
                     />
                   ) : (
-                    <span className="font-medium bg-slate-100 px-2 py-1 rounded-md text-slate-700">{quantity}g</span>
+                    <span className="font-medium bg-white/10 px-2 py-1 rounded-md text-slate-300">{quantity}g</span>
                   )}
                 </td>
 
-                <td className="px-2 py-4 whitespace-nowrap text-sm text-slate-600">
+                <td className="px-2 py-4 whitespace-nowrap text-sm text-slate-400">
                   {(ingredient.protein * ratio).toFixed(1)}
                 </td>
-                <td className="px-2 py-4 whitespace-nowrap text-sm text-slate-600">
+                <td className="px-2 py-4 whitespace-nowrap text-sm text-slate-400">
                   {(ingredient.carbs * ratio).toFixed(1)}
                 </td>
-                <td className="px-2 py-4 whitespace-nowrap text-sm text-slate-600">
+                <td className="px-2 py-4 whitespace-nowrap text-sm text-slate-400">
                   {(ingredient.fats * ratio).toFixed(1)}
                 </td>
-                <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-slate-700">
+                <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-slate-300">
                   {Math.round(ingredient.calories * ratio)}
                 </td>
 
-                <td className="px-4 py-4 whitespace-nowrap text-right text-xs text-slate-500">
+                <td className="px-4 py-4 whitespace-nowrap text-right text-xs text-slate-400">
                   <div className="flex flex-col items-end gap-1">
                     <span>{item.threshold ?? 100}g</span>
                     <button 
                       onClick={() => handleThreshold(item)}
-                      className="text-emerald-600 hover:text-emerald-700 font-medium hover:underline"
+                      className="text-emerald-400 hover:text-emerald-300 font-medium hover:underline"
                     >
                       Adjust
                     </button>
@@ -197,7 +197,7 @@ const PantryList = ({ items, onDelete, onUpdate, onUpdateThreshold }) => {
                     <div className="flex justify-end space-x-2">
                       <button 
                         onClick={() => saveEdit(item._id)} 
-                        className="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-full transition-colors"
+                        className="p-2 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-full transition-colors"
                         title="Save"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -206,7 +206,7 @@ const PantryList = ({ items, onDelete, onUpdate, onUpdateThreshold }) => {
                       </button>
                       <button 
                         onClick={cancelEditing} 
-                        className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                        className="p-2 text-slate-400 hover:text-slate-300 hover:bg-white/10 rounded-full transition-colors"
                         title="Cancel"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -218,7 +218,7 @@ const PantryList = ({ items, onDelete, onUpdate, onUpdateThreshold }) => {
                     <div className="flex justify-end space-x-2">
                       <button 
                         onClick={() => startEditing(item)} 
-                        className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-all duration-200"
+                        className="p-2 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-full transition-all duration-200"
                         title="Edit"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -227,7 +227,7 @@ const PantryList = ({ items, onDelete, onUpdate, onUpdateThreshold }) => {
                       </button>
                       <button 
                         onClick={() => onDelete(item._id)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-all duration-200"
+                        className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-all duration-200"
                         title="Delete"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

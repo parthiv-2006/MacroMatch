@@ -106,12 +106,12 @@ const MacroTooltip = ({ active, payload, label }) => {
   const data = payload.reduce((acc, { name, value }) => ({ ...acc, [name]: value }), {})
 
   return (
-    <div className="rounded-xl bg-white shadow-lg border border-slate-200 px-4 py-3 text-sm">
-      <div className="font-semibold text-slate-800 mb-1">{label}</div>
-      <div className="space-y-1 text-slate-600">
-        <div className="flex justify-between"><span>Protein</span><span className="font-medium text-emerald-600">{Math.round(data.protein || 0)} g</span></div>
-        <div className="flex justify-between"><span>Carbs</span><span className="font-medium text-blue-600">{Math.round(data.carbs || 0)} g</span></div>
-        <div className="flex justify-between"><span>Fats</span><span className="font-medium text-amber-600">{Math.round(data.fats || 0)} g</span></div>
+    <div className="rounded-xl bg-[#0f1c2f] shadow-lg border border-white/10 px-4 py-3 text-sm">
+      <div className="font-semibold text-white mb-1">{label}</div>
+      <div className="space-y-1 text-slate-300">
+        <div className="flex justify-between"><span>Protein</span><span className="font-medium text-emerald-400">{Math.round(data.protein || 0)} g</span></div>
+        <div className="flex justify-between"><span>Carbs</span><span className="font-medium text-blue-400">{Math.round(data.carbs || 0)} g</span></div>
+        <div className="flex justify-between"><span>Fats</span><span className="font-medium text-amber-400">{Math.round(data.fats || 0)} g</span></div>
       </div>
     </div>
   )
@@ -121,9 +121,9 @@ const InventoryTooltip = ({ active, payload }) => {
   if (!active || !payload || payload.length === 0) return null
   const { name, value } = payload[0].payload
   return (
-    <div className="rounded-xl bg-white shadow-lg border border-slate-200 px-4 py-3 text-sm">
-      <div className="font-semibold text-slate-800 mb-1">{name}</div>
-      <div className="text-slate-600">{Math.round(value)} g in pantry</div>
+    <div className="rounded-xl bg-[#0f1c2f] shadow-lg border border-white/10 px-4 py-3 text-sm">
+      <div className="font-semibold text-white mb-1">{name}</div>
+      <div className="text-slate-300">{Math.round(value)} g in pantry</div>
     </div>
   )
 }
@@ -167,67 +167,32 @@ const AnalyticsDashboard = () => {
   const hasInventoryData = inventoryData.length > 0 && inventoryData.some((d) => d.value > 0)
 
   return (
-    <div className="min-h-screen bg-[#0b1524] text-white">
-      <nav className="bg-[#0f1c2f]/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <span className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-300 text-transparent bg-clip-text tracking-tight">MacroMatch</span>
-            <div className="hidden sm:flex items-center space-x-3 text-sm">
-              <button onClick={() => navigate('/')} className="px-3 py-1.5 rounded-lg text-slate-200 hover:text-white hover:bg-white/5 transition">
-                Pantry
-              </button>
-              <button className="px-3 py-1.5 rounded-lg bg-white/10 text-white border border-white/10 shadow-inner">Dashboard</button>
-              <button onClick={() => navigate('/history')} className="px-3 py-1.5 rounded-lg text-slate-200 hover:text-white hover:bg-white/5 transition">
-                History
-              </button>
-              <button onClick={() => navigate('/recipes')} className="px-3 py-1.5 rounded-lg text-slate-200 hover:text-white hover:bg-white/5 transition">
-                Recipes
-              </button>
-            </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => navigate('/generate')}
-              className="hidden sm:inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 shadow-lg shadow-emerald-500/20 transition"
-            >
-              Generate Plan
-            </button>
-            <button
-              onClick={() => logout()}
-              className="px-3 py-2 rounded-lg text-sm font-semibold text-slate-200 hover:text-white hover:bg-white/5 border border-white/10"
-            >
-              Logout
-            </button>
-          </div>
+    <div className="space-y-6 text-white">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <p className="text-sm uppercase tracking-[0.2em] text-emerald-300/80">Data Visualization</p>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">Dashboard</h1>
+          <p className="text-slate-300 mt-2">Track macro trends and see how your pantry is distributed at a glance.</p>
         </div>
-      </nav>
-
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-emerald-300/80">Data Visualization</p>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">Dashboard</h1>
-            <p className="text-slate-300 mt-2">Track macro trends and see how your pantry is distributed at a glance.</p>
-          </div>
-          <div className="inline-flex rounded-full bg-white/5 border border-white/10 p-1 text-xs font-semibold">
-            <button
-              onClick={() => setRange('7d')}
-              className={`px-3 py-1 rounded-full transition ${range === '7d' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-200 hover:text-white'}`}
-            >
-              Last 7 days
-            </button>
-            <button
-              onClick={() => setRange('30d')}
-              className={`px-3 py-1 rounded-full transition ${range === '30d' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-200 hover:text-white'}`}
-            >
-              Last 30 days
-            </button>
-          </div>
+        <div className="inline-flex rounded-full bg-white/5 border border-white/10 p-1 text-xs font-semibold">
+          <button
+            onClick={() => setRange('7d')}
+            className={`px-3 py-1 rounded-full transition ${range === '7d' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-200 hover:text-white'}`}
+          >
+            Last 7 days
+          </button>
+          <button
+            onClick={() => setRange('30d')}
+            className={`px-3 py-1 rounded-full transition ${range === '30d' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-200 hover:text-white'}`}
+          >
+            Last 30 days
+          </button>
         </div>
+      </div>
 
-        {error && <div className="mb-6 rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-rose-100">{error}</div>}
+      {error && <div className="mb-6 rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-rose-100">{error}</div>}
 
-        {loading ? (
+      {loading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-2 border-emerald-400 border-t-transparent" />
           </div>
@@ -346,7 +311,6 @@ const AnalyticsDashboard = () => {
             </div>
           </div>
         )}
-      </main>
     </div>
   )
 }

@@ -73,21 +73,21 @@ const History = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] py-10 px-4 sm:px-6 lg:px-8">
+        <div className="py-10 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="mb-8 flex items-center">
                     <button 
                         onClick={() => navigate('/')}
-                        className="mr-4 p-2 rounded-full text-slate-400 hover:text-slate-600 hover:bg-white hover:shadow-sm transition-all duration-200"
+                        className="mr-4 p-2 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-all duration-200"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
                     </button>
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Meal History</h1>
-                        <p className="mt-2 text-sm text-slate-500">
+                        <h1 className="text-3xl font-bold tracking-tight text-white">Meal History</h1>
+                        <p className="mt-2 text-sm text-slate-400">
                             Track your past meals and nutritional intake.
                         </p>
                     </div>
@@ -96,28 +96,28 @@ const History = () => {
                 {/* Content */}
                 {loading ? (
                     <div className="flex justify-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
                     </div>
                 ) : history.length > 0 ? (
                     <div className="space-y-6">
                         {history.map((log) => (
-                            <div key={log._id} className="bg-white shadow-sm rounded-xl overflow-hidden border border-slate-200 transition-all duration-200 hover:shadow-md">
-                                <div className="bg-slate-50/50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                            <div key={log._id} className="bg-white/5 backdrop-blur-lg shadow-lg rounded-xl overflow-hidden border border-white/10 transition-all duration-200 hover:shadow-xl hover:bg-white/10">
+                                <div className="bg-white/5 px-6 py-4 border-b border-white/10 flex justify-between items-center">
                                     <div className="flex items-center">
-                                        <div className="bg-emerald-100 p-2 rounded-full mr-3">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <div className="bg-emerald-500/20 p-2 rounded-full mr-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                         </div>
-                                        <span className="font-medium text-slate-700">{formatDate(log.date)}</span>
+                                        <span className="font-medium text-white">{formatDate(log.date)}</span>
                                     </div>
                                     <div className="flex items-center space-x-3">
-                                        <div className="text-sm text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                                        <div className="text-sm text-slate-300 bg-white/10 px-2.5 py-1 rounded-full">
                                             {log.items.length} item{log.items.length !== 1 ? 's' : ''}
                                         </div>
                                         <button
                                             onClick={() => handleSaveRecipe(log)}
-                                            className="text-sm text-emerald-600 hover:text-emerald-700 font-medium flex items-center transition-colors bg-emerald-50 px-3 py-1.5 rounded-lg hover:bg-emerald-100"
+                                            className="text-sm text-emerald-400 hover:text-emerald-300 font-medium flex items-center transition-colors bg-emerald-500/10 px-3 py-1.5 rounded-lg hover:bg-emerald-500/20"
                                             title="Save as Recipe"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -127,7 +127,7 @@ const History = () => {
                                         </button>
                                         <button
                                             onClick={() => handleDeleteLog(log._id)}
-                                            className="text-sm text-rose-600 hover:text-rose-700 font-medium flex items-center transition-colors bg-rose-50 px-3 py-1.5 rounded-lg hover:bg-rose-100"
+                                            className="text-sm text-rose-400 hover:text-rose-300 font-medium flex items-center transition-colors bg-rose-500/10 px-3 py-1.5 rounded-lg hover:bg-rose-500/20"
                                             title="Delete from history"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -141,32 +141,32 @@ const History = () => {
                                 <div className="p-6">
                                     {/* Macros Summary */}
                                     <div className="grid grid-cols-4 gap-4 mb-6">
-                                        <div className="text-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                            <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">Calories</div>
-                                            <div className="font-bold text-slate-900 text-lg">{Math.round(log.totalMacros.calories)}</div>
+                                        <div className="text-center p-3 bg-white/5 rounded-xl border border-white/10">
+                                            <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">Calories</div>
+                                            <div className="font-bold text-white text-lg">{Math.round(log.totalMacros.calories)}</div>
                                         </div>
-                                        <div className="text-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                            <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">Protein</div>
-                                            <div className="font-bold text-emerald-600 text-lg">{Math.round(log.totalMacros.protein)}g</div>
+                                        <div className="text-center p-3 bg-white/5 rounded-xl border border-white/10">
+                                            <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">Protein</div>
+                                            <div className="font-bold text-emerald-400 text-lg">{Math.round(log.totalMacros.protein)}g</div>
                                         </div>
-                                        <div className="text-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                            <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">Carbs</div>
-                                            <div className="font-bold text-blue-600 text-lg">{Math.round(log.totalMacros.carbs)}g</div>
+                                        <div className="text-center p-3 bg-white/5 rounded-xl border border-white/10">
+                                            <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">Carbs</div>
+                                            <div className="font-bold text-blue-400 text-lg">{Math.round(log.totalMacros.carbs)}g</div>
                                         </div>
-                                        <div className="text-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                            <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">Fats</div>
-                                            <div className="font-bold text-amber-600 text-lg">{Math.round(log.totalMacros.fats)}g</div>
+                                        <div className="text-center p-3 bg-white/5 rounded-xl border border-white/10">
+                                            <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">Fats</div>
+                                            <div className="font-bold text-amber-400 text-lg">{Math.round(log.totalMacros.fats)}g</div>
                                         </div>
                                     </div>
 
                                     {/* Ingredients List */}
                                     <div>
-                                        <h4 className="text-sm font-semibold text-slate-900 mb-3">Ingredients Consumed</h4>
-                                        <ul className="divide-y divide-slate-100 border-t border-slate-100">
+                                        <h4 className="text-sm font-semibold text-white mb-3">Ingredients Consumed</h4>
+                                        <ul className="divide-y divide-white/10 border-t border-white/10">
                                             {log.items.map((item, index) => (
                                                 <li key={index} className="py-3 flex justify-between items-center text-sm">
-                                                    <span className="text-slate-700 font-medium">{item.ingredientName}</span>
-                                                    <span className="text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md text-xs font-medium">
+                                                    <span className="text-slate-200 font-medium">{item.ingredientName}</span>
+                                                    <span className="text-slate-300 bg-white/10 px-2.5 py-1 rounded-md text-xs font-medium">
                                                         {item.amount}g
                                                     </span>
                                                 </li>
@@ -178,14 +178,14 @@ const History = () => {
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-20 bg-white rounded-xl shadow-sm border border-slate-200">
-                        <div className="bg-slate-50 p-4 rounded-full inline-block mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="text-center py-20 bg-white/5 backdrop-blur-lg rounded-xl shadow-sm border border-white/10">
+                        <div className="bg-white/5 p-4 rounded-full inline-block mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
                         </div>
-                        <h3 className="text-lg font-medium text-slate-900">No Meal History</h3>
-                        <p className="mt-1 text-slate-500">You haven't tracked any meals yet.</p>
+                        <h3 className="text-lg font-medium text-white">No Meal History</h3>
+                        <p className="mt-1 text-slate-400">You haven't tracked any meals yet.</p>
                         <button 
                             onClick={() => navigate('/generate')}
                             className="mt-6 inline-flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-xl shadow-sm text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02]"
