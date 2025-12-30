@@ -4,6 +4,7 @@ const PantryList = ({ items, onDelete, onUpdate, onUpdateThreshold }) => {
 
   const [editingId, setEditingId] = useState(null)
   const [editQty, setEditQty] = useState('')
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' })
 
   if (!items || items.length === 0) {
     return (
@@ -17,6 +18,50 @@ const PantryList = ({ items, onDelete, onUpdate, onUpdateThreshold }) => {
         <p className="mt-1 text-sm text-slate-500">Add an item to start tracking quantities and macros.</p>
       </div>
     )
+  }
+
+  const handleSort = (key) => {
+    let direction = 'asc'
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc'
+    }
+    setSortConfig({ key, direction })
+  }
+
+  const sortedItems = [...items].sort((a, b) => {
+    if (!sortConfig.key) return 0
+    if (!a.ingredient || !b.ingredient) return 0
+
+    let valA, valB
+
+    // Handle nested properties
+    if (sortConfig.key === 'name') {
+      valA = a.ingredient.name.toLowerCase()
+      valB = b.ingredient.name.toLowerCase()
+    } else if (['protein', 'carbs', 'fats', 'calories'].includes(sortConfig.key)) {
+      // Sort by total amount in the current quantity, not per 100g
+      const ratioA = a.quantity / 100
+      const ratioB = b.quantity / 100
+      valA = a.ingredient[sortConfig.key] * ratioA
+      valB = b.ingredient[sortConfig.key] * ratioB
+    } else if (sortConfig.key === 'quantity') {
+      valA = a.quantity
+      valB = b.quantity
+    } else {
+      valA = a[sortConfig.key]
+      valB = b[sortConfig.key]
+    }
+
+    if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1
+    if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1
+    return 0
+  })
+
+  const SortIcon = ({ column }) => {
+    if (sortConfig.key !== column) return <span className="ml-1 text-slate-300">↕</span>
+    return sortConfig.direction === 'asc' 
+      ? <span className="ml-1 text-emerald-600">↑</span> 
+      : <span className="ml-1 text-emerald-600">↓</span>
   }
 
   const handleThreshold = (item) => {
@@ -57,18 +102,34 @@ const PantryList = ({ items, onDelete, onUpdate, onUpdateThreshold }) => {
       <table className="min-w-full divide-y divide-slate-100">
         <thead className="bg-slate-50/80">
           <tr>
-            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Food</th>
-            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Qty</th>
-            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Protein</th>
-            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Carbs</th>
-            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Fats</th>
-            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Cals</th>
-            <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Threshold</th>
-            <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+            <th scope="col" onClick={() => handleSort('name')} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 group">
+              Food <SortIcon column="name" />
+            </th>
+            <th scope="col" onClick={() => handleSort('quantity')} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 group">
+              Qty <SortIcon column="quantity" />
+            </th>
+            <th scope="col" onClick={() => handleSort('protein')} className="px-2 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 group">
+              Prot <SortIcon column="protein" />
+            </th>
+            <th scope="col" onClick={() => handleSort('carbs')} className="px-2 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 group">
+              Carbs <SortIcon column="carbs" />
+            </th>
+            <th scope="col" onClick={() => handleSort('fats')} className="px-2 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 group">
+              Fats <SortIcon column="fats" />
+            </th>
+            <th scope="col" onClick={() => handleSort('calories')} className="px-2 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 group">
+              Cals <SortIcon column="calories" />
+            </th>
+            <th scope="col" className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Threshold
+            </th>
+            <th scope="col" className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-slate-100">
-          {items.map((item, index) => {
+          {sortedItems.map((item, index) => {
             // Safety check: if an ingredient was deleted from DB, skip rendering
             if (!item.ingredient) return null
 
@@ -83,47 +144,55 @@ const PantryList = ({ items, onDelete, onUpdate, onUpdateThreshold }) => {
                 className="hover:bg-slate-50/80 transition-colors animate-fade-in opacity-0"
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
-                <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-slate-900 flex items-center space-x-2">
-                  <span>{ingredient.name}</span>
-                  {item.isLowStock && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-700 border border-amber-200">Low</span>
-                  )}
+                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                  <div className="flex items-center space-x-2">
+                    <span className="truncate max-w-[120px] sm:max-w-[180px]" title={ingredient.name}>{ingredient.name}</span>
+                    {item.isLowStock && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 border border-amber-200">Low</span>
+                    )}
+                  </div>
                 </td>
 
-                <td className="px-6 py-5 whitespace-nowrap text-sm text-slate-500">
+                <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-500">
                   {isEditing ? (
                     <input 
                       type="number" 
                       value={editQty}
                       onChange={(e) => setEditQty(e.target.value)}
-                      className="w-24 px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                      className="w-20 px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                       autoFocus
                     />
                   ) : (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-slate-100 text-slate-800">
-                      {quantity}g
-                    </span>
+                    <span className="font-medium bg-slate-100 px-2 py-1 rounded-md text-slate-700">{quantity}g</span>
                   )}
                 </td>
 
-                <td className="px-6 py-5 whitespace-nowrap text-sm text-slate-600">{(ingredient.protein * ratio).toFixed(1)}g</td>
-                <td className="px-6 py-5 whitespace-nowrap text-sm text-slate-600">{(ingredient.carbs * ratio).toFixed(1)}g</td>
-                <td className="px-6 py-5 whitespace-nowrap text-sm text-slate-600">{(ingredient.fats * ratio).toFixed(1)}g</td>
-                <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-slate-900">{Math.round(ingredient.calories * ratio)}</td>
-                <td className="px-6 py-5 whitespace-nowrap text-sm text-slate-500">
-                  <div className="flex flex-col items-end space-y-1">
-                    <span className="text-xs text-slate-500">Threshold: {item.threshold ?? 100}g</span>
-                    {onUpdateThreshold && (
-                      <button
-                        onClick={() => handleThreshold(item)}
-                        className="text-emerald-600 text-xs font-semibold hover:underline"
-                      >
-                        Adjust
-                      </button>
-                    )}
+                <td className="px-2 py-4 whitespace-nowrap text-sm text-slate-600">
+                  {(ingredient.protein * ratio).toFixed(1)}
+                </td>
+                <td className="px-2 py-4 whitespace-nowrap text-sm text-slate-600">
+                  {(ingredient.carbs * ratio).toFixed(1)}
+                </td>
+                <td className="px-2 py-4 whitespace-nowrap text-sm text-slate-600">
+                  {(ingredient.fats * ratio).toFixed(1)}
+                </td>
+                <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-slate-700">
+                  {Math.round(ingredient.calories * ratio)}
+                </td>
+
+                <td className="px-4 py-4 whitespace-nowrap text-right text-xs text-slate-500">
+                  <div className="flex flex-col items-end gap-1">
+                    <span>{item.threshold ?? 100}g</span>
+                    <button 
+                      onClick={() => handleThreshold(item)}
+                      className="text-emerald-600 hover:text-emerald-700 font-medium hover:underline"
+                    >
+                      Adjust
+                    </button>
                   </div>
                 </td>
-                <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
+
+                <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                   {isEditing ? (
                     <div className="flex justify-end space-x-2">
                       <button 
