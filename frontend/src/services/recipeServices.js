@@ -28,5 +28,11 @@ const deleteRecipe = async (id) => {
     return response.data
 }
 
-const recipeServices = { getRecipes, createRecipe, deleteRecipe }
+const updateRecipe = async (id, recipeData) => {
+    const config = { headers: getAuthHeader() }
+    const response = await axios.put(API_URL + id, recipeData, config)
+    return response.data
+}
+
+const recipeServices = { getRecipes, createRecipe, deleteRecipe, updateRecipe }
 export default recipeServices

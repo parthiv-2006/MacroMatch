@@ -8,6 +8,8 @@ const Recipes = () => {
     const [recipes, setRecipes] = useState([])
     const [loading, setLoading] = useState(true)
     const [consuming, setConsuming] = useState(false)
+    const [editingId, setEditingId] = useState(null)
+    const [editingName, setEditingName] = useState('')
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -57,6 +59,33 @@ const Recipes = () => {
         }
     }
 
+    const startEditingName = (recipe) => {
+        setEditingId(recipe._id)
+        setEditingName(recipe.name)
+    }
+
+    const cancelEditingName = () => {
+        setEditingId(null)
+        setEditingName('')
+    }
+
+    const saveEditingName = async (recipe) => {
+        const trimmed = editingName.trim()
+        if (!trimmed) {
+            toast.error('Name cannot be empty')
+            return
+        }
+        try {
+            const updated = await recipeServices.updateRecipe(recipe._id, { name: trimmed })
+            setRecipes(prev => prev.map(r => r._id === recipe._id ? updated : r))
+            setEditingId(null)
+            setEditingName('')
+            toast.success('Recipe renamed')
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to rename recipe')
+        }
+    }
+
     return (
         <div className="min-h-screen bg-[#f8fafc] py-10 px-4 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto">
@@ -96,7 +125,49 @@ const Recipes = () => {
                         {recipes.map((recipe) => (
                             <div key={recipe._id} className="bg-white shadow-sm rounded-xl overflow-hidden border border-slate-200 flex flex-col transition-all duration-200 hover:shadow-md">
                                 <div className="bg-slate-50/50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                                    <h3 className="text-lg font-semibold text-slate-900 truncate" title={recipe.name}>{recipe.name}</h3>
+                                    <div className="flex-1 min-w-0">
+                                        {editingId === recipe._id ? (
+                                            <div className="flex items-center space-x-2">
+                                                <input
+                                                    value={editingName}
+                                                    onChange={(e) => setEditingName(e.target.value)}
+                                                    onBlur={() => saveEditingName(recipe)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') saveEditingName(recipe)
+                                                        if (e.key === 'Escape') cancelEditingName()
+                                                    }}
+                                                    className="w-full text-lg font-semibold text-slate-900 bg-white border border-emerald-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                                    autoFocus
+                                                />
+                                                <button
+                                                    onClick={() => saveEditingName(recipe)}
+                                                    className="p-2 text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-full transition"
+                                                    title="Save name"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    onClick={cancelEditingName}
+                                                    className="p-2 text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-full transition"
+                                                    title="Cancel"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => startEditingName(recipe)}
+                                                className="text-left w-full text-lg font-semibold text-slate-900 truncate hover:text-emerald-600 transition"
+                                                title="Click to rename"
+                                            >
+                                                {recipe.name}
+                                            </button>
+                                        )}
+                                    </div>
                                     <button 
                                         onClick={() => handleDelete(recipe._id)}
                                         className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-all duration-200"
