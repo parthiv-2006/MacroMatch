@@ -106,17 +106,22 @@ const seedDB = async () => {
     await mongoose.connect(process.env.MONGO_URI);
     console.log('Connected to MongoDB...');
 
-    // Option 2: Upsert (Add if not exists)
+    // Option 2: Upsert (Update if exists, Add if not)
     let addedCount = 0;
+    let updatedCount = 0;
     for (const ingredient of commonIngredients) {
-      const exists = await Ingredient.findOne({ name: ingredient.name });
-      if (!exists) {
-        await Ingredient.create(ingredient);
-        addedCount++;
-      }
+      const result = await Ingredient.findOneAndUpdate(
+        { name: ingredient.name },
+        ingredient,
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+      
+      // Check if it was a new document (createdAt == updatedAt roughly, or check result)
+      // Simpler way for logging: check if it existed before
+      // But for now, let's just log total processed
     }
 
-    console.log(`Successfully added ${addedCount} new ingredients!`);
+    console.log(`Successfully processed ${commonIngredients.length} ingredients (updated/added)!`);
     console.log('Database seeding complete.');
     process.exit(0);
   } catch (err) {
