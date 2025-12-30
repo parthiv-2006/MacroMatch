@@ -58,7 +58,7 @@ const solveFromAllIngredients = (targets, ingredients, maxPerIngredient = 400) =
 }
 
 const generateMeal = async(req, res) => {
-    const { targetProtein, targetCarbs, targetFats } = req.body
+    const { targetProtein, targetCarbs, targetFats, flavorProfile } = req.body
 
     if (!targetProtein || !targetCarbs || !targetFats) {
         return res.status(400).json({message: "Please provide all target macros"})
@@ -71,13 +71,31 @@ const generateMeal = async(req, res) => {
             return res.status(400).json({message: "Your pantry is empty!"})
         }
 
+        // Filter by flavor profile (default to savory if not specified)
+        // Savory meals = Savory + Neutral ingredients
+        // Sweet meals = Sweet + Neutral ingredients
+        const targetFlavor = flavorProfile === 'sweet' ? 'sweet' : 'savory'
+        const allowedFlavors = [targetFlavor, 'neutral']
+
+        const filteredItems = pantryItems.filter(item => {
+            // Default to neutral if flavor is missing (backward compatibility)
+            const itemFlavor = item.ingredient.flavor || 'neutral'
+            return allowedFlavors.includes(itemFlavor)
+        })
+
+        if (filteredItems.length === 0) {
+            return res.status(400).json({
+                message: `No ingredients found for a ${targetFlavor} meal. Try adding more ${targetFlavor} or neutral items.`
+            })
+        }
+
         const targets = {
             protein: Number(targetProtein),
             carbs: Number(targetCarbs),
             fats: Number(targetFats)
         }
 
-        const mealPlans = solveMultipleMeals(targets, pantryItems, 3)
+        const mealPlans = solveMultipleMeals(targets, filteredItems, 3)
 
         if (mealPlans.length === 0) {
             return res.status(400).json({message: "No solution found. Try adjusting your targets or adding more variety to your pantry." })
@@ -92,7 +110,7 @@ const generateMeal = async(req, res) => {
 }
 
 const generateReverseMeal = async (req, res) => {
-    const { targetProtein, targetCarbs, targetFats } = req.body
+    const { targetProtein, targetCarbs, targetFats, flavorProfile } = req.body
 
     if (targetProtein == null || targetCarbs == null || targetFats == null) {
         return res.status(400).json({ message: "Please provide all target macros" })
@@ -105,13 +123,22 @@ const generateReverseMeal = async (req, res) => {
             return res.status(400).json({ message: "No ingredients available in database" })
         }
 
+        // Filter by flavor profile
+        const targetFlavor = flavorProfile === 'sweet' ? 'sweet' : 'savory'
+        const allowedFlavors = [targetFlavor, 'neutral']
+
+        const filteredIngredients = ingredients.filter(ing => {
+            const ingFlavor = ing.flavor || 'neutral'
+            return allowedFlavors.includes(ingFlavor)
+        })
+
         const targets = {
             protein: Number(targetProtein),
             carbs: Number(targetCarbs),
             fats: Number(targetFats)
         }
 
-        const solution = solveFromAllIngredients(targets, ingredients)
+        const solution = solveFromAllIngredients(targets, filteredIngredients)
 
         if (!solution) {
             return res.status(400).json({ message: "No solution found with current ingredient library" })
