@@ -6,7 +6,7 @@ import recipeServices from "../services/recipeServices";
 import { toast } from "react-toastify";
 
 const Generator = () => {
-    const [formData, setFormData] = useState({targetProtein: '', targetCarbs: '', targetFats: ''})
+    const [formData, setFormData] = useState({targetProtein: '', targetCarbs: '', targetFats: '', flavorProfile: 'savory'})
     const [loading, setLoading] = useState(false)
     const [mealPlans, setMealPlans] = useState([])
     const [selectedMeals, setSelectedMeals] = useState([])
@@ -148,6 +148,35 @@ const Generator = () => {
           <div className="bg-white shadow-sm rounded-xl p-6 border border-slate-200 h-fit lg:col-span-1">
             <h2 className="text-lg font-semibold text-slate-900 mb-6">Target Macros</h2>
             <form onSubmit={onSubmit} className="space-y-5">
+              
+              {/* Flavor Profile Toggle */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Flavor Profile</label>
+                <div className="flex p-1 bg-slate-100 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, flavorProfile: 'savory'})}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                      formData.flavorProfile === 'savory' 
+                        ? 'bg-white text-slate-900 shadow-sm ring-1 ring-black/5' 
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    Savory
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, flavorProfile: 'sweet'})}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                      formData.flavorProfile === 'sweet' 
+                        ? 'bg-white text-slate-900 shadow-sm ring-1 ring-black/5' 
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    Sweet
+                  </button>
+                </div>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Protein (g)</label>
                 <div className="relative rounded-xl shadow-sm">
