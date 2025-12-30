@@ -28,7 +28,7 @@ const AppShell = () => {
           <div className="flex items-center space-x-6">
             <button
               onClick={() => navigate('/')}
-              className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-300 text-transparent bg-clip-text tracking-tight"
+              className="text-xl sm:text-2xl font-bold bg-linear-to-r from-emerald-400 to-teal-300 text-transparent bg-clip-text tracking-tight"
             >
               MacroMatch
             </button>
@@ -53,8 +53,8 @@ const AppShell = () => {
               onClick={() => navigate('/generate')}
               className={`hidden sm:inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold shadow-lg transition ${
                 activePath === '/generate'
-                  ? 'bg-gradient-to-r from-emerald-400 to-teal-300 text-slate-900'
-                  : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400'
+                  ? 'bg-linear-to-r from-emerald-400 to-teal-300 text-slate-900'
+                  : 'bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400'
               }`}
             >
               Generate Plan

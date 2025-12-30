@@ -28,10 +28,10 @@ const LoadingScreen = ({ message = "Loading..." }) => {
         <div className="absolute w-full h-full bg-emerald-400/20 rounded-full animate-pulse-ring" style={{ animationDelay: '0.8s' }}></div>
         
         {/* Center Dot/Icon */}
-        <div className="relative w-6 h-6 bg-gradient-to-tr from-emerald-400 to-teal-300 rounded-full shadow-[0_0_15px_rgba(52,211,153,0.5)] animate-pulse-dot"></div>
+        <div className="relative w-6 h-6 bg-linear-to-tr from-emerald-400 to-teal-300 rounded-full shadow-[0_0_15px_rgba(52,211,153,0.5)] animate-pulse-dot"></div>
       </div>
 
-      <h2 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent animate-pulse">
+      <h2 className="text-2xl font-bold tracking-tight bg-linear-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent animate-pulse">
         MacroMatch
       </h2>
       <p className="mt-2 text-slate-400 text-sm font-medium tracking-wide">

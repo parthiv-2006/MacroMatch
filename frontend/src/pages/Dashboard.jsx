@@ -153,7 +153,7 @@ const Dashboard = () => {
               <div className="space-y-4">
                 <button 
                   onClick={() => handleNavigate('/dashboard')}
-                  className="w-full flex items-center justify-center px-4 py-3 border border-transparent shadow-lg text-sm font-medium rounded-xl text-slate-900 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
+                  className="w-full flex items-center justify-center px-4 py-3 border border-transparent shadow-lg text-sm font-medium rounded-xl text-slate-900 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
                 >
                   <span className="mr-2">📊</span> Dashboard
                 </button>
@@ -170,7 +170,7 @@ const Dashboard = () => {
                 </button>
                 <button 
                   onClick={() => handleNavigate('/generate')}
-                  className="w-full flex items-center justify-center px-4 py-3 border border-transparent shadow-sm text-sm font-medium rounded-xl text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
+                  className="w-full flex items-center justify-center px-4 py-3 border border-transparent shadow-sm text-sm font-medium rounded-xl text-white bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
                 >
                   <span className="mr-2">⚡</span> Generate Meal Plan
                 </button>
@@ -212,7 +212,7 @@ const Dashboard = () => {
                   {pantryItems.length} Items
                 </span>
               </div>
-              <div className="p-0 flex-grow">
+              <div className="p-0 grow">
                 {loading ? (
                   <div className="flex justify-center py-20">
                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-500"></div>

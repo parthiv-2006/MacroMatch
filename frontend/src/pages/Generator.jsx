@@ -136,7 +136,7 @@ const Generator = () => {
               <button
                 onClick={handleConsume}
                 disabled={consuming}
-                className="inline-flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-xl shadow-sm text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02]"
+                className="inline-flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-xl shadow-sm text-white bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.02]"
               >
                   {consuming ? 'Updating...' : `Consume Selected (${selectedMeals.length})`}
               </button>
@@ -249,7 +249,7 @@ const Generator = () => {
                   className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white transition-all duration-200
                     ${loading 
                       ? 'bg-emerald-400 cursor-not-allowed' 
-                      : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 hover:shadow-md hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500'
+                      : 'bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 hover:shadow-md hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500'
                     }`}
                 >
                   {loading ? (
@@ -297,7 +297,7 @@ const Generator = () => {
                   className={`bg-white/5 backdrop-blur-lg shadow-lg rounded-xl border overflow-hidden transition-all duration-200 cursor-pointer ${selectedMeals.includes(index) ? 'ring-2 ring-emerald-500 border-emerald-500 shadow-xl' : 'border-white/10 hover:border-emerald-500/50 hover:shadow-xl hover:bg-white/10'}`}
                   onClick={() => toggleMealSelection(index)}
                 >
-                <div className={`px-6 py-4 flex justify-between items-center ${selectedMeals.includes(index) ? 'bg-gradient-to-r from-emerald-600 to-teal-600' : 'bg-gradient-to-r from-emerald-500 to-teal-500'}`}>
+                <div className={`px-6 py-4 flex justify-between items-center ${selectedMeals.includes(index) ? 'bg-linear-to-r from-emerald-600 to-teal-600' : 'bg-linear-to-r from-emerald-500 to-teal-500'}`}>
                   <h2 className="text-lg font-medium text-white flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

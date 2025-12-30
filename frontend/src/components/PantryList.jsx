@@ -146,7 +146,7 @@ const PantryList = ({ items, onDelete, onUpdate, onUpdateThreshold }) => {
               >
                 <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-white">
                   <div className="flex items-center space-x-2">
-                    <span className="truncate max-w-[120px] sm:max-w-[180px]" title={ingredient.name}>{ingredient.name}</span>
+                    <span className="truncate max-w-30 sm:max-w-45" title={ingredient.name}>{ingredient.name}</span>
                     {item.isLowStock && (
                       <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-200 border border-amber-500/30">Low</span>
                     )}
