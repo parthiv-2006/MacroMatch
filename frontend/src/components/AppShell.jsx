@@ -15,8 +15,6 @@ const AppShell = () => {
   const { logout } = useContext(AuthContext)
 
   const activePath = useMemo(() => {
-    if (location.pathname.startsWith('/generate')) return '/generate'
-    if (location.pathname.startsWith('/new-ingredient')) return '/new-ingredient'
     const match = navLinks.find((link) => location.pathname === link.to)
     return match ? match.to : location.pathname
   }, [location.pathname])

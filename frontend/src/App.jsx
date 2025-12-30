@@ -2,9 +2,8 @@ import { Routes, Route } from 'react-router-dom'
 
 import Login from './pages/Login'
 import Register from './pages/Register'
-import Dashboard from './pages/Dashboard'
-import CreateIngredient from './pages/CreateIngredient'
-import Generator from './pages/Generator'
+import DashboardPage from './pages/DashboardPage'
+import GeneratorPage from './pages/GeneratorPage'
 import History from './pages/History'
 import Recipes from './pages/Recipes'
 import AnalyticsDashboard from './pages/AnalyticsDashboard'
@@ -22,10 +21,9 @@ function App() {
       <Routes>
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell />}>
-            <Route path='/' element={<Dashboard />} />
+            <Route path='/' element={<DashboardPage />} />
             <Route path='/dashboard' element={<AnalyticsDashboard />} />
-            <Route path='/new-ingredient' element={<CreateIngredient />} />
-            <Route path='/generate' element={<Generator />} />
+            <Route path='/generate' element={<GeneratorPage />} />
             <Route path='/history' element={<History />} />
             <Route path='/recipes' element={<Recipes />} />
           </Route>
