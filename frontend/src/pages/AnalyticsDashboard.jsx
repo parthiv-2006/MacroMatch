@@ -103,15 +103,19 @@ const buildInventoryBreakdown = (pantryItems) => {
 
 const MacroTooltip = ({ active, payload, label }) => {
   if (!active || !payload || payload.length === 0) return null
-  const data = payload.reduce((acc, { name, value }) => ({ ...acc, [name]: value }), {})
+  
+  // Extract values from payload array - each item has dataKey, value, and name
+  const proteinData = payload.find(item => item.dataKey === 'protein')
+  const carbsData = payload.find(item => item.dataKey === 'carbs')
+  const fatsData = payload.find(item => item.dataKey === 'fats')
 
   return (
     <div className="rounded-xl bg-[#0f1c2f] shadow-lg border border-white/10 px-4 py-3 text-sm">
       <div className="font-semibold text-white mb-1">{label}</div>
       <div className="space-y-1 text-slate-300">
-        <div className="flex justify-between"><span>Protein</span><span className="font-medium text-emerald-400">{Math.round(data.protein || 0)} g</span></div>
-        <div className="flex justify-between"><span>Carbs</span><span className="font-medium text-blue-400">{Math.round(data.carbs || 0)} g</span></div>
-        <div className="flex justify-between"><span>Fats</span><span className="font-medium text-amber-400">{Math.round(data.fats || 0)} g</span></div>
+        <div className="flex justify-between gap-4"><span>Protein:</span><span className="font-medium text-emerald-400">{proteinData?.value || 0} g</span></div>
+        <div className="flex justify-between gap-4"><span>Carbs:</span><span className="font-medium text-blue-400">{carbsData?.value || 0} g</span></div>
+        <div className="flex justify-between gap-4"><span>Fats:</span><span className="font-medium text-amber-400">{fatsData?.value || 0} g</span></div>
       </div>
     </div>
   )
@@ -119,11 +123,14 @@ const MacroTooltip = ({ active, payload, label }) => {
 
 const InventoryTooltip = ({ active, payload }) => {
   if (!active || !payload || payload.length === 0) return null
-  const { name, value } = payload[0].payload
+  const { name, value, percent } = payload[0].payload
   return (
     <div className="rounded-xl bg-[#0f1c2f] shadow-lg border border-white/10 px-4 py-3 text-sm">
       <div className="font-semibold text-white mb-1">{name}</div>
-      <div className="text-slate-300">{Math.round(value)} g in pantry</div>
+      <div className="space-y-1 text-slate-300">
+        <div className="flex justify-between gap-4"><span>Quantity:</span><span className="font-medium text-emerald-400">{Math.round(value)} g</span></div>
+        <div className="flex justify-between gap-4"><span>Percentage:</span><span className="font-medium text-blue-400">{percent}%</span></div>
+      </div>
     </div>
   )
 }
