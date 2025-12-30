@@ -74,8 +74,17 @@ const generateMeal = async(req, res) => {
         // Filter by flavor profile (default to savory if not specified)
         // Savory meals = Savory + Neutral ingredients
         // Sweet meals = Sweet + Neutral ingredients
-        const targetFlavor = flavorProfile === 'sweet' ? 'sweet' : 'savory'
-        const allowedFlavors = [targetFlavor, 'neutral']
+        // Neutral meals = Only Neutral ingredients
+        const targetFlavor = flavorProfile || 'savory'
+        let allowedFlavors = []
+
+        if (targetFlavor === 'sweet') {
+            allowedFlavors = ['sweet', 'neutral']
+        } else if (targetFlavor === 'neutral') {
+            allowedFlavors = ['neutral']
+        } else {
+            allowedFlavors = ['savory', 'neutral']
+        }
 
         const filteredItems = pantryItems.filter(item => {
             // Default to neutral if flavor is missing (backward compatibility)
@@ -124,8 +133,16 @@ const generateReverseMeal = async (req, res) => {
         }
 
         // Filter by flavor profile
-        const targetFlavor = flavorProfile === 'sweet' ? 'sweet' : 'savory'
-        const allowedFlavors = [targetFlavor, 'neutral']
+        const targetFlavor = flavorProfile || 'savory'
+        let allowedFlavors = []
+
+        if (targetFlavor === 'sweet') {
+            allowedFlavors = ['sweet', 'neutral']
+        } else if (targetFlavor === 'neutral') {
+            allowedFlavors = ['neutral']
+        } else {
+            allowedFlavors = ['savory', 'neutral']
+        }
 
         const filteredIngredients = ingredients.filter(ing => {
             const ingFlavor = ing.flavor || 'neutral'

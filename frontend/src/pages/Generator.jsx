@@ -175,6 +175,17 @@ const Generator = () => {
                   >
                     Sweet
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, flavorProfile: 'neutral'})}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                      formData.flavorProfile === 'neutral' 
+                        ? 'bg-white text-slate-900 shadow-sm ring-1 ring-black/5' 
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    Neutral
+                  </button>
                 </div>
               </div>
               <div>
