@@ -33,7 +33,7 @@ const Generator = () => {
             const response = await solverServices.generateMeal(formData)
             setMealPlans(response.mealPlans)
         } catch (err) {
-            toast.error(err.message || 'Failed to generate meal plan')
+            toast.error(err.response?.data?.message || err.message || 'Failed to generate meal plan')
         } finally {
             setLoading(false)
         }
