@@ -2,9 +2,11 @@ import {useState, useContext, useEffect} from 'react'
 import AuthContext from '../context/AuthContext'
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import LoadingScreen from '../components/LoadingScreen'
 
 const Login = () => {
   const [formData, setFormData] = useState({email: '', password: ''})
+  const [isLoading, setIsLoading] = useState(false)
   const {login, logout} = useContext(AuthContext)
   const navigate = useNavigate()
 
@@ -16,16 +18,24 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setIsLoading(true)
     try {
         await login({email: formData.email, password: formData.password})
+        // Add a small artificial delay to show the cool animation
+        await new Promise(resolve => setTimeout(resolve, 800))
         navigate('/')
     } catch (err) {
         const message = err?.response?.data?.message || err?.message || 'Login Failed'
         toast.error(message)
+        setIsLoading(false)
     }
   }
   
-    return (
+  if (isLoading) {
+    return <LoadingScreen message="Signing you in..." />
+  }
+
+  return (
     <div className="min-h-screen flex items-center justify-center bg-[#0b1524] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white/5 backdrop-blur-lg p-10 rounded-xl shadow-lg border border-white/10">
         <div>

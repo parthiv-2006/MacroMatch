@@ -2,9 +2,11 @@ import { useContext, useEffect, useState } from 'react'
 import AuthContext from '../context/AuthContext'
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import LoadingScreen from '../components/LoadingScreen'
 
 const Register = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' })
+  const [isLoading, setIsLoading] = useState(false)
   const { register, logout } = useContext(AuthContext)
   const navigate = useNavigate()
 
@@ -17,6 +19,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setIsLoading(true)
     try {
       await register({
         name: formData.name,
@@ -24,11 +27,18 @@ const Register = () => {
         password: formData.password,
         confirmPassword: formData.confirmPassword
       })
+      // Add a small artificial delay to show the cool animation
+      await new Promise(resolve => setTimeout(resolve, 800))
       navigate('/', { replace: true })
     } catch (err) {
       const message = err.response?.data?.message || 'Registration Failed'
       toast.error(message)
+      setIsLoading(false)
     }
+  }
+
+  if (isLoading) {
+    return <LoadingScreen message="Creating your account..." />
   }
 
   return (
