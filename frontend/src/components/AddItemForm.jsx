@@ -2,6 +2,7 @@ import {useState, useEffect} from 'react'
 import { useNavigate } from 'react-router-dom'
 import ingredientServices from '../services/ingredientServices'
 import pantryServices from '../services/pantryServices'
+import ValidationError from './ValidationError'
 
 
 const AddItemForm = ({ onItemAdded }) => {
@@ -12,7 +13,7 @@ const AddItemForm = ({ onItemAdded }) => {
     const [quantity, setQuantity] = useState('')
     const [threshold, setThreshold] = useState('100')
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [errors, setErrors] = useState({})
 
   const navigate = useNavigate()
 
@@ -22,7 +23,7 @@ const AddItemForm = ({ onItemAdded }) => {
             const data = await ingredientServices.getIngredients()
             setIngredients(data)
         } catch(err) {
-            setError("Failed to load ingredients")
+            setErrors({ general: "Failed to load ingredients" })
         } finally {
             setLoading(false)
         }
@@ -36,11 +37,24 @@ const AddItemForm = ({ onItemAdded }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
-    if (!selectedIngredient || !quantity) {
-        setError('Please select a valid food item and quantity')
-        return
+    const newErrors = {}
+    
+    if (!selectedIngredient) {
+      newErrors.ingredient = 'Please select a food item'
     }
+    
+    if (!quantity) {
+      newErrors.quantity = 'Quantity is required'
+    } else if (Number(quantity) <= 0) {
+      newErrors.quantity = 'Quantity must be greater than 0'
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      return
+    }
+    
+    setErrors({})
     try {
         await pantryServices.addPantryItem({
             ingredientId: selectedIngredient,
@@ -53,7 +67,7 @@ const AddItemForm = ({ onItemAdded }) => {
         setSelectedIngredient('')
         if (onItemAdded) onItemAdded()
     } catch (err) {
-        setError(err.response?.data?.message || 'Failed to add item')
+        setErrors({ general: err.response?.data?.message || 'Failed to add item' })
     }
   }
 
@@ -61,7 +75,7 @@ const AddItemForm = ({ onItemAdded }) => {
       setSelectedIngredient(ingredient._id)
       setSearchTerm(ingredient.name)
       setShowSuggestions(false)
-      setError('')
+      if (errors.ingredient) setErrors({ ...errors, ingredient: '' })
   }
 
   if (loading) {return <p className="text-sm text-slate-500">Loading Ingredients...</p>}
@@ -69,9 +83,9 @@ const AddItemForm = ({ onItemAdded }) => {
     return (
     <div>
         <h3 className="text-lg font-semibold text-white mb-6">Add to Pantry</h3>
-        {error && <p className="text-sm text-red-200 mb-4 bg-red-500/10 p-2 rounded border border-red-500/20">{error}</p>}
+        {errors.general && <p className="text-sm text-red-200 mb-4 bg-red-500/10 p-2 rounded border border-red-500/20">{errors.general}</p>}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             <div className="relative">
                 <label className="block text-sm font-medium text-slate-300 mb-1.5">
                     Food Item
@@ -86,9 +100,14 @@ const AddItemForm = ({ onItemAdded }) => {
                     }}
                     onFocus={() => setShowSuggestions(true)}
                     placeholder="Search for food..."
-                    className="block w-full pl-4 pr-10 py-2.5 text-base bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 sm:text-sm rounded-xl transition-all duration-200 shadow-sm"
+                    className="block w-full pl-4 pr-10 py-2.5 text-base bg-white/5 border text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 sm:text-sm rounded-xl transition-all duration-200 shadow-sm"
                     autoComplete="off"
+                    style={{
+                        borderColor: errors.ingredient ? '#ef4444' : 'rgba(255, 255, 255, 0.1)',
+                        boxShadow: errors.ingredient ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : 'none'
+                    }}
                 />
+                <ValidationError show={!!errors.ingredient} message={errors.ingredient} />
                 
                 {/* Suggestions Dropdown */}
                 {showSuggestions && searchTerm && !selectedIngredient && (
@@ -131,10 +150,17 @@ const AddItemForm = ({ onItemAdded }) => {
                     min="1"
                     placeholder="e.g. 100"
                     value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                    required
-                    className="appearance-none block w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl shadow-sm placeholder-slate-500 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 sm:text-sm transition-all duration-200"
+                    onChange={(e) => {
+                        setQuantity(e.target.value)
+                        if (errors.quantity) setErrors({ ...errors, quantity: '' })
+                    }}
+                    className="appearance-none block w-full px-4 py-2.5 bg-white/5 border rounded-xl shadow-sm placeholder-slate-500 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 sm:text-sm transition-all duration-200"
+                    style={{
+                        borderColor: errors.quantity ? '#ef4444' : 'rgba(255, 255, 255, 0.1)',
+                        boxShadow: errors.quantity ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : 'none'
+                    }}
                 />
+                <ValidationError show={!!errors.quantity} message={errors.quantity} />
             </div>
 
             <div>

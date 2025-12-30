@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import solverServices from "../services/solverServices";
 import pantryServices from "../services/pantryServices";
 import recipeServices from "../services/recipeServices";
+import ValidationError from "../components/ValidationError";
 import { toast } from "react-toastify";
 
 const GeneratorPage = () => {
     const [formData, setFormData] = useState({targetProtein: '', targetCarbs: '', targetFats: '', flavorProfile: 'savory'})
+    const [errors, setErrors] = useState({})
     const [loading, setLoading] = useState(false)
     const [mealPlans, setMealPlans] = useState([])
     const [selectedMeals, setSelectedMeals] = useState([])
@@ -21,10 +23,37 @@ const GeneratorPage = () => {
         setFormData((prevState) => ({
             ...prevState, [e.target.name]: e.target.value
         }))
+        if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' })
     }
 
     const onSubmit = async(e) => {
         e.preventDefault()
+        const newErrors = {}
+        
+        if (!formData.targetProtein) {
+            newErrors.targetProtein = 'Protein target is required'
+        } else if (Number(formData.targetProtein) <= 0) {
+            newErrors.targetProtein = 'Protein target must be greater than 0'
+        }
+        
+        if (!formData.targetCarbs) {
+            newErrors.targetCarbs = 'Carbs target is required'
+        } else if (Number(formData.targetCarbs) <= 0) {
+            newErrors.targetCarbs = 'Carbs target must be greater than 0'
+        }
+        
+        if (!formData.targetFats) {
+            newErrors.targetFats = 'Fats target is required'
+        } else if (Number(formData.targetFats) <= 0) {
+            newErrors.targetFats = 'Fats target must be greater than 0'
+        }
+        
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors)
+            return
+        }
+        
+        setErrors({})
         setLoading(true)
         setMealPlans([])
         setSelectedMeals([])
@@ -43,6 +72,32 @@ const GeneratorPage = () => {
 
     const onSubmitReverse = async (e) => {
         e.preventDefault()
+        const newErrors = {}
+        
+        if (!formData.targetProtein) {
+            newErrors.targetProtein = 'Protein target is required'
+        } else if (Number(formData.targetProtein) <= 0) {
+            newErrors.targetProtein = 'Protein target must be greater than 0'
+        }
+        
+        if (!formData.targetCarbs) {
+            newErrors.targetCarbs = 'Carbs target is required'
+        } else if (Number(formData.targetCarbs) <= 0) {
+            newErrors.targetCarbs = 'Carbs target must be greater than 0'
+        }
+        
+        if (!formData.targetFats) {
+            newErrors.targetFats = 'Fats target is required'
+        } else if (Number(formData.targetFats) <= 0) {
+            newErrors.targetFats = 'Fats target must be greater than 0'
+        }
+        
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors)
+            return
+        }
+        
+        setErrors({})
         setReverseLoading(true)
         setReverseResult(null)
 
@@ -136,7 +191,7 @@ const GeneratorPage = () => {
             {/* Form Section */}
             <div className="bg-white/5 backdrop-blur-lg shadow-lg rounded-xl p-8 border border-white/10">
                 <h2 className="text-lg font-semibold text-white mb-6">Target Macros</h2>
-                <form onSubmit={onSubmit} className="space-y-5">
+                <form onSubmit={onSubmit} className="space-y-5" noValidate>
                     {/* Flavor Profile */}
                     <div>
                         <label className="block text-sm font-medium text-slate-300 mb-2">Flavor Profile</label>
@@ -173,14 +228,18 @@ const GeneratorPage = () => {
                                         name={field.name}
                                         value={formData[field.name]}
                                         onChange={onChange}
-                                        required
                                         placeholder={field.placeholder}
-                                        className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border border-white/10 text-white rounded-xl py-2.5 transition-all duration-200 placeholder-slate-500"
+                                        className="focus:ring-emerald-500/50 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border text-white rounded-xl py-2.5 transition-all duration-200 placeholder-slate-500"
+                                        style={{
+                                            borderColor: errors[field.name] ? '#ef4444' : 'rgba(255, 255, 255, 0.1)',
+                                            boxShadow: errors[field.name] ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : 'none'
+                                        }}
                                     />
                                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                         <span className="text-slate-400 sm:text-sm">g</span>
                                     </div>
                                 </div>
+                                <ValidationError show={!!errors[field.name]} message={errors[field.name]} />
                             </div>
                         ))}
                     </div>

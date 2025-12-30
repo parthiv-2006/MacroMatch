@@ -3,9 +3,11 @@ import AuthContext from '../context/AuthContext'
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import LoadingScreen from '../components/LoadingScreen'
+import ValidationError from '../components/ValidationError'
 
 const Login = () => {
   const [formData, setFormData] = useState({email: '', password: ''})
+  const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const {login, logout} = useContext(AuthContext)
   const navigate = useNavigate()
@@ -18,10 +20,27 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    const newErrors = {}
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email address is required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address'
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Password is required'
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      return
+    }
+    
+    setErrors({})
     setIsLoading(true)
     try {
         await login({email: formData.email, password: formData.password})
-        // Add a small artificial delay to show the cool animation
         await new Promise(resolve => setTimeout(resolve, 800))
         navigate('/')
     } catch (err) {
@@ -50,7 +69,7 @@ const Login = () => {
           </p>
         </div>
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>
           <div className="space-y-5">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1.5">
@@ -62,13 +81,20 @@ const Login = () => {
                   name="email"
                   type="email"
                   autoComplete="email"
-                  required
-                  className="appearance-none block w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl shadow-sm placeholder-slate-500 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 sm:text-sm transition-all duration-200"
+                  className="appearance-none block w-full px-4 py-2.5 bg-white/5 border rounded-xl shadow-sm placeholder-slate-500 text-white focus:outline-none focus:ring-2 sm:text-sm transition-all duration-200"
                   placeholder="you@example.com"
                   value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  onChange={(e) => {
+                    setFormData({...formData, email: e.target.value})
+                    if (errors.email) setErrors({...errors, email: ''})
+                  }}
+                  style={{
+                    borderColor: errors.email ? 'rgb(239, 68, 68)' : 'rgb(255, 255, 255, 0.1)',
+                    boxShadow: errors.email ? '0 0 0 2px rgb(239, 68, 68, 0.1)' : 'none'
+                  }}
                 />
               </div>
+              <ValidationError message={errors.email} show={!!errors.email} />
             </div>
 
             <div>
@@ -81,12 +107,19 @@ const Login = () => {
                   name="password"
                   type="password"
                   autoComplete="current-password"
-                  required
-                  className="appearance-none block w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl shadow-sm placeholder-slate-500 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 sm:text-sm transition-all duration-200"
+                  className="appearance-none block w-full px-4 py-2.5 bg-white/5 border rounded-xl shadow-sm placeholder-slate-500 text-white focus:outline-none focus:ring-2 sm:text-sm transition-all duration-200"
                   value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  onChange={(e) => {
+                    setFormData({...formData, password: e.target.value})
+                    if (errors.password) setErrors({...errors, password: ''})
+                  }}
+                  style={{
+                    borderColor: errors.password ? 'rgb(239, 68, 68)' : 'rgb(255, 255, 255, 0.1)',
+                    boxShadow: errors.password ? '0 0 0 2px rgb(239, 68, 68, 0.1)' : 'none'
+                  }}
                 />
               </div>
+              <ValidationError message={errors.password} show={!!errors.password} />
             </div>
           </div>
 

@@ -2,19 +2,62 @@ import ingredientServices from "../services/ingredientServices";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import ValidationError from "../components/ValidationError";
 
 
 function CreateIngredient() {
     const navigate = useNavigate()
     const [ingredient, setIngredient] = useState({name: '', calories: '', 
         protein: '', carbs: '', fats: '', servingSize: 100})
+    const [errors, setErrors] = useState({})
 
     const handleChange = (e) => {
     setIngredient({ ...ingredient, [e.target.name]: e.target.value })
+    if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' })
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        const newErrors = {}
+        
+        if (!ingredient.name.trim()) {
+            newErrors.name = 'Food name is required'
+        }
+        
+        if (!ingredient.calories) {
+            newErrors.calories = 'Calories are required'
+        } else if (Number(ingredient.calories) <= 0) {
+            newErrors.calories = 'Calories must be greater than 0'
+        }
+        
+        if (!ingredient.protein) {
+            newErrors.protein = 'Protein is required'
+        } else if (Number(ingredient.protein) < 0) {
+            newErrors.protein = 'Protein cannot be negative'
+        }
+        
+        if (!ingredient.carbs) {
+            newErrors.carbs = 'Carbs are required'
+        } else if (Number(ingredient.carbs) < 0) {
+            newErrors.carbs = 'Carbs cannot be negative'
+        }
+        
+        if (!ingredient.fats) {
+            newErrors.fats = 'Fats are required'
+        } else if (Number(ingredient.fats) < 0) {
+            newErrors.fats = 'Fats cannot be negative'
+        }
+        
+        if (!ingredient.servingSize) {
+            newErrors.servingSize = 'Serving size is required'
+        } else if (Number(ingredient.servingSize) <= 0) {
+            newErrors.servingSize = 'Serving size must be greater than 0'
+        }
+        
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors)
+            return
+        }
 
         const { calories, protein, carbs, fats } = ingredient
         const calculatedCals = (Number(protein) * 4) + (Number(carbs) * 4) + (Number(fats) * 9)
@@ -68,17 +111,21 @@ function CreateIngredient() {
                 <div className="bg-white/5 backdrop-blur-lg shadow-lg rounded-xl overflow-hidden border border-white/10">
                     <div className="p-6 sm:p-8">
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                             <div>
                                 <label className="block text-sm font-medium text-slate-300 mb-1.5">Food Name</label>
                                 <input 
                                     name="name" 
                                     value={ingredient.name} 
                                     onChange={handleChange} 
-                                    required 
                                     placeholder="e.g. Greek Yogurt" 
-                                    className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full shadow-sm sm:text-sm bg-white/5 border-white/10 text-white rounded-xl py-2.5 px-4 border transition-all duration-200 placeholder-slate-500"
+                                    className="focus:ring-emerald-500/50 block w-full shadow-sm sm:text-sm bg-white/5 border text-white rounded-xl py-2.5 px-4 transition-all duration-200 placeholder-slate-500"
+                                    style={{
+                                        borderColor: errors.name ? '#ef4444' : 'rgba(255, 255, 255, 0.1)',
+                                        boxShadow: errors.name ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : 'none'
+                                    }}
                                 />
+                                <ValidationError show={!!errors.name} message={errors.name} />
                             </div>
 
                             <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
@@ -90,13 +137,17 @@ function CreateIngredient() {
                                             name="servingSize" 
                                             value={ingredient.servingSize} 
                                             onChange={handleChange} 
-                                            required 
-                                            className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border-white/10 text-white rounded-xl py-2.5 px-4 border transition-all duration-200 placeholder-slate-500"
+                                            className="focus:ring-emerald-500/50 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border text-white rounded-xl py-2.5 px-4 transition-all duration-200 placeholder-slate-500"
+                                            style={{
+                                                borderColor: errors.servingSize ? '#ef4444' : 'rgba(255, 255, 255, 0.1)',
+                                                boxShadow: errors.servingSize ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : 'none'
+                                            }}
                                         />
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                             <span className="text-slate-400 sm:text-sm">g</span>
                                         </div>
                                     </div>
+                                    <ValidationError show={!!errors.servingSize} message={errors.servingSize} />
                                     <p className="mt-1.5 text-xs text-slate-400">Standard serving size</p>
                                 </div>
                                 
@@ -108,13 +159,17 @@ function CreateIngredient() {
                                             name="calories" 
                                             value={ingredient.calories} 
                                             onChange={handleChange} 
-                                            required 
-                                            className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border-white/10 text-white rounded-xl py-2.5 px-4 border transition-all duration-200 placeholder-slate-500"
+                                            className="focus:ring-emerald-500/50 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border text-white rounded-xl py-2.5 px-4 transition-all duration-200 placeholder-slate-500"
+                                            style={{
+                                                borderColor: errors.calories ? '#ef4444' : 'rgba(255, 255, 255, 0.1)',
+                                                boxShadow: errors.calories ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : 'none'
+                                            }}
                                         />
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                             <span className="text-slate-400 sm:text-sm">kcal</span>
                                         </div>
                                     </div>
+                                    <ValidationError show={!!errors.calories} message={errors.calories} />
                                     <p className="mt-1.5 text-xs text-slate-400">Per serving</p>
                                 </div>
                             </div>
@@ -130,13 +185,17 @@ function CreateIngredient() {
                                                 name="protein" 
                                                 value={ingredient.protein} 
                                                 onChange={handleChange} 
-                                                required 
-                                                className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border-white/10 text-white rounded-xl py-2.5 px-4 border transition-all duration-200 placeholder-slate-500"
+                                                className="focus:ring-emerald-500/50 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border text-white rounded-xl py-2.5 px-4 transition-all duration-200 placeholder-slate-500"
+                                                style={{
+                                                    borderColor: errors.protein ? '#ef4444' : 'rgba(255, 255, 255, 0.1)',
+                                                    boxShadow: errors.protein ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : 'none'
+                                                }}
                                             />
                                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                                 <span className="text-slate-400 sm:text-sm">g</span>
                                             </div>
                                         </div>
+                                        <ValidationError show={!!errors.protein} message={errors.protein} />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-slate-300 mb-1.5">Carbs</label>
@@ -146,13 +205,17 @@ function CreateIngredient() {
                                                 name="carbs" 
                                                 value={ingredient.carbs} 
                                                 onChange={handleChange} 
-                                                required 
-                                                className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border-white/10 text-white rounded-xl py-2.5 px-4 border transition-all duration-200 placeholder-slate-500"
+                                                className="focus:ring-emerald-500/50 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border text-white rounded-xl py-2.5 px-4 transition-all duration-200 placeholder-slate-500"
+                                                style={{
+                                                    borderColor: errors.carbs ? '#ef4444' : 'rgba(255, 255, 255, 0.1)',
+                                                    boxShadow: errors.carbs ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : 'none'
+                                                }}
                                             />
                                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                                 <span className="text-slate-400 sm:text-sm">g</span>
                                             </div>
                                         </div>
+                                        <ValidationError show={!!errors.carbs} message={errors.carbs} />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-slate-300 mb-1.5">Fats</label>
@@ -162,13 +225,17 @@ function CreateIngredient() {
                                                 name="fats" 
                                                 value={ingredient.fats} 
                                                 onChange={handleChange} 
-                                                required 
-                                                className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border-white/10 text-white rounded-xl py-2.5 px-4 border transition-all duration-200 placeholder-slate-500"
+                                                className="focus:ring-emerald-500/50 block w-full pl-4 pr-12 sm:text-sm bg-white/5 border text-white rounded-xl py-2.5 px-4 transition-all duration-200 placeholder-slate-500"
+                                                style={{
+                                                    borderColor: errors.fats ? '#ef4444' : 'rgba(255, 255, 255, 0.1)',
+                                                    boxShadow: errors.fats ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : 'none'
+                                                }}
                                             />
                                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                                 <span className="text-slate-400 sm:text-sm">g</span>
                                             </div>
                                         </div>
+                                        <ValidationError show={!!errors.fats} message={errors.fats} />
                                     </div>
                                 </div>
                             </div>
