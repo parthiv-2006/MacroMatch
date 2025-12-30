@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import recipeServices from '../services/recipeServices'
 import pantryServices from '../services/pantryServices'
+import ConfirmModal from '../components/ConfirmModal'
 import { toast } from 'react-toastify'
 
 const Recipes = () => {
@@ -10,6 +11,9 @@ const Recipes = () => {
     const [consuming, setConsuming] = useState(false)
     const [editingId, setEditingId] = useState(null)
     const [editingName, setEditingName] = useState('')
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [showCookModal, setShowCookModal] = useState(false)
+    const [selectedRecipe, setSelectedRecipe] = useState(null)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -28,10 +32,20 @@ const Recipes = () => {
     }, [])
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this recipe?")) return
+        const dontAsk = localStorage.getItem('dontAsk_deleteRecipe')
+        if (dontAsk === 'true') {
+            executeDelete(id)
+        } else {
+            setSelectedRecipe({ _id: id })
+            setShowDeleteModal(true)
+        }
+    }
+
+    const executeDelete = async (id) => {
+        const recipeId = id || selectedRecipe?._id
         try {
-            await recipeServices.deleteRecipe(id)
-            setRecipes(recipes.filter(r => r._id !== id))
+            await recipeServices.deleteRecipe(recipeId)
+            setRecipes(recipes.filter(r => r._id !== recipeId))
             toast.success("Recipe deleted")
         } catch (err) {
             toast.error("Failed to delete recipe")
@@ -39,13 +53,22 @@ const Recipes = () => {
     }
 
     const handleCook = async (recipe) => {
-        if (!window.confirm(`Cook "${recipe.name}"? This will remove items from your pantry.`)) return
-        
+        const dontAsk = localStorage.getItem('dontAsk_cookRecipe')
+        if (dontAsk === 'true') {
+            executeCook(recipe)
+        } else {
+            setSelectedRecipe(recipe)
+            setShowCookModal(true)
+        }
+    }
+    
+    const executeCook = async (recipe) => {
+        const recipeData = recipe || selectedRecipe
         setConsuming(true)
         try {
             // Convert recipe ingredients array back to object format expected by consumePantryItems
             const ingredientsToConsume = {}
-            recipe.ingredients.forEach(item => {
+            recipeData.ingredients.forEach(item => {
                 ingredientsToConsume[item.name] = item.amount
             })
 
@@ -225,6 +248,35 @@ const Recipes = () => {
                     </div>
                 )}
             </div>
+
+            {/* Modals */}
+            <ConfirmModal
+                isOpen={showDeleteModal}
+                onClose={() => {
+                    setShowDeleteModal(false)
+                    setSelectedRecipe(null)
+                }}
+                onConfirm={() => executeDelete()}
+                title="Delete Recipe"
+                message="Are you sure you want to delete this recipe?"
+                confirmText="Delete"
+                showDontAskAgain={true}
+                dontAskAgainKey="deleteRecipe"
+            />
+
+            <ConfirmModal
+                isOpen={showCookModal}
+                onClose={() => {
+                    setShowCookModal(false)
+                    setSelectedRecipe(null)
+                }}
+                onConfirm={() => executeCook()}
+                title="Cook Recipe"
+                message={`Cook "${selectedRecipe?.name}"? This will remove items from your pantry.`}
+                confirmText="Cook"
+                showDontAskAgain={true}
+                dontAskAgainKey="cookRecipe"
+            />
         </div>
     )
 }

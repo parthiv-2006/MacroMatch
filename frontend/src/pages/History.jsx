@@ -2,11 +2,16 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import pantryServices from '../services/pantryServices'
 import recipeServices from '../services/recipeServices'
+import ConfirmModal from '../components/ConfirmModal'
+import PromptModal from '../components/PromptModal'
 import { toast } from 'react-toastify'
 
 const History = () => {
     const [history, setHistory] = useState([])
     const [loading, setLoading] = useState(true)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [showSaveRecipeModal, setShowSaveRecipeModal] = useState(false)
+    const [selectedLog, setSelectedLog] = useState(null)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -25,11 +30,20 @@ const History = () => {
     }, [])
 
     const handleDeleteLog = async (id) => {
-        if (!window.confirm('Delete this meal from history?')) return
+        const dontAsk = localStorage.getItem('dontAsk_deleteMeal')
+        if (dontAsk === 'true') {
+            executeDeleteLog(id)
+        } else {
+            setSelectedLog({ _id: id })
+            setShowDeleteModal(true)
+        }
+    }
 
+    const executeDeleteLog = async (id) => {
+        const logId = id || selectedLog?._id
         try {
-            await pantryServices.deleteMealLog(id)
-            setHistory(prev => prev.filter(log => log._id !== id))
+            await pantryServices.deleteMealLog(logId)
+            setHistory(prev => prev.filter(log => log._id !== logId))
             toast.success('Meal removed from history')
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to delete meal')
@@ -37,13 +51,17 @@ const History = () => {
     }
 
     const handleSaveRecipe = async (log) => {
-        const name = window.prompt('Enter a name for this recipe:', `Meal from ${new Date(log.date).toLocaleDateString()}`)
-        if (!name) return
+        setSelectedLog(log)
+        setShowSaveRecipeModal(true)
+    }
+
+    const executeSaveRecipe = async (name) => {
+        if (!name || !selectedLog) return
 
         try {
             // Transform ingredients array to object { "Name": Amount } expected by backend
             const ingredientsObj = {}
-            log.items.forEach(item => {
+            selectedLog.items.forEach(item => {
                 ingredientsObj[item.ingredientName] = item.amount
             })
 
@@ -195,6 +213,34 @@ const History = () => {
                     </div>
                 )}
             </div>
+
+            {/* Modals */}
+            <ConfirmModal
+                isOpen={showDeleteModal}
+                onClose={() => {
+                    setShowDeleteModal(false)
+                    setSelectedLog(null)
+                }}
+                onConfirm={() => executeDeleteLog()}
+                title="Delete Meal"
+                message="Are you sure you want to delete this meal from history?"
+                confirmText="Delete"
+                showDontAskAgain={true}
+                dontAskAgainKey="deleteMeal"
+            />
+
+            <PromptModal
+                isOpen={showSaveRecipeModal}
+                onClose={() => {
+                    setShowSaveRecipeModal(false)
+                    setSelectedLog(null)
+                }}
+                onSubmit={executeSaveRecipe}
+                title="Save as Recipe"
+                message="Enter a name for this recipe:"
+                placeholder="e.g. My Favorite Meal"
+                defaultValue={selectedLog ? `Meal from ${new Date(selectedLog.date).toLocaleDateString()}` : ''}
+            />
         </div>
     )
 }

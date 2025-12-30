@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import ValidationError from "../components/ValidationError";
+import ConfirmModal from "../components/ConfirmModal";
 
 
 function CreateIngredient() {
@@ -10,6 +11,8 @@ function CreateIngredient() {
     const [ingredient, setIngredient] = useState({name: '', calories: '', 
         protein: '', carbs: '', fats: '', servingSize: 100})
     const [errors, setErrors] = useState({})
+    const [showCalorieWarning, setShowCalorieWarning] = useState(false)
+    const [calculatedCals, setCalculatedCals] = useState(0)
 
     const handleChange = (e) => {
     setIngredient({ ...ingredient, [e.target.name]: e.target.value })
@@ -60,15 +63,24 @@ function CreateIngredient() {
         }
 
         const { calories, protein, carbs, fats } = ingredient
-        const calculatedCals = (Number(protein) * 4) + (Number(carbs) * 4) + (Number(fats) * 9)
+        const calcCals = (Number(protein) * 4) + (Number(carbs) * 4) + (Number(fats) * 9)
     
         // Warn if calories are wildly different (>20% off)
-        if (Math.abs(Number(calories) - calculatedCals) > (Number(calories) * 0.2)) {
-        if (!window.confirm(`Warning: Your macros sum to ~${Math.round(calculatedCals)} kcal, but you entered ${calories} kcal. Continue?`)) {
+        if (Math.abs(Number(calories) - calcCals) > (Number(calories) * 0.2)) {
+            const dontAsk = localStorage.getItem('dontAsk_calorieWarning')
+            if (dontAsk === 'true') {
+                saveIngredient()
+            } else {
+                setCalculatedCals(Math.round(calcCals))
+                setShowCalorieWarning(true)
+            }
             return
         }
-        }
 
+        saveIngredient()
+    }
+
+    const saveIngredient = async () => {
         try {
             await ingredientServices.createIngredient({
                 name: ingredient.name,
@@ -252,6 +264,18 @@ function CreateIngredient() {
                     </div>
                 </div>
             </div>
+
+            {/* Modal */}
+            <ConfirmModal
+                isOpen={showCalorieWarning}
+                onClose={() => setShowCalorieWarning(false)}
+                onConfirm={saveIngredient}
+                title="Calorie Mismatch Warning"
+                message={`Warning: Your macros sum to ~${calculatedCals} kcal, but you entered ${ingredient.calories} kcal. Do you want to continue?`}
+                confirmText="Continue Anyway"
+                showDontAskAgain={true}
+                dontAskAgainKey="calorieWarning"
+            />
         </div>
     )
 }

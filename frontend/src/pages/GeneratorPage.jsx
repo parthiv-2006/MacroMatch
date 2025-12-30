@@ -4,6 +4,8 @@ import solverServices from "../services/solverServices";
 import pantryServices from "../services/pantryServices";
 import recipeServices from "../services/recipeServices";
 import ValidationError from "../components/ValidationError";
+import ConfirmModal from "../components/ConfirmModal";
+import PromptModal from "../components/PromptModal";
 import { toast } from "react-toastify";
 
 const GeneratorPage = () => {
@@ -16,6 +18,9 @@ const GeneratorPage = () => {
     const [reverseLoading, setReverseLoading] = useState(false)
     const [reverseResult, setReverseResult] = useState(null)
     const [activeTab, setActiveTab] = useState('meals')
+    const [showConsumeModal, setShowConsumeModal] = useState(false)
+    const [showRecipeModal, setShowRecipeModal] = useState(false)
+    const [selectedPlan, setSelectedPlan] = useState(null)
     const shoppingListRef = useRef(null)
     const navigate = useNavigate()
     
@@ -123,8 +128,17 @@ const GeneratorPage = () => {
 
     const handleConsume = async () => {
         if (selectedMeals.length === 0) return
-        if (!window.confirm(`Are you sure you want to consume ${selectedMeals.length} meal(s)? This will remove items from your pantry.`)) return
+        
+        // Check if user has opted out of confirmation
+        const dontAsk = localStorage.getItem('dontAsk_consumeMeals')
+        if (dontAsk === 'true') {
+            executeConsume()
+        } else {
+            setShowConsumeModal(true)
+        }
+    }
 
+    const executeConsume = async () => {
         setConsuming(true)
         try {
             const aggregatedIngredients = {}
@@ -150,15 +164,19 @@ const GeneratorPage = () => {
         }
     }
 
-    const handleSaveRecipe = async (e, plan) => {
+    const handleSaveRecipe = (e, plan) => {
         e.stopPropagation()
-        const name = prompt("Enter a name for this recipe:")
-        if (!name) return
+        setSelectedPlan(plan)
+        setShowRecipeModal(true)
+    }
+
+    const executeSaveRecipe = async (name) => {
+        if (!name || !selectedPlan) return
 
         try {
             await recipeServices.createRecipe({
                 name,
-                ingredients: plan
+                ingredients: selectedPlan
             })
             toast.success("Recipe saved successfully!")
         } catch (err) {
@@ -506,6 +524,30 @@ const GeneratorPage = () => {
                     )}
                 </div>
             )}
+
+            {/* Modals */}
+            <ConfirmModal
+                isOpen={showConsumeModal}
+                onClose={() => setShowConsumeModal(false)}
+                onConfirm={executeConsume}
+                title="Consume Meals"
+                message={`Are you sure you want to consume ${selectedMeals.length} meal(s)? This will remove items from your pantry.`}
+                confirmText="Consume"
+                showDontAskAgain={true}
+                dontAskAgainKey="consumeMeals"
+            />
+
+            <PromptModal
+                isOpen={showRecipeModal}
+                onClose={() => {
+                    setShowRecipeModal(false)
+                    setSelectedPlan(null)
+                }}
+                onSubmit={executeSaveRecipe}
+                title="Save Recipe"
+                message="Enter a name for this recipe:"
+                placeholder="e.g. My Protein Bowl"
+            />
         </div>
     )
 }

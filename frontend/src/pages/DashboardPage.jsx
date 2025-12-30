@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import GeneratorPage from './GeneratorPage'
 import CreateIngredient from './CreateIngredient'
+import ConfirmModal from '../components/ConfirmModal'
+import PromptModal from '../components/PromptModal'
 
 const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState('pantry')
@@ -14,6 +16,9 @@ const DashboardPage = () => {
   const [error, setError] = useState('')
   const [lowStock, setLowStock] = useState([])
   const [loadingLowStock, setLoadingLowStock] = useState(true)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showThresholdModal, setShowThresholdModal] = useState(false)
+  const [selectedItem, setSelectedItem] = useState(null)
   const navigate = useNavigate()
   const { logout } = useContext(AuthContext)
 
@@ -48,10 +53,20 @@ const DashboardPage = () => {
   }, [])
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to remove this item?")) return
+    const dontAsk = localStorage.getItem('dontAsk_deleteItem')
+    if (dontAsk === 'true') {
+      executeDelete(id)
+    } else {
+      setSelectedItem(id)
+      setShowDeleteModal(true)
+    }
+  }
+
+  const executeDelete = async (id) => {
+    const itemId = id || selectedItem
     try {
-      await pantryServices.deletePantryItem(id)
-      setPantryItems(items => items.filter(item => item._id !== id))
+      await pantryServices.deletePantryItem(itemId)
+      setPantryItems(items => items.filter(item => item._id !== itemId))
       fetchLowStock()
     } catch(err) {
       alert("Failed to delete Pantry Item")
@@ -81,11 +96,18 @@ const DashboardPage = () => {
   }
 
   const promptAndUpdateThreshold = (item) => {
-    const next = window.prompt('Set low-stock threshold (grams)', item.threshold ?? 100)
-    if (next === null || next === '') return
-    const numeric = Number(next)
-    if (Number.isNaN(numeric) || numeric < 0) return alert('Please enter a valid non-negative number')
-    handleUpdateThreshold(item._id, numeric)
+    setSelectedItem(item)
+    setShowThresholdModal(true)
+  }
+
+  const executeUpdateThreshold = (value) => {
+    if (!value || !selectedItem) return
+    const numeric = Number(value)
+    if (Number.isNaN(numeric) || numeric < 0) {
+      alert('Please enter a valid non-negative number')
+      return
+    }
+    handleUpdateThreshold(selectedItem._id, numeric)
   }
 
   const tabs = [
@@ -232,6 +254,35 @@ const DashboardPage = () => {
           <CreateIngredient />
         )}
       </div>
+
+      {/* Modals */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false)
+          setSelectedItem(null)
+        }}
+        onConfirm={() => executeDelete()}
+        title="Remove Item"
+        message="Are you sure you want to remove this item from your pantry?"
+        confirmText="Remove"
+        showDontAskAgain={true}
+        dontAskAgainKey="deleteItem"
+      />
+
+      <PromptModal
+        isOpen={showThresholdModal}
+        onClose={() => {
+          setShowThresholdModal(false)
+          setSelectedItem(null)
+        }}
+        onSubmit={executeUpdateThreshold}
+        title="Set Low-Stock Threshold"
+        message="Enter the threshold (in grams) below which you want to be alerted:"
+        placeholder="e.g. 100"
+        defaultValue={String(selectedItem?.threshold ?? 100)}
+        inputType="number"
+      />
     </div>
   )
 }
