@@ -24,6 +24,18 @@ const History = () => {
         fetchHistory()
     }, [])
 
+    const handleDeleteLog = async (id) => {
+        if (!window.confirm('Delete this meal from history?')) return
+
+        try {
+            await pantryServices.deleteMealLog(id)
+            setHistory(prev => prev.filter(log => log._id !== id))
+            toast.success('Meal removed from history')
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to delete meal')
+        }
+    }
+
     const handleSaveRecipe = async (log) => {
         const name = window.prompt('Enter a name for this recipe:', `Meal from ${new Date(log.date).toLocaleDateString()}`)
         if (!name) return
@@ -99,7 +111,10 @@ const History = () => {
                                         </div>
                                         <span className="font-medium text-slate-700">{formatDate(log.date)}</span>
                                     </div>
-                                    <div className="flex items-center space-x-4">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="text-sm text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                                            {log.items.length} item{log.items.length !== 1 ? 's' : ''}
+                                        </div>
                                         <button
                                             onClick={() => handleSaveRecipe(log)}
                                             className="text-sm text-emerald-600 hover:text-emerald-700 font-medium flex items-center transition-colors bg-emerald-50 px-3 py-1.5 rounded-lg hover:bg-emerald-100"
@@ -110,9 +125,16 @@ const History = () => {
                                             </svg>
                                             Save
                                         </button>
-                                        <div className="text-sm text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
-                                            {log.items.length} item{log.items.length !== 1 ? 's' : ''}
-                                        </div>
+                                        <button
+                                            onClick={() => handleDeleteLog(log._id)}
+                                            className="text-sm text-rose-600 hover:text-rose-700 font-medium flex items-center transition-colors bg-rose-50 px-3 py-1.5 rounded-lg hover:bg-rose-100"
+                                            title="Delete from history"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-7 0h8l-.867 12.142A2 2 0 0113.138 21H10.86a2 2 0 01-1.995-1.858L8 7z" />
+                                            </svg>
+                                            Delete
+                                        </button>
                                     </div>
                                 </div>
                                 

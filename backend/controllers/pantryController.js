@@ -205,6 +205,23 @@ const getMealHistory = async (req, res) => {
     }
 }
 
+// Delete a single meal log for the authenticated user
+const deleteMealLog = async (req, res) => {
+    const { id } = req.params
+
+    try {
+        const deleted = await MealLog.findOneAndDelete({ _id: id, user: req.user.id })
+
+        if (!deleted) {
+            return res.status(404).json({ message: "Meal log not found" })
+        }
+
+        res.status(200).json({ id: deleted._id })
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+}
+
 const getLowStockItems = async (req, res) => {
     try {
         const pantryItems = await PantryItem.find({ user: req.user.id }).populate('ingredient')
@@ -221,4 +238,4 @@ const getLowStockItems = async (req, res) => {
     }
 }
 
-module.exports = {getPantryItems, postPantryItem, deletePantryItem, updatePantryItem, consumePantryItems, getMealHistory, getLowStockItems}
+module.exports = {getPantryItems, postPantryItem, deletePantryItem, updatePantryItem, consumePantryItems, getMealHistory, deleteMealLog, getLowStockItems}

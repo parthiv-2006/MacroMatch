@@ -52,5 +52,11 @@ const getMealHistory = async () => {
     return response.data
 }
 
-const pantryServices = {getPantryItems, getLowStockItems, addPantryItem, updatePantryItem, deletePantryItem, consumePantryItems, getMealHistory}
+const deleteMealLog = async (id) => {
+    const config = { headers: getAuthHeader() }
+    const response = await axios.delete(API_URL + `history/${id}`, config)
+    return response.data
+}
+
+const pantryServices = {getPantryItems, getLowStockItems, addPantryItem, updatePantryItem, deletePantryItem, consumePantryItems, getMealHistory, deleteMealLog}
 export default pantryServices
