@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = '/api/recipes/'
+const API_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000') + '/api/recipes/'
 
 const getAuthHeader = () => {
     const user = JSON.parse(localStorage.getItem('user'))
