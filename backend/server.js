@@ -12,29 +12,54 @@ const solverRoutes = require("./routes/solverRoutes")
 const recipeRoutes = require("./routes/recipeRoutes")
 const { errorHandler } = require("./middleware/errorMiddleware")
 
+// Middleware
 app.use(express.json())
-app.use(cors())
 
+// CORS configuration
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.FRONTEND_URL || '*' 
+    : '*',
+  credentials: true
+}
+app.use(cors(corsOptions))
+
+// Routes
 app.use("/api/user", userRoutes)
 app.use("/api/pantry", pantryRoutes)
 app.use("/api/ingredients", ingredientRoutes)
 app.use("/api/generate", solverRoutes)
 app.use("/api/recipes", recipeRoutes)
 
+// Health check endpoint
 app.get("/", (req, res) => {
-    res.send("Server Working")
+    res.json({ 
+        status: "OK", 
+        message: "MacroMatch API is running",
+        version: "1.0.0"
+    })
 })
 
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ message: "Route not found" })
+})
+
+// Error handler (must be last)
 app.use(errorHandler)
 
+// Database connection
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {
     app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
-    console.log('MongoDB Connected')
-})
+        if (process.env.NODE_ENV !== 'production') {
+            console.log(`Server running on port ${PORT}`)
+            console.log('MongoDB Connected')
+        }
+    })
 })
 .catch((err) => {
-    console.log("Failed to connect to MongoDB", err)
+    console.error("Failed to connect to MongoDB", err)
+    process.exit(1)
 })
 
