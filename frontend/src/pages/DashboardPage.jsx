@@ -247,19 +247,8 @@ const DashboardPage = () => {
 
               {/* Right Column: Pantry List */}
               <div className="lg:col-span-2">
-                <div className="bg-white shadow-soft-2xl rounded-2xl border border-slate-100 ring-1 ring-slate-200/50 overflow-hidden h-full flex flex-col">
-                  <div className="px-6 py-5 border-b border-slate-100 bg-white flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 bg-slate-100 text-slate-600 rounded-xl shadow-sm">
-                        <PackageOpen size={20} />
-                      </div>
-                      <h3 className="text-xl font-bold text-slate-900">Current Inventory</h3>
-                    </div>
-                    <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
-                      {pantryItems.length} Items
-                    </span>
-                  </div>
-                  <div className="p-0 grow bg-white overflow-hidden">
+                <div className="h-full flex flex-col">
+                  <div className="grow bg-transparent">
                     {loading ? (
                       <div className="flex justify-center items-center h-64">
                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-500"></div>
