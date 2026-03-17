@@ -57,18 +57,18 @@ const solveFromAllIngredients = (targets, ingredients, maxPerIngredient = 400) =
     return { plan, totals }
 }
 
-const generateMeal = async(req, res) => {
+const generateMeal = async (req, res) => {
     const { targetProtein, targetCarbs, targetFats, flavorProfile } = req.body
 
     if (!targetProtein || !targetCarbs || !targetFats) {
-        return res.status(400).json({message: "Please provide all target macros"})
+        return res.status(400).json({ message: "Please provide all target macros" })
     }
 
     try {
-        const pantryItems = await PantryItem.find({user: req.user.id}).populate('ingredient')
+        const pantryItems = await PantryItem.find({ user: req.user.id }).populate('ingredient')
 
         if (!pantryItems || pantryItems.length === 0) {
-            return res.status(400).json({message: "Your pantry is empty!"})
+            return res.status(400).json({ message: "Your pantry is empty!" })
         }
 
         // Filter by flavor profile (default to savory if not specified)
@@ -107,14 +107,14 @@ const generateMeal = async(req, res) => {
         const mealPlans = solveMultipleMeals(targets, filteredItems, 3)
 
         if (mealPlans.length === 0) {
-            return res.status(400).json({message: "No solution found. Try adjusting your targets or adding more variety to your pantry." })
+            return res.status(400).json({ message: "No solution found. Try adjusting your targets or adding more variety to your pantry." })
         }
 
-        res.status(200).json({success: true, mealPlans})
+        res.status(200).json({ success: true, mealPlans })
 
     } catch (err) {
         console.error(err)
-        res.status(500).json({message: "Solver Error: " + err.message})
+        res.status(500).json({ message: "Solver Error: " + err.message })
     }
 }
 

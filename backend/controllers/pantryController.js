@@ -13,27 +13,27 @@ const toPantryItemResponse = (item) => {
 }
 
 
-const getPantryItems = async(req, res) => {
+const getPantryItems = async (req, res) => {
     try {
-        const pantryItems = await PantryItem.find({user: req.user.id}).populate('ingredient')
+        const pantryItems = await PantryItem.find({ user: req.user.id }).populate('ingredient')
         res.status(200).json(pantryItems.map(toPantryItemResponse))
     } catch (err) {
-        res.status(500).json({message: err.message})
+        res.status(500).json({ message: err.message })
     }
 }
 
-const postPantryItem = async(req, res) => {
+const postPantryItem = async (req, res) => {
     const { ingredientId, quantity, threshold } = req.body
 
     if (!ingredientId || quantity == undefined) {
-        return res.status(400).json({message: "Please complete all fields"})
+        return res.status(400).json({ message: "Please complete all fields" })
     }
 
     try {
         // Check if item already exists for this user
-        const existingItem = await PantryItem.findOne({ 
-            user: req.user.id, 
-            ingredient: ingredientId 
+        const existingItem = await PantryItem.findOne({
+            user: req.user.id,
+            ingredient: ingredientId
         })
 
         if (existingItem) {
@@ -49,14 +49,14 @@ const postPantryItem = async(req, res) => {
 
         // Populate immediately so frontend can display it
         const populatedItem = await newItem.populate('ingredient')
-        
+
         res.status(201).json(toPantryItemResponse(populatedItem))
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
 }
 
-const updatePantryItem = async(req, res) => {
+const updatePantryItem = async (req, res) => {
     const { id } = req.params
     const { quantity, threshold } = req.body
 
@@ -94,7 +94,7 @@ const updatePantryItem = async(req, res) => {
     }
 }
 
-const deletePantryItem = async(req, res) => {
+const deletePantryItem = async (req, res) => {
     const { id } = req.params
 
     try {
@@ -120,7 +120,7 @@ const consumePantryItems = async (req, res) => {
     try {
         const updates = []
         const errors = []
-        
+
         // For Meal Logging
         const mealItems = []
         const mealTotalMacros = { calories: 0, protein: 0, carbs: 0, fats: 0 }
@@ -134,9 +134,9 @@ const consumePantryItems = async (req, res) => {
             }
 
             // 2. Find Pantry Item
-            const pantryItem = await PantryItem.findOne({ 
-                user: req.user.id, 
-                ingredient: ingredientDoc._id 
+            const pantryItem = await PantryItem.findOne({
+                user: req.user.id,
+                ingredient: ingredientDoc._id
             })
 
             if (!pantryItem) {
@@ -238,4 +238,4 @@ const getLowStockItems = async (req, res) => {
     }
 }
 
-module.exports = {getPantryItems, postPantryItem, deletePantryItem, updatePantryItem, consumePantryItems, getMealHistory, deleteMealLog, getLowStockItems}
+module.exports = { getPantryItems, postPantryItem, deletePantryItem, updatePantryItem, consumePantryItems, getMealHistory, deleteMealLog, getLowStockItems }

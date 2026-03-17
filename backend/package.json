@@ -9,7 +9,11 @@
     "seed": "node seedIngredients.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["meal-planning", "macro-tracking", "nutrition"],
+  "keywords": [
+    "meal-planning",
+    "macro-tracking",
+    "nutrition"
+  ],
   "author": "Parthiv Paul",
   "license": "ISC",
   "dependencies": {

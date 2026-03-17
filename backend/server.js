@@ -17,10 +17,10 @@ app.use(express.json())
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL || '*' 
-    : '*',
-  credentials: true
+    origin: process.env.NODE_ENV === 'production'
+        ? process.env.FRONTEND_URL || '*'
+        : '*',
+    credentials: true
 }
 app.use(cors(corsOptions))
 
@@ -33,8 +33,8 @@ app.use("/api/recipes", recipeRoutes)
 
 // Health check endpoint
 app.get("/", (req, res) => {
-    res.json({ 
-        status: "OK", 
+    res.json({
+        status: "OK",
         message: "MacroMatch API is running",
         version: "1.0.0"
     })
@@ -50,16 +50,16 @@ app.use(errorHandler)
 
 // Database connection
 mongoose.connect(process.env.MONGO_URI)
-.then(() => {
-    app.listen(PORT, () => {
-        if (process.env.NODE_ENV !== 'production') {
-            console.log(`Server running on port ${PORT}`)
-            console.log('MongoDB Connected')
-        }
+    .then(() => {
+        app.listen(PORT, () => {
+            if (process.env.NODE_ENV !== 'production') {
+                console.log(`Server running on port ${PORT}`)
+                console.log('MongoDB Connected')
+            }
+        })
     })
-})
-.catch((err) => {
-    console.error("Failed to connect to MongoDB", err)
-    process.exit(1)
-})
+    .catch((err) => {
+        console.error("Failed to connect to MongoDB", err)
+        process.exit(1)
+    })
 
