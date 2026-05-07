@@ -1,14 +1,57 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useContext, useMemo } from 'react'
 import AuthContext from '../context/AuthContext'
-import { LayoutDashboard, History, ChefHat, Carrot, Wand2, LogOut } from 'lucide-react'
 
 const navLinks = [
-  { to: '/', label: 'Pantry', icon: Carrot },
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/history', label: 'History', icon: History },
-  { to: '/recipes', label: 'Recipes', icon: ChefHat }
+  { to: '/',          label: 'Pantry',    icon: PantryIcon },
+  { to: '/dashboard', label: 'Dashboard', icon: DashIcon },
+  { to: '/history',   label: 'History',   icon: HistoryIcon },
+  { to: '/recipes',   label: 'Recipes',   icon: RecipesIcon },
 ]
+
+function PantryIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 3h18v4H3z"/><path d="M5 7v14M19 7v14M9 11h6M9 14h6"/>
+    </svg>
+  )
+}
+function DashIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+      <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+    </svg>
+  )
+}
+function HistoryIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>
+    </svg>
+  )
+}
+function RecipesIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+    </svg>
+  )
+}
+function GenerateIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/>
+    </svg>
+  )
+}
+function LogoutIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+    </svg>
+  )
+}
 
 const AppShell = () => {
   const navigate = useNavigate()
@@ -16,70 +59,129 @@ const AppShell = () => {
   const { logout } = useContext(AuthContext)
 
   const activePath = useMemo(() => {
-    const match = navLinks.find((link) => location.pathname === link.to)
+    const match = navLinks.find(link => location.pathname === link.to)
     return match ? match.to : location.pathname
   }, [location.pathname])
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 font-inter">
-      <nav className="bg-white/80 backdrop-blur-xl sticky top-0 z-40 border-b border-slate-200/60 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-8">
-            <button
-              onClick={() => navigate('/')}
-              className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5 hover:opacity-80 transition-opacity"
-            >
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-soft-sm shadow-emerald-500/30">
-                <Wand2 size={18} strokeWidth={2.5} />
-              </div>
-              MacroMatch
-            </button>
-            <div className="hidden md:flex items-center space-x-1.5 bg-slate-100/50 p-1.5 rounded-2xl border border-slate-200/50">
-              {navLinks.map((link) => {
-                const Icon = link.icon;
-                const isActive = activePath === link.to;
-                return (
-                  <button
-                    key={link.to}
-                    onClick={() => navigate(link.to)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ease-in-out ${
-                      isActive
-                        ? 'bg-white text-emerald-700 shadow-sm border border-slate-200/60'
-                        : 'text-slate-500 hover:text-slate-900 flex-1'
-                    }`}
-                  >
-                    <Icon size={16} className={isActive ? 'text-emerald-600' : 'text-slate-400'} strokeWidth={isActive ? 2.5 : 2} />
-                    {link.label}
-                  </button>
-                );
-              })}
-            </div>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg)' }}>
+      {/* Nav */}
+      <nav style={{
+        background: 'var(--nav-bg)',
+        borderBottom: '1px solid var(--nav-border)',
+        height: 60,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 48px',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+      }}>
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            width: 32, height: 32,
+            background: 'linear-gradient(135deg,#16a34a,#0d9488)',
+            borderRadius: 8,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22c-4.97 0-9-4.03-9-9s4.03-9 9-9 9 4.03 9 9-4.03 9-9 9z"/>
+              <path d="M12 8v4l3 3"/>
+            </svg>
           </div>
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => navigate('/generate')}
-              className={`hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ease-in-out ${
-                 activePath === '/generate'
-                  ? 'bg-emerald-50 text-emerald-700 ring-2 ring-emerald-500/20'
-                  : 'bg-slate-900 text-white hover:bg-slate-800 shadow-soft-md hover:shadow-soft-lg transform hover:-translate-y-0.5'
-              }`}
-            >
-              <Wand2 size={16} strokeWidth={2.5} />
-              Generate Plan
-            </button>
-            <div className="w-px h-6 bg-slate-200 hidden sm:block"></div>
-            <button
-              onClick={() => logout()}
-              className="p-2.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all duration-200 ease-in-out font-bold"
-              title="Logout"
-            >
-              <LogOut size={20} strokeWidth={2.5} />
-            </button>
-          </div>
+          <span style={{ color: 'white', fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em' }}>
+            MacroMatch
+          </span>
+        </div>
+
+        {/* Nav links */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {navLinks.map(item => {
+            const active = activePath === item.to
+            const Icon = item.icon
+            return (
+              <button
+                key={item.to}
+                onClick={() => navigate(item.to)}
+                onMouseEnter={e => {
+                  if (!active) {
+                    e.currentTarget.style.color = '#d1d5db'
+                    e.currentTarget.style.background = 'rgba(255,255,255,.05)'
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!active) {
+                    e.currentTarget.style.color = '#9aa3af'
+                    e.currentTarget.style.background = 'transparent'
+                  }
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 7,
+                  padding: '6px 14px',
+                  background: active ? 'rgba(22,163,74,.15)' : 'transparent',
+                  border: active ? '1px solid rgba(22,163,74,.3)' : '1px solid transparent',
+                  borderRadius: 8,
+                  color: active ? '#4ade80' : '#9aa3af',
+                  fontSize: 13, fontWeight: active ? 600 : 500,
+                  cursor: 'pointer',
+                  transition: 'all .15s ease',
+                  fontFamily: 'var(--font)',
+                }}
+              >
+                <Icon />
+                {item.label}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Right actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            onClick={() => navigate('/generate')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              background: activePath === '/generate'
+                ? 'rgba(34,197,94,.15)'
+                : 'linear-gradient(135deg,#16a34a,#0d9488)',
+              border: activePath === '/generate' ? '1px solid rgba(34,197,94,.3)' : 'none',
+              color: activePath === '/generate' ? '#4ade80' : 'white',
+              borderRadius: 8, padding: '7px 16px',
+              fontSize: 13, fontWeight: 700,
+              cursor: 'pointer', fontFamily: 'var(--font)',
+              boxShadow: activePath === '/generate' ? 'none' : '0 2px 8px rgba(22,163,74,.3)',
+              transition: 'all .15s ease',
+            }}
+          >
+            <GenerateIcon />
+            Generate Plan
+          </button>
+          <button
+            onClick={() => logout()}
+            title="Logout"
+            style={{
+              width: 34, height: 34,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(255,255,255,.07)',
+              border: '1px solid rgba(255,255,255,.1)',
+              borderRadius: 8,
+              color: '#9aa3af',
+              cursor: 'pointer',
+              transition: 'all .15s ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.background = 'rgba(248,113,113,.1)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = '#9aa3af'; e.currentTarget.style.background = 'rgba(255,255,255,.07)' }}
+          >
+            <LogoutIcon />
+          </button>
         </div>
       </nav>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+      {/* Page content */}
+      <main style={{ flex: 1, maxWidth: 1600, width: '100%', margin: '0 auto', padding: '48px 48px' }}>
         <Outlet />
       </main>
     </div>
