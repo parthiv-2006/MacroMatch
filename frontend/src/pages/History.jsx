@@ -5,7 +5,7 @@ import recipeServices from '../services/recipeServices'
 import ConfirmModal from '../components/ConfirmModal'
 import PromptModal from '../components/PromptModal'
 import { toast } from 'react-toastify'
-import { Clock, BookMarked, Trash2, ChevronLeft, Calendar } from 'lucide-react'
+import MacroPill from '../components/ui/MacroPill'
 
 const History = () => {
     const [history, setHistory] = useState([])
@@ -26,7 +26,6 @@ const History = () => {
                 setLoading(false)
             }
         }
-
         fetchHistory()
     }, [])
 
@@ -58,162 +57,141 @@ const History = () => {
 
     const executeSaveRecipe = async (name) => {
         if (!name || !selectedLog) return
-
         try {
-            // Transform ingredients array to object { "Name": Amount } expected by backend
             const ingredientsObj = {}
-            selectedLog.items.forEach(item => {
-                ingredientsObj[item.ingredientName] = item.amount
-            })
-
-            const recipeData = {
-                name,
-                ingredients: ingredientsObj
-            }
-            
-            await recipeServices.createRecipe(recipeData)
+            selectedLog.items.forEach(item => { ingredientsObj[item.ingredientName] = item.amount })
+            await recipeServices.createRecipe({ name, ingredients: ingredientsObj })
             toast.success('Recipe saved successfully!')
         } catch (err) {
-            console.error(err)
             toast.error('Failed to save recipe')
         }
     }
 
-    const formatDate = (dateString) => {
-        const options = { 
-            weekday: 'short', 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        }
-        return new Date(dateString).toLocaleDateString('en-US', options)
-    }
+    const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', {
+        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+    })
+
+    const card = { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)', overflow: 'hidden', fontFamily: 'var(--font)' }
+    const actionBtn = (color, bg, hoverColor, hoverBg) => ({
+        display: 'flex', alignItems: 'center', gap: 6,
+        padding: '7px 14px', fontSize: 12, fontWeight: 700,
+        color, background: bg, border: `1px solid ${bg}`,
+        borderRadius: 'var(--radius-sm)', cursor: 'pointer',
+        fontFamily: 'var(--font)', transition: 'all .15s',
+    })
 
     return (
-        <div className="py-10 px-4 sm:px-6 lg:px-8 bg-slate-50 min-h-screen">
-            <div className="max-w-4xl mx-auto animate-fade-in-up">
-                {/* Header */}
-                <div className="mb-10 flex items-center">
-                    <button 
-                        onClick={() => navigate('/')}
-                        className="mr-5 p-2.5 rounded-xl text-slate-400 hover:text-slate-700 bg-white hover:bg-slate-100 transition-all duration-200 border border-slate-200 shadow-sm"
-                    >
-                        <ChevronLeft size={20} strokeWidth={2.5} />
-                    </button>
-                    <div>
-                        <h1 className="text-3xl font-black tracking-tight text-slate-900">Meal History</h1>
-                        <p className="mt-1.5 text-sm font-medium text-slate-500">
-                            Track your past meals and nutritional intake.
-                        </p>
-                    </div>
+        <div>
+            {/* Header */}
+            <div style={{ marginBottom: 32 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 4 }}>Tracking</div>
+                <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text)', margin: 0 }}>Meal History</h1>
+                <p style={{ fontSize: 14, color: 'var(--text-2)', marginTop: 4 }}>Track your past meals and nutritional intake.</p>
+            </div>
+
+            {loading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '80px 0' }}>
+                    <div style={{ width: 36, height: 36, border: '3px solid var(--border)', borderTopColor: 'var(--green)', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
                 </div>
-
-                {/* Content */}
-                {loading ? (
-                    <div className="flex justify-center py-24">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
-                    </div>
-                ) : history.length > 0 ? (
-                    <div className="space-y-8">
-                        {history.map((log) => (
-                            <div key={log._id} className="bg-white shadow-soft-xl rounded-2xl flex flex-col border border-slate-100 ring-1 ring-slate-200/50 transition-all duration-300 hover:shadow-soft-2xl hover:-translate-y-1 overflow-hidden group">
-                                <div className="bg-slate-50/50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                                    <div className="flex items-center">
-                                        <div className="bg-emerald-50 text-emerald-600 p-2.5 rounded-xl mr-4 border border-emerald-100/50 shadow-sm">
-                                            <Clock size={20} strokeWidth={2.5} />
-                                        </div>
-                                        <span className="font-bold text-slate-800 text-lg">{formatDate(log.date)}</span>
+            ) : history.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {history.map((log) => (
+                        <div key={log._id} style={card}>
+                            {/* Card header */}
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: 'var(--surface2)', borderBottom: '1px solid var(--border)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                    <div style={{ width: 32, height: 32, background: 'var(--green-light)', border: '1px solid rgba(34,197,94,.2)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>
+                                        </svg>
                                     </div>
-                                    <div className="flex items-center space-x-3">
-                                        <div className="text-sm font-bold text-slate-500 bg-white border border-slate-200 shadow-sm px-3.5 py-1.5 rounded-xl flex items-center">
-                                            {log.items.length} item{log.items.length !== 1 ? 's' : ''}
-                                        </div>
-                                        <button
-                                            onClick={() => handleSaveRecipe(log)}
-                                            className="text-sm text-emerald-700 hover:text-emerald-800 font-bold flex items-center transition-all bg-emerald-50 px-4 py-2.5 rounded-xl hover:bg-emerald-100 active:scale-[0.98] border border-emerald-100/50 shadow-sm"
-                                            title="Save as Recipe"
-                                        >
-                                            <BookMarked size={16} strokeWidth={2.5} className="mr-2" />
-                                            Save
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteLog(log._id)}
-                                            className="text-sm text-rose-600 hover:text-rose-700 font-bold flex items-center transition-all bg-rose-50 px-4 py-2.5 rounded-xl hover:bg-rose-100 active:scale-[0.98] border border-rose-100/50 shadow-sm"
-                                            title="Delete from history"
-                                        >
-                                            <Trash2 size={16} strokeWidth={2.5} className="mr-2" />
-                                            Delete
-                                        </button>
-                                    </div>
+                                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>{formatDate(log.date)}</span>
+                                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', background: 'var(--surface)', border: '1px solid var(--border)', padding: '2px 8px', borderRadius: 99 }}>
+                                        {log.items.length} item{log.items.length !== 1 ? 's' : ''}
+                                    </span>
                                 </div>
-                                
-                                <div className="p-8">
-                                    {/* Macros Summary */}
-                                    <div className="grid grid-cols-4 gap-6 mb-8">
-                                        <div className="text-center p-5 bg-slate-50 rounded-2xl border border-slate-100 shadow-sm">
-                                            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Calories</div>
-                                            <div className="font-black text-slate-800 text-3xl tracking-tight">{Math.round(log.totalMacros.calories)}</div>
-                                        </div>
-                                        <div className="text-center p-5 bg-emerald-50/50 rounded-2xl border border-emerald-100/50 shadow-sm">
-                                            <div className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1.5">Protein</div>
-                                            <div className="font-black text-emerald-600 text-3xl tracking-tight">{Math.round(log.totalMacros.protein)}g</div>
-                                        </div>
-                                        <div className="text-center p-5 bg-blue-50/50 rounded-2xl border border-blue-100/50 shadow-sm">
-                                            <div className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1.5">Carbs</div>
-                                            <div className="font-black text-blue-600 text-3xl tracking-tight">{Math.round(log.totalMacros.carbs)}g</div>
-                                        </div>
-                                        <div className="text-center p-5 bg-amber-50/50 rounded-2xl border border-amber-100/50 shadow-sm">
-                                            <div className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1.5">Fats</div>
-                                            <div className="font-black text-amber-500 text-3xl tracking-tight">{Math.round(log.totalMacros.fats)}g</div>
-                                        </div>
-                                    </div>
+                                <div style={{ display: 'flex', gap: 6 }}>
+                                    <button
+                                        onClick={() => handleSaveRecipe(log)}
+                                        style={actionBtn('var(--green)', 'var(--green-light)', 'var(--green)', 'rgba(34,197,94,.2)')}
+                                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(34,197,94,.2)' }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = 'var(--green-light)' }}
+                                    >
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                                        Save
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteLog(log._id)}
+                                        style={actionBtn('var(--fat)', 'var(--fat-bg)', 'var(--fat)', 'rgba(248,113,113,.2)')}
+                                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248,113,113,.2)' }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = 'var(--fat-bg)' }}
+                                    >
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
 
-                                    {/* Ingredients List */}
-                                    <div className="pt-2">
-                                        <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center">
-                                            Ingredients Consumed
-                                        </h4>
-                                        <div className="space-y-2">
-                                            {log.items.map((item, index) => (
-                                                <div key={index} className="flex justify-between items-center text-sm py-2.5 border-b-2 border-slate-50 last:border-0 group-hover:border-slate-100 transition-colors">
-                                                    <span className="text-slate-600 font-bold">{item.ingredientName}</span>
-                                                    <span className="text-slate-500 bg-slate-50 border border-slate-200 px-3 py-1 rounded-lg text-xs font-bold shadow-sm">
-                                                        {item.amount}g
-                                                    </span>
-                                                </div>
-                                            ))}
+                            {/* Card body */}
+                            <div style={{ padding: '20px 20px' }}>
+                                {/* Macro summary */}
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+                                    {[
+                                        { label: 'Calories', val: Math.round(log.totalMacros.calories), unit: 'kcal', color: 'var(--cal)' },
+                                        { label: 'Protein', val: Math.round(log.totalMacros.protein), unit: 'g', color: 'var(--protein)' },
+                                        { label: 'Carbs', val: Math.round(log.totalMacros.carbs), unit: 'g', color: 'var(--carbs)' },
+                                        { label: 'Fats', val: Math.round(log.totalMacros.fats), unit: 'g', color: 'var(--fat)' },
+                                    ].map(({ label, val, unit, color }) => (
+                                        <div key={label} style={{ textAlign: 'center', padding: '14px 10px', background: 'var(--surface2)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                                            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-3)', marginBottom: 6 }}>{label}</div>
+                                            <div style={{ fontSize: 24, fontWeight: 700, fontFamily: 'var(--mono)', color, letterSpacing: '-0.04em' }}>{val}</div>
+                                            <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>{unit}</div>
                                         </div>
+                                    ))}
+                                </div>
+
+                                {/* Ingredients */}
+                                <div>
+                                    <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-3)', marginBottom: 10 }}>Ingredients Consumed</p>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                                        {log.items.map((item, index) => (
+                                            <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
+                                                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{item.ingredientName}</span>
+                                                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-2)', fontFamily: 'var(--mono)', background: 'var(--surface2)', border: '1px solid var(--border)', padding: '3px 8px', borderRadius: 4 }}>
+                                                    {item.amount}g
+                                                </span>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-20 bg-white rounded-2xl shadow-soft-xl border border-slate-100 ring-1 ring-slate-200/50">
-                        <div className="bg-slate-50 p-4 rounded-2xl inline-block mb-5 border border-slate-100 shadow-sm">
-                            <Calendar className="h-8 w-8 text-slate-400" strokeWidth={2.5} />
                         </div>
-                        <h3 className="text-xl font-bold text-slate-900">No Meal History</h3>
-                        <p className="mt-2 text-slate-500 font-medium">You haven't tracked any meals yet.</p>
-                        <button 
-                            onClick={() => navigate('/generate')}
-                            className="mt-6 inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl shadow-soft-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 active:scale-[0.98]"
-                        >
-                            Generate a Meal
-                        </button>
+                    ))}
+                </div>
+            ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '72px 24px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', textAlign: 'center' }}>
+                    <div style={{ width: 52, height: 52, background: 'var(--surface2)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>
+                        </svg>
                     </div>
-                )}
-            </div>
+                    <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>No Meal History</h3>
+                    <p style={{ fontSize: 13, color: 'var(--text-2)', marginBottom: 20 }}>You haven't tracked any meals yet.</p>
+                    <button
+                        onClick={() => navigate('/generate')}
+                        style={{ padding: '10px 20px', fontSize: 13, fontWeight: 700, background: 'linear-gradient(135deg,#16a34a,#0d9488)', border: 'none', borderRadius: 'var(--radius-sm)', color: 'white', cursor: 'pointer', fontFamily: 'var(--font)', boxShadow: '0 2px 8px rgba(22,163,74,.3)', transition: 'opacity .15s' }}
+                        onMouseEnter={e => { e.currentTarget.style.opacity = '.88' }}
+                        onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
+                    >
+                        Generate a Meal
+                    </button>
+                </div>
+            )}
 
-            {/* Modals */}
             <ConfirmModal
                 isOpen={showDeleteModal}
-                onClose={() => {
-                    setShowDeleteModal(false)
-                    setSelectedLog(null)
-                }}
+                onClose={() => { setShowDeleteModal(false); setSelectedLog(null) }}
                 onConfirm={() => executeDeleteLog()}
                 title="Delete Meal"
                 message="Are you sure you want to delete this meal from history?"
@@ -224,10 +202,7 @@ const History = () => {
 
             <PromptModal
                 isOpen={showSaveRecipeModal}
-                onClose={() => {
-                    setShowSaveRecipeModal(false)
-                    setSelectedLog(null)
-                }}
+                onClose={() => { setShowSaveRecipeModal(false); setSelectedLog(null) }}
                 onSubmit={executeSaveRecipe}
                 title="Save as Recipe"
                 message="Enter a name for this recipe:"

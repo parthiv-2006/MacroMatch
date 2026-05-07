@@ -25,46 +25,21 @@ const GeneratorPage = () => {
     const navigate = useNavigate()
 
     const onChange = (e) => {
-        setFormData((prevState) => ({
-            ...prevState, [e.target.name]: e.target.value
-        }))
+        setFormData((prevState) => ({ ...prevState, [e.target.name]: e.target.value }))
         if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' })
     }
 
     const onSubmit = async (e) => {
         e.preventDefault()
         const newErrors = {}
-
-        if (!formData.targetProtein) {
-            newErrors.targetProtein = 'Protein target is required'
-        } else if (Number(formData.targetProtein) <= 0) {
-            newErrors.targetProtein = 'Protein target must be greater than 0'
-        }
-
-        if (!formData.targetCarbs) {
-            newErrors.targetCarbs = 'Carbs target is required'
-        } else if (Number(formData.targetCarbs) <= 0) {
-            newErrors.targetCarbs = 'Carbs target must be greater than 0'
-        }
-
-        if (!formData.targetFats) {
-            newErrors.targetFats = 'Fats target is required'
-        } else if (Number(formData.targetFats) <= 0) {
-            newErrors.targetFats = 'Fats target must be greater than 0'
-        }
-
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors)
-            return
-        }
-
-        setErrors({})
-        setLoading(true)
-        setMealPlans([])
-        setSelectedMeals([])
-        setReverseResult(null)
-        setActiveTab('meals')
-
+        if (!formData.targetProtein) newErrors.targetProtein = 'Protein target is required'
+        else if (Number(formData.targetProtein) <= 0) newErrors.targetProtein = 'Protein target must be greater than 0'
+        if (!formData.targetCarbs) newErrors.targetCarbs = 'Carbs target is required'
+        else if (Number(formData.targetCarbs) <= 0) newErrors.targetCarbs = 'Carbs target must be greater than 0'
+        if (!formData.targetFats) newErrors.targetFats = 'Fats target is required'
+        else if (Number(formData.targetFats) <= 0) newErrors.targetFats = 'Fats target must be greater than 0'
+        if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return }
+        setErrors({}); setLoading(true); setMealPlans([]); setSelectedMeals([]); setReverseResult(null); setActiveTab('meals')
         try {
             const response = await solverServices.generateMeal(formData)
             setMealPlans(response.mealPlans)
@@ -78,34 +53,14 @@ const GeneratorPage = () => {
     const onSubmitReverse = async (e) => {
         e.preventDefault()
         const newErrors = {}
-
-        if (!formData.targetProtein) {
-            newErrors.targetProtein = 'Protein target is required'
-        } else if (Number(formData.targetProtein) <= 0) {
-            newErrors.targetProtein = 'Protein target must be greater than 0'
-        }
-
-        if (!formData.targetCarbs) {
-            newErrors.targetCarbs = 'Carbs target is required'
-        } else if (Number(formData.targetCarbs) <= 0) {
-            newErrors.targetCarbs = 'Carbs target must be greater than 0'
-        }
-
-        if (!formData.targetFats) {
-            newErrors.targetFats = 'Fats target is required'
-        } else if (Number(formData.targetFats) <= 0) {
-            newErrors.targetFats = 'Fats target must be greater than 0'
-        }
-
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors)
-            return
-        }
-
-        setErrors({})
-        setReverseLoading(true)
-        setReverseResult(null)
-
+        if (!formData.targetProtein) newErrors.targetProtein = 'Protein target is required'
+        else if (Number(formData.targetProtein) <= 0) newErrors.targetProtein = 'Protein target must be greater than 0'
+        if (!formData.targetCarbs) newErrors.targetCarbs = 'Carbs target is required'
+        else if (Number(formData.targetCarbs) <= 0) newErrors.targetCarbs = 'Carbs target must be greater than 0'
+        if (!formData.targetFats) newErrors.targetFats = 'Fats target is required'
+        else if (Number(formData.targetFats) <= 0) newErrors.targetFats = 'Fats target must be greater than 0'
+        if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return }
+        setErrors({}); setReverseLoading(true); setReverseResult(null)
         try {
             const response = await solverServices.generateReverseMeal(formData)
             setReverseResult(response)
@@ -128,32 +83,21 @@ const GeneratorPage = () => {
 
     const handleConsume = async () => {
         if (selectedMeals.length === 0) return
-
-        // Check if user has opted out of confirmation
         const dontAsk = localStorage.getItem('dontAsk_consumeMeals')
-        if (dontAsk === 'true') {
-            executeConsume()
-        } else {
-            setShowConsumeModal(true)
-        }
+        if (dontAsk === 'true') { executeConsume() } else { setShowConsumeModal(true) }
     }
 
     const executeConsume = async () => {
         setConsuming(true)
         try {
             const aggregatedIngredients = {}
-
             selectedMeals.forEach(index => {
                 const plan = mealPlans[index]
                 Object.entries(plan).forEach(([ingredient, amount]) => {
-                    if (aggregatedIngredients[ingredient]) {
-                        aggregatedIngredients[ingredient] += amount
-                    } else {
-                        aggregatedIngredients[ingredient] = amount
-                    }
+                    if (aggregatedIngredients[ingredient]) { aggregatedIngredients[ingredient] += amount }
+                    else { aggregatedIngredients[ingredient] = amount }
                 })
             })
-
             await pantryServices.consumePantryItems(aggregatedIngredients)
             toast.success("Meals consumed! Pantry updated.")
             navigate('/')
@@ -172,58 +116,78 @@ const GeneratorPage = () => {
 
     const executeSaveRecipe = async (name) => {
         if (!name || !selectedPlan) return
-
         try {
-            await recipeServices.createRecipe({
-                name,
-                ingredients: selectedPlan
-            })
+            await recipeServices.createRecipe({ name, ingredients: selectedPlan })
             toast.success("Recipe saved successfully!")
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to save recipe")
         }
     }
 
-    return (
-        <div className="space-y-8 animate-fade-in-up">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-2">
-                <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-1.5">Smart Engine</p>
-                    <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">Meal Generator</h1>
-                    <p className="mt-2 text-slate-500 font-medium max-w-xl leading-relaxed">
-                        Enter your macro targets and let our algorithm build the perfect meal plan.
-                    </p>
-                </div>
+    const inputStyle = (hasError) => ({
+        width: '100%', padding: '9px 12px', fontSize: 13,
+        background: 'var(--surface2)', border: `1px solid ${hasError ? 'var(--fat)' : 'var(--border)'}`,
+        borderRadius: 'var(--radius-sm)', color: 'var(--text)',
+        fontFamily: 'var(--font)', outline: 'none', boxSizing: 'border-box',
+    })
 
+    const macroFields = [
+        { name: 'targetProtein', label: 'Protein', color: 'var(--protein)', placeholder: '30' },
+        { name: 'targetCarbs', label: 'Carbs', color: 'var(--carbs)', placeholder: '50' },
+        { name: 'targetFats', label: 'Fats', color: 'var(--fat)', placeholder: '15' },
+    ]
+
+    return (
+        <div style={{ fontFamily: 'var(--font)' }}>
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
+                <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 4 }}>Smart Engine</div>
+                    <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text)', margin: 0 }}>Meal Generator</h1>
+                    <p style={{ fontSize: 14, color: 'var(--text-2)', marginTop: 4 }}>Enter your macro targets and let our algorithm build the perfect meal plan.</p>
+                </div>
                 {selectedMeals.length > 0 && (
                     <button
                         onClick={handleConsume}
                         disabled={consuming}
-                        className="inline-flex items-center px-6 py-3 text-sm font-bold rounded-xl shadow-soft-md shadow-emerald-500/20 text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 active:scale-[0.98]"
+                        style={{
+                            padding: '10px 20px', fontSize: 13, fontWeight: 700,
+                            background: consuming ? 'var(--surface2)' : 'linear-gradient(135deg,#16a34a,#0d9488)',
+                            border: 'none', borderRadius: 'var(--radius-sm)',
+                            color: consuming ? 'var(--text-2)' : 'white',
+                            cursor: consuming ? 'not-allowed' : 'pointer',
+                            fontFamily: 'var(--font)', boxShadow: consuming ? 'none' : '0 2px 8px rgba(22,163,74,.3)',
+                            transition: 'opacity .15s', opacity: consuming ? .6 : 1,
+                        }}
+                        onMouseEnter={e => { if (!consuming) e.currentTarget.style.opacity = '.88' }}
+                        onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
                     >
                         {consuming ? 'Updating...' : `Consume Selected (${selectedMeals.length})`}
                     </button>
                 )}
             </div>
 
-            {/* Form Section */}
-            <div className="bg-white shadow-soft-xl rounded-2xl p-6 sm:p-8 border border-slate-100 ring-1 ring-slate-200/50">
-                <h2 className="text-lg font-bold text-slate-900 mb-6">Target Macros</h2>
-                <form onSubmit={onSubmit} className="space-y-6" noValidate>
+            {/* Form */}
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '28px', boxShadow: 'var(--shadow)', marginBottom: 28 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 20 }}>Target Macros</p>
+                <form onSubmit={onSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                     {/* Flavor Profile */}
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-2">Flavor Profile</label>
-                        <div className="flex gap-3">
+                        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 8 }}>Flavor Profile</p>
+                        <div style={{ display: 'flex', gap: 8 }}>
                             {['savory', 'sweet', 'neutral'].map((profile) => (
                                 <button
                                     key={profile}
                                     type="button"
                                     onClick={() => setFormData({ ...formData, flavorProfile: profile })}
-                                    className={`flex-1 py-2.5 px-4 text-sm font-bold rounded-xl transition-all duration-200 border ${formData.flavorProfile === profile
-                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm'
-                                            : 'bg-slate-50 text-slate-500 border-slate-200 hover:text-slate-700 hover:bg-slate-100'
-                                        }`}
+                                    style={{
+                                        flex: 1, padding: '8px 12px', fontSize: 12, fontWeight: 700,
+                                        background: formData.flavorProfile === profile ? 'var(--green-light)' : 'var(--surface2)',
+                                        border: `1px solid ${formData.flavorProfile === profile ? 'rgba(34,197,94,.3)' : 'var(--border)'}`,
+                                        borderRadius: 'var(--radius-sm)',
+                                        color: formData.flavorProfile === profile ? 'var(--green)' : 'var(--text-2)',
+                                        cursor: 'pointer', fontFamily: 'var(--font)', transition: 'all .15s',
+                                    }}
                                 >
                                     {profile.charAt(0).toUpperCase() + profile.slice(1)}
                                 </button>
@@ -231,288 +195,282 @@ const GeneratorPage = () => {
                         </div>
                     </div>
 
-                    {/* Macro Inputs Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                        {[
-                            { name: 'targetProtein', label: 'Protein', placeholder: '30', color: 'emerald' },
-                            { name: 'targetCarbs', label: 'Carbs', placeholder: '50', color: 'blue' },
-                            { name: 'targetFats', label: 'Fats', placeholder: '15', color: 'amber' }
-                        ].map((field) => (
-                            <div key={field.name}>
-                                <label className={`block text-sm font-bold mb-2 text-slate-700`}>{field.label}</label>
-                                <div className="relative rounded-xl shadow-sm">
+                    {/* Macro Inputs */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+                        {macroFields.map(({ name, label, color, placeholder }) => (
+                            <div key={name}>
+                                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color, marginBottom: 6 }}>{label}</label>
+                                <div style={{ position: 'relative' }}>
                                     <input
                                         type="number"
-                                        name={field.name}
-                                        value={formData[field.name]}
+                                        name={name}
+                                        value={formData[name]}
                                         onChange={onChange}
-                                        placeholder={field.placeholder}
-                                        className={`focus:ring-${field.color}-500/50 focus:border-${field.color}-500 block w-full pl-4 pr-12 text-base font-semibold bg-slate-50 border border-slate-200 text-slate-900 rounded-xl py-3 transition-all duration-200 placeholder-slate-400`}
-                                        style={{
-                                            borderColor: errors[field.name] ? '#ef4444' : undefined,
-                                            boxShadow: errors[field.name] ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : undefined
-                                        }}
+                                        placeholder={placeholder}
+                                        style={{ ...inputStyle(!!errors[name]), paddingRight: 28 }}
                                     />
-                                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none border-l border-slate-200/60 pl-3 my-2">
-                                        <span className={`text-${field.color}-600 font-bold text-sm`}>g</span>
-                                    </div>
+                                    <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 11, fontWeight: 700, color, pointerEvents: 'none' }}>g</span>
                                 </div>
-                                <ValidationError show={!!errors[field.name]} message={errors[field.name]} />
+                                <ValidationError show={!!errors[name]} message={errors[name]} />
                             </div>
                         ))}
                     </div>
 
                     {/* Buttons */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`w-full flex justify-center items-center py-3.5 px-4 rounded-xl shadow-soft-md text-sm font-bold text-white transition-all duration-200 active:scale-[0.98] ${loading
-                                    ? 'bg-emerald-400 cursor-not-allowed'
-                                    : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500'
-                                }`}
+                            style={{
+                                width: '100%', padding: '11px', fontSize: 13, fontWeight: 700,
+                                background: loading ? 'var(--surface2)' : 'linear-gradient(135deg,#16a34a,#0d9488)',
+                                border: 'none', borderRadius: 'var(--radius-sm)',
+                                color: loading ? 'var(--text-2)' : 'white',
+                                cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font)',
+                                boxShadow: loading ? 'none' : '0 2px 8px rgba(22,163,74,.3)', transition: 'opacity .15s',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                            }}
+                            onMouseEnter={e => { if (!loading) e.currentTarget.style.opacity = '.88' }}
+                            onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
                         >
                             {loading ? (
-                                <span className="flex items-center">
-                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
+                                <>
+                                    <div style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
                                     Generating...
-                                </span>
-                            ) : '🍽️ Generate from Pantry'}
+                                </>
+                            ) : 'Generate from Pantry'}
                         </button>
-
                         <button
                             type="button"
                             onClick={onSubmitReverse}
                             disabled={reverseLoading}
-                            className={`w-full flex justify-center py-3.5 px-4 border rounded-xl shadow-sm text-sm font-bold transition-all duration-200 active:scale-[0.98] ${reverseLoading
-                                    ? 'bg-slate-50 text-slate-400 cursor-not-allowed border-slate-200'
-                                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500'
-                                }`}
+                            style={{
+                                width: '100%', padding: '11px', fontSize: 13, fontWeight: 700,
+                                background: 'var(--surface2)', border: '1px solid var(--border)',
+                                borderRadius: 'var(--radius-sm)', color: reverseLoading ? 'var(--text-3)' : 'var(--text-2)',
+                                cursor: reverseLoading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font)', transition: 'all .15s',
+                            }}
+                            onMouseEnter={e => { if (!reverseLoading) { e.currentTarget.style.color = 'var(--text)'; e.currentTarget.style.borderColor = 'var(--border-2)' } }}
+                            onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-2)'; e.currentTarget.style.borderColor = 'var(--border)' }}
                         >
-                            {reverseLoading ? 'Building...' : '🛒 Build Shopping List'}
+                            {reverseLoading ? 'Building...' : 'Build Shopping List'}
                         </button>
                     </div>
 
-                    <p className="text-xs font-medium text-slate-500 text-center bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <span className="font-bold text-slate-700">Pantry Generator</span> builds meals using only what you have. <span className="font-bold text-slate-700">Shopping List Generator</span> finds optimal recipes and tells you what missing ingredients to buy.
+                    <p style={{ fontSize: 11, color: 'var(--text-3)', textAlign: 'center', padding: '10px 14px', background: 'var(--surface2)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                        <strong style={{ color: 'var(--text-2)' }}>Pantry Generator</strong> builds meals using only what you have. <strong style={{ color: 'var(--text-2)' }}>Shopping List Generator</strong> finds optimal recipes and tells you what to buy.
                     </p>
                 </form>
             </div>
 
-            {/* Results Section */}
+            {/* Results */}
             {(mealPlans.length > 0 || reverseResult) && (
-                <div ref={shoppingListRef} className="space-y-6 animate-fade-in-up">
+                <div ref={shoppingListRef}>
                     {/* Tabs */}
                     {mealPlans.length > 0 && reverseResult && (
-                        <div className="flex gap-6 border-b border-slate-200 px-2">
-                            <button
-                                onClick={() => setActiveTab('meals')}
-                                className={`py-4 font-bold text-sm transition-all duration-200 border-b-2 ${activeTab === 'meals'
-                                        ? 'border-emerald-500 text-emerald-700'
-                                        : 'border-transparent text-slate-500 hover:text-slate-800'
-                                    }`}
-                            >
-                                Meal Options ({mealPlans.length})
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('shopping')}
-                                className={`py-4 font-bold text-sm transition-all duration-200 border-b-2 ${activeTab === 'shopping'
-                                        ? 'border-blue-500 text-blue-700'
-                                        : 'border-transparent text-slate-500 hover:text-slate-800'
-                                    }`}
-                            >
-                                Shopping List
-                            </button>
+                        <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--border)', marginBottom: 24 }}>
+                            {[
+                                { id: 'meals', label: `Meal Options (${mealPlans.length})`, activeColor: 'var(--green)' },
+                                { id: 'shopping', label: 'Shopping List', activeColor: 'var(--carbs)' },
+                            ].map(({ id, label, activeColor }) => (
+                                <button
+                                    key={id}
+                                    onClick={() => setActiveTab(id)}
+                                    style={{
+                                        padding: '12px 20px', fontSize: 13, fontWeight: 700,
+                                        background: 'none', border: 'none',
+                                        borderBottom: `2px solid ${activeTab === id ? activeColor : 'transparent'}`,
+                                        color: activeTab === id ? activeColor : 'var(--text-3)',
+                                        cursor: 'pointer', fontFamily: 'var(--font)', transition: 'all .15s',
+                                        marginBottom: -1,
+                                    }}
+                                >
+                                    {label}
+                                </button>
+                            ))}
                         </div>
                     )}
 
-                    {/* Meal Plans Tab */}
+                    {/* Meal Plans */}
                     {activeTab === 'meals' && mealPlans.length > 0 && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pt-4">
-                            {mealPlans.map((plan, index) => (
-                                <div
-                                    key={index}
-                                    className={`bg-white shadow-soft-xl rounded-2xl border-2 overflow-hidden transition-all duration-200 cursor-pointer flex flex-col h-full ${selectedMeals.includes(index)
-                                            ? 'border-emerald-500 ring-4 ring-emerald-500/10'
-                                            : 'border-slate-100 hover:border-emerald-300 hover:shadow-soft-2xl'
-                                        }`}
-                                    onClick={() => toggleMealSelection(index)}
-                                >
-                                    <div className={`px-6 py-5 flex justify-between items-center transition-colors ${selectedMeals.includes(index)
-                                            ? 'bg-emerald-50 border-b border-emerald-100'
-                                            : 'bg-slate-50 border-b border-slate-100'
-                                        }`}>
-                                        <h3 className={`text-lg font-black tracking-tight ${selectedMeals.includes(index) ? 'text-emerald-800' : 'text-slate-800'}`}>Recipe Option {index + 1}</h3>
-                                        <button
-                                            onClick={(e) => handleSaveRecipe(e, plan)}
-                                            className={`p-2 rounded-xl transition-colors shadow-sm bg-white border ${selectedMeals.includes(index) ? 'text-emerald-600 border-emerald-200 hover:bg-emerald-100' : 'text-slate-500 border-slate-200 hover:text-brand-600 hover:bg-slate-100'}`}
-                                            title="Save as Recipe"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                            </svg>
-                                        </button>
-                                    </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+                            {mealPlans.map((plan, index) => {
+                                const isSelected = selectedMeals.includes(index)
+                                return (
+                                    <div
+                                        key={index}
+                                        onClick={() => toggleMealSelection(index)}
+                                        style={{
+                                            background: 'var(--surface)', border: `2px solid ${isSelected ? 'var(--green)' : 'var(--border)'}`,
+                                            borderRadius: 'var(--radius)', boxShadow: isSelected ? '0 0 0 3px rgba(34,197,94,.1)' : 'var(--shadow)',
+                                            display: 'flex', flexDirection: 'column', overflow: 'hidden', cursor: 'pointer',
+                                            transition: 'border-color .15s, box-shadow .15s',
+                                        }}
+                                        onMouseEnter={e => { if (!isSelected) e.currentTarget.style.borderColor = 'var(--border-2)' }}
+                                        onMouseLeave={e => { if (!isSelected) e.currentTarget.style.borderColor = 'var(--border)' }}
+                                    >
+                                        {/* Card header */}
+                                        <div style={{
+                                            padding: '14px 16px', background: isSelected ? 'var(--green-light)' : 'var(--surface2)',
+                                            borderBottom: `1px solid ${isSelected ? 'rgba(34,197,94,.2)' : 'var(--border)'}`,
+                                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                        }}>
+                                            <span style={{ fontSize: 14, fontWeight: 700, color: isSelected ? 'var(--green)' : 'var(--text)' }}>
+                                                Recipe Option {index + 1}
+                                            </span>
+                                            <button
+                                                onClick={(e) => handleSaveRecipe(e, plan)}
+                                                title="Save as Recipe"
+                                                style={{
+                                                    width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    background: 'var(--surface)', border: '1px solid var(--border)',
+                                                    borderRadius: 6, color: 'var(--text-3)', cursor: 'pointer', transition: 'all .1s',
+                                                }}
+                                                onMouseEnter={e => { e.currentTarget.style.color = 'var(--green)'; e.currentTarget.style.borderColor = 'rgba(34,197,94,.4)'; e.stopPropagation() }}
+                                                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-3)'; e.currentTarget.style.borderColor = 'var(--border)' }}
+                                            >
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                                                </svg>
+                                            </button>
+                                        </div>
 
-                                    <div className="p-6 flex-1 flex flex-col">
-                                        <ul className="divide-y divide-slate-100 mb-6 flex-1">
+                                        {/* Ingredients */}
+                                        <div style={{ padding: '14px 16px', flex: 1, display: 'flex', flexDirection: 'column', gap: 0 }}>
                                             {Object.entries(plan).map(([ingredient, amount]) => (
-                                                <li key={ingredient} className="py-3 flex justify-between items-center group">
-                                                    <span className="text-slate-700 font-bold text-sm transition-colors group-hover:text-slate-900">{ingredient}</span>
-                                                    <span className="text-xs font-black bg-slate-100 text-slate-700 px-3 py-1 rounded-md border border-slate-200/60 tabular-nums">
-                                                        {amount}g
-                                                    </span>
-                                                </li>
-                                            ))}
-                                        </ul>
-
-                                        <div className="mt-auto">
-                                            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                                                <div className="grid grid-cols-3 gap-2">
-                                                    <div className="text-center">
-                                                        <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 mb-1">PRO</div>
-                                                        <div className="font-black text-slate-900 text-sm tabular-nums">{formData.targetProtein}g</div>
-                                                    </div>
-                                                    <div className="text-center border-x border-slate-200">
-                                                        <div className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">CRB</div>
-                                                        <div className="font-black text-slate-900 text-sm tabular-nums">{formData.targetCarbs}g</div>
-                                                    </div>
-                                                    <div className="text-center">
-                                                        <div className="text-[10px] font-bold uppercase tracking-widest text-amber-600 mb-1">FAT</div>
-                                                        <div className="font-black text-slate-900 text-sm tabular-nums">{formData.targetFats}g</div>
-                                                    </div>
+                                                <div key={ingredient} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: '1px solid var(--border)' }}>
+                                                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-2)' }}>{ingredient}</span>
+                                                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--mono)', background: 'var(--surface2)', border: '1px solid var(--border)', padding: '2px 6px', borderRadius: 4 }}>{amount}g</span>
                                                 </div>
-                                            </div>
+                                            ))}
+                                        </div>
 
-                                            <div className={`mt-4 h-8 flex items-center justify-center transition-all ${selectedMeals.includes(index) ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-2'}`}>
-                                                <span className="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-700 text-xs font-black tracking-wide px-4 py-1.5 rounded-full uppercase border border-emerald-200">
-                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                    Ready to cook
-                                                </span>
+                                        {/* Macro footer */}
+                                        <div style={{ padding: '12px 16px', background: 'var(--surface2)', borderTop: '1px solid var(--border)' }}>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0 }}>
+                                                {[
+                                                    { label: 'PRO', val: formData.targetProtein, color: 'var(--protein)' },
+                                                    { label: 'CRB', val: formData.targetCarbs, color: 'var(--carbs)' },
+                                                    { label: 'FAT', val: formData.targetFats, color: 'var(--fat)' },
+                                                ].map(({ label, val, color }, i) => (
+                                                    <div key={label} style={{ textAlign: 'center', borderRight: i < 2 ? '1px solid var(--border)' : 'none' }}>
+                                                        <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color, marginBottom: 2 }}>{label}</div>
+                                                        <div style={{ fontSize: 13, fontWeight: 700, fontFamily: 'var(--mono)', color: 'var(--text)' }}>{val}g</div>
+                                                    </div>
+                                                ))}
                                             </div>
+                                            {isSelected && (
+                                                <div style={{ marginTop: 10, textAlign: 'center' }}>
+                                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'var(--green-light)', color: 'var(--green)', fontSize: 10, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', padding: '4px 10px', borderRadius: 99, border: '1px solid rgba(34,197,94,.3)' }}>
+                                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                                        Ready to cook
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     )}
 
                     {/* Shopping List Tab */}
                     {activeTab === 'shopping' && reverseResult && (
-                        <div className="space-y-6 pt-4">
-                            <div className="bg-white shadow-soft-xl rounded-2xl border border-slate-100 p-6 sm:p-8 ring-1 ring-slate-200/50">
-                                <h3 className="text-lg font-bold text-slate-900 mb-6">Target Summary</h3>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                            {/* Macro summary */}
+                            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '20px 24px', boxShadow: 'var(--shadow)' }}>
+                                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 16 }}>Target Summary</p>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                                     {[
-                                        { label: 'Protein Achieved', value: `${reverseResult.macros?.target?.protein}g`, color: 'emerald' },
-                                        { label: 'Carbs Achieved', value: `${reverseResult.macros?.target?.carbs}g`, color: 'blue' },
-                                        { label: 'Fats Achieved', value: `${reverseResult.macros?.target?.fats}g`, color: 'amber' },
-                                        { label: 'Total Calories', value: reverseResult.macros?.achieved?.calories?.toFixed?.(0) || reverseResult.macros?.achieved?.calories, color: 'slate' }
-                                    ].map((item) => (
-                                        <div key={item.label} className={`bg-${item.color}-50 p-5 rounded-2xl border border-${item.color}-100 text-center`}>
-                                            <div className={`text-[11px] font-bold uppercase tracking-widest text-${item.color}-600/80 mb-2`}>{item.label}</div>
-                                            <div className={`text-2xl font-black text-${item.color}-700 tabular-nums`}>{item.value}</div>
+                                        { label: 'Protein', val: `${reverseResult.macros?.target?.protein}g`, color: 'var(--protein)' },
+                                        { label: 'Carbs', val: `${reverseResult.macros?.target?.carbs}g`, color: 'var(--carbs)' },
+                                        { label: 'Fats', val: `${reverseResult.macros?.target?.fats}g`, color: 'var(--fat)' },
+                                        { label: 'Calories', val: reverseResult.macros?.achieved?.calories?.toFixed?.(0) || reverseResult.macros?.achieved?.calories, color: 'var(--cal)' },
+                                    ].map(({ label, val, color }) => (
+                                        <div key={label} style={{ textAlign: 'center', padding: '14px 10px', background: 'var(--surface2)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                                            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-3)', marginBottom: 6 }}>{label}</div>
+                                            <div style={{ fontSize: 22, fontWeight: 700, fontFamily: 'var(--mono)', color, letterSpacing: '-0.04em' }}>{val}</div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="grid lg:grid-cols-2 gap-8">
-                                {/* Meal Plan */}
-                                <div className="bg-white shadow-soft-xl rounded-2xl border border-slate-100 p-6 sm:p-8 ring-1 ring-slate-200/50 flex flex-col h-full">
-                                    <h4 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Optimum Recipe</h4>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                                {/* Optimum Recipe */}
+                                <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '20px 24px', boxShadow: 'var(--shadow)' }}>
+                                    <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', paddingBottom: 14, borderBottom: '1px solid var(--border)', marginBottom: 14 }}>Optimum Recipe</p>
                                     {reverseResult.plan && Object.keys(reverseResult.plan).length > 0 ? (
-                                        <div className="overflow-auto flex-1 pr-2 hide-scrollbar">
-                                            <ul className="divide-y divide-slate-100">
-                                                {Object.entries(reverseResult.plan).map(([name, grams]) => (
-                                                    <li key={name} className="py-3.5 flex justify-between items-center group">
-                                                        <span className="text-slate-800 font-bold text-sm group-hover:text-blue-600 transition-colors">{name}</span>
-                                                        <span className="text-xs font-black text-slate-700 bg-slate-50 border border-slate-200/60 rounded-md px-3 py-1.5 tabular-nums">
-                                                            {grams}g
-                                                        </span>
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                                            {Object.entries(reverseResult.plan).map(([name, grams]) => (
+                                                <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
+                                                    <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{name}</span>
+                                                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-2)', fontFamily: 'var(--mono)', background: 'var(--surface2)', border: '1px solid var(--border)', padding: '3px 8px', borderRadius: 4 }}>{grams}g</span>
+                                                </div>
+                                            ))}
                                         </div>
                                     ) : (
-                                        <div className="flex-1 flex items-center justify-center p-8 bg-slate-50 border border-dashed border-slate-200 rounded-xl">
-                                            <p className="text-sm font-semibold text-slate-500">No ingredients selected.</p>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px', border: '1px dashed var(--border)', borderRadius: 'var(--radius-sm)' }}>
+                                            <p style={{ fontSize: 13, color: 'var(--text-3)' }}>No ingredients selected.</p>
                                         </div>
                                     )}
                                 </div>
 
                                 {/* Shopping List */}
-                                <div className="bg-white shadow-soft-xl rounded-2xl border border-slate-100 p-6 sm:p-8 ring-1 ring-slate-200/50 flex flex-col h-full">
-                                    <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
-                                        <h4 className="text-lg font-bold text-slate-900">Missing Ingredients</h4>
-                                        {reverseResult.shoppingList && reverseResult.shoppingList.length > 0 && (
-                                            <span className="text-[11px] font-black tracking-widest uppercase text-amber-700 bg-amber-100 border border-amber-200 px-3 py-1 rounded-full shadow-sm">
+                                <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '20px 24px', boxShadow: 'var(--shadow)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 14, borderBottom: '1px solid var(--border)', marginBottom: 14 }}>
+                                        <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>Missing Ingredients</p>
+                                        {reverseResult.shoppingList?.length > 0 && (
+                                            <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--carbs)', background: 'var(--carbs-bg)', border: '1px solid rgba(245,158,11,.25)', padding: '3px 8px', borderRadius: 99 }}>
                                                 Buy {reverseResult.shoppingList.length} items
                                             </span>
                                         )}
                                     </div>
-                                    {reverseResult.shoppingList && reverseResult.shoppingList.length > 0 ? (
-                                        <div className="overflow-auto flex-1 pr-2 hide-scrollbar">
-                                            <ul className="divide-y divide-slate-100">
-                                                {reverseResult.shoppingList.map(item => (
-                                                    <li key={item.name} className="py-3.5 flex justify-between items-center group">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-2 h-2 rounded-full bg-amber-400"></div>
-                                                            <span className="text-slate-800 font-bold text-sm group-hover:text-amber-600 transition-colors">{item.name}</span>
-                                                        </div>
-                                                        <span className="text-xs font-black text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-1.5 tabular-nums shadow-sm">
-                                                            {Math.round(item.amount)}g
-                                                        </span>
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                    {reverseResult.shoppingList?.length > 0 ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                                            {reverseResult.shoppingList.map(item => (
+                                                <div key={item.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--carbs)', flexShrink: 0 }} />
+                                                        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{item.name}</span>
+                                                    </div>
+                                                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--carbs)', fontFamily: 'var(--mono)', background: 'var(--carbs-bg)', border: '1px solid rgba(245,158,11,.25)', padding: '3px 8px', borderRadius: 4 }}>{Math.round(item.amount)}g</span>
+                                                </div>
+                                            ))}
                                         </div>
                                     ) : (
-                                        <div className="flex-1 flex flex-col items-center justify-center p-8 bg-emerald-50 border border-emerald-100 rounded-xl text-center">
-                                            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
-                                                <span className="text-2xl">🎉</span>
-                                            </div>
-                                            <p className="text-base font-bold text-emerald-800">You have everything!</p>
-                                            <p className="text-sm font-medium text-emerald-600 mt-1">Your pantry covers this entire recipe.</p>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px', background: 'var(--green-light)', border: '1px solid rgba(34,197,94,.2)', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
+                                            <div style={{ fontSize: 24, marginBottom: 8 }}>🎉</div>
+                                            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--green)' }}>You have everything!</p>
+                                            <p style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 4 }}>Your pantry covers this entire recipe.</p>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Pantry Usage */}
-                            {reverseResult.pantryUsage && reverseResult.pantryUsage.length > 0 && (
-                                <div className="bg-white shadow-soft-xl rounded-2xl border border-slate-100 p-6 sm:p-8 ring-1 ring-slate-200/50">
-                                    <h4 className="text-lg font-bold text-slate-900 mb-6">Pantry Usage Breakdown</h4>
-                                    <div className="overflow-x-auto">
-                                        <table className="min-w-full divide-y divide-slate-100">
-                                            <thead className="bg-slate-50 border-y border-slate-100">
-                                                <tr>
-                                                    <th className="px-5 py-3.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-widest w-2/5">Ingredient</th>
-                                                    <th className="px-5 py-3.5 text-right text-[11px] font-bold text-slate-500 uppercase tracking-widest">Recipe Needs</th>
-                                                    <th className="px-5 py-3.5 text-right text-[11px] font-bold text-slate-500 uppercase tracking-widest">In Stock</th>
-                                                    <th className="px-5 py-3.5 text-right text-[11px] font-bold text-slate-500 uppercase tracking-widest">Missing</th>
+                            {/* Pantry Usage Table */}
+                            {reverseResult.pantryUsage?.length > 0 && (
+                                <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '20px 24px', boxShadow: 'var(--shadow)' }}>
+                                    <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 16 }}>Pantry Usage Breakdown</p>
+                                    <div style={{ overflowX: 'auto' }}>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font)' }}>
+                                            <thead>
+                                                <tr style={{ background: 'var(--surface2)', borderBottom: '1px solid var(--border)' }}>
+                                                    {['Ingredient', 'Recipe Needs', 'In Stock', 'Missing'].map((h, i) => (
+                                                        <th key={h} style={{ padding: '10px 14px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-3)', textAlign: i === 0 ? 'left' : 'right' }}>{h}</th>
+                                                    ))}
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-slate-50">
+                                            <tbody>
                                                 {reverseResult.pantryUsage.map(row => (
-                                                    <tr key={row.name} className="hover:bg-slate-50/50 transition-colors">
-                                                        <td className="px-5 py-4 text-slate-800 font-bold text-sm">{row.name}</td>
-                                                        <td className="px-5 py-4 text-right text-slate-600 font-semibold tabular-nums">{Math.round(row.needed)}g</td>
-                                                        <td className="px-5 py-4 text-right text-slate-600 font-semibold tabular-nums">{Math.round(row.fromPantry)}g</td>
-                                                        <td className="px-5 py-4 text-right">
+                                                    <tr key={row.name} style={{ borderBottom: '1px solid var(--border)' }}>
+                                                        <td style={{ padding: '10px 14px', fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{row.name}</td>
+                                                        <td style={{ padding: '10px 14px', fontSize: 12, fontWeight: 700, color: 'var(--text-2)', textAlign: 'right', fontFamily: 'var(--mono)' }}>{Math.round(row.needed)}g</td>
+                                                        <td style={{ padding: '10px 14px', fontSize: 12, fontWeight: 700, color: 'var(--text-2)', textAlign: 'right', fontFamily: 'var(--mono)' }}>{Math.round(row.fromPantry)}g</td>
+                                                        <td style={{ padding: '10px 14px', textAlign: 'right' }}>
                                                             {row.shortfall > 0 ? (
-                                                                <span className="inline-flex items-center font-black text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-md text-sm tabular-nums shadow-sm">
-                                                                    {Math.round(row.shortfall)}g
-                                                                </span>
+                                                                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--carbs)', fontFamily: 'var(--mono)', background: 'var(--carbs-bg)', border: '1px solid rgba(245,158,11,.25)', padding: '3px 8px', borderRadius: 4 }}>{Math.round(row.shortfall)}g</span>
                                                             ) : (
-                                                                <span className="inline-flex items-center font-black text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-md text-sm tabular-nums">
-                                                                    ✓
-                                                                </span>
+                                                                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--green)', background: 'var(--green-light)', border: '1px solid rgba(34,197,94,.2)', padding: '3px 8px', borderRadius: 4 }}>✓</span>
                                                             )}
                                                         </td>
                                                     </tr>
@@ -522,19 +480,6 @@ const GeneratorPage = () => {
                                     </div>
                                 </div>
                             )}
-                        </div>
-                    )}
-
-                    {/* Empty State */}
-                    {mealPlans.length === 0 && !reverseResult && (
-                        <div className="bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 p-16 text-center shadow-inner">
-                            <div className="bg-white p-5 rounded-3xl inline-block mb-6 shadow-sm border border-slate-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                </svg>
-                            </div>
-                            <h3 className="text-xl font-bold text-slate-900">Start Generating</h3>
-                            <p className="mt-3 text-slate-500 font-medium max-w-sm mx-auto leading-relaxed">Enter your daily macro targets above to let our algorithm find the perfect combinations.</p>
                         </div>
                     )}
                 </div>
@@ -554,10 +499,7 @@ const GeneratorPage = () => {
 
             <PromptModal
                 isOpen={showRecipeModal}
-                onClose={() => {
-                    setShowRecipeModal(false)
-                    setSelectedPlan(null)
-                }}
+                onClose={() => { setShowRecipeModal(false); setSelectedPlan(null) }}
                 onSubmit={executeSaveRecipe}
                 title="Save Recipe"
                 message="Enter a name for this custom recipe:"

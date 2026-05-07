@@ -1,16 +1,14 @@
-import ingredientServices from "../services/ingredientServices";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { toast } from "react-toastify";
-import ValidationError from "../components/ValidationError";
-import ConfirmModal from "../components/ConfirmModal";
-
+import ingredientServices from "../services/ingredientServices"
+import { useNavigate } from "react-router-dom"
+import { useState } from "react"
+import { toast } from "react-toastify"
+import ValidationError from "../components/ValidationError"
+import ConfirmModal from "../components/ConfirmModal"
 
 function CreateIngredient() {
     const navigate = useNavigate()
     const [ingredient, setIngredient] = useState({
-        name: '', calories: '',
-        protein: '', carbs: '', fats: '', servingSize: 100
+        name: '', calories: '', protein: '', carbs: '', fats: '', servingSize: 100
     })
     const [errors, setErrors] = useState({})
     const [showCalorieWarning, setShowCalorieWarning] = useState(false)
@@ -25,61 +23,28 @@ function CreateIngredient() {
     const handleSubmit = async (e) => {
         e.preventDefault()
         const newErrors = {}
+        if (!ingredient.name.trim()) newErrors.name = 'Food name is required'
+        if (!ingredient.calories) newErrors.calories = 'Calories are required'
+        else if (Number(ingredient.calories) <= 0) newErrors.calories = 'Calories must be greater than 0'
+        if (!ingredient.protein) newErrors.protein = 'Protein is required'
+        else if (Number(ingredient.protein) < 0) newErrors.protein = 'Protein cannot be negative'
+        if (!ingredient.carbs) newErrors.carbs = 'Carbs are required'
+        else if (Number(ingredient.carbs) < 0) newErrors.carbs = 'Carbs cannot be negative'
+        if (!ingredient.fats) newErrors.fats = 'Fats are required'
+        else if (Number(ingredient.fats) < 0) newErrors.fats = 'Fats cannot be negative'
+        if (!ingredient.servingSize) newErrors.servingSize = 'Serving size is required'
+        else if (Number(ingredient.servingSize) <= 0) newErrors.servingSize = 'Serving size must be greater than 0'
 
-        if (!ingredient.name.trim()) {
-            newErrors.name = 'Food name is required'
-        }
-
-        if (!ingredient.calories) {
-            newErrors.calories = 'Calories are required'
-        } else if (Number(ingredient.calories) <= 0) {
-            newErrors.calories = 'Calories must be greater than 0'
-        }
-
-        if (!ingredient.protein) {
-            newErrors.protein = 'Protein is required'
-        } else if (Number(ingredient.protein) < 0) {
-            newErrors.protein = 'Protein cannot be negative'
-        }
-
-        if (!ingredient.carbs) {
-            newErrors.carbs = 'Carbs are required'
-        } else if (Number(ingredient.carbs) < 0) {
-            newErrors.carbs = 'Carbs cannot be negative'
-        }
-
-        if (!ingredient.fats) {
-            newErrors.fats = 'Fats are required'
-        } else if (Number(ingredient.fats) < 0) {
-            newErrors.fats = 'Fats cannot be negative'
-        }
-
-        if (!ingredient.servingSize) {
-            newErrors.servingSize = 'Serving size is required'
-        } else if (Number(ingredient.servingSize) <= 0) {
-            newErrors.servingSize = 'Serving size must be greater than 0'
-        }
-
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors)
-            return
-        }
+        if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return }
 
         const { calories, protein, carbs, fats } = ingredient
         const calcCals = (Number(protein) * 4) + (Number(carbs) * 4) + (Number(fats) * 9)
 
-        // Warn if calories are wildly different (>20% off)
         if (Math.abs(Number(calories) - calcCals) > (Number(calories) * 0.2)) {
             const dontAsk = localStorage.getItem('dontAsk_calorieWarning')
-            if (dontAsk === 'true') {
-                saveIngredient()
-            } else {
-                setCalculatedCals(Math.round(calcCals))
-                setShowCalorieWarning(true)
-            }
+            if (dontAsk === 'true') { saveIngredient() } else { setCalculatedCals(Math.round(calcCals)); setShowCalorieWarning(true) }
             return
         }
-
         saveIngredient()
     }
 
@@ -104,175 +69,119 @@ function CreateIngredient() {
         }
     }
 
+    const inputStyle = (hasError) => ({
+        width: '100%', padding: '9px 12px', fontSize: 13,
+        background: 'var(--surface2)', border: `1px solid ${hasError ? 'var(--fat)' : 'var(--border)'}`,
+        borderRadius: 'var(--radius-sm)', color: 'var(--text)',
+        fontFamily: 'var(--font)', outline: 'none', boxSizing: 'border-box',
+    })
+
+    const labelStyle = {
+        display: 'block', fontSize: 11, fontWeight: 700,
+        letterSpacing: '.08em', textTransform: 'uppercase',
+        color: 'var(--text-3)', marginBottom: 6,
+    }
+
+    const macroFields = [
+        { name: 'protein', label: 'Protein', color: 'var(--protein)', bg: 'var(--protein-bg)' },
+        { name: 'carbs', label: 'Carbs', color: 'var(--carbs)', bg: 'var(--carbs-bg)' },
+        { name: 'fats', label: 'Fats', color: 'var(--fat)', bg: 'var(--fat-bg)' },
+    ]
+
     return (
-        <div className="py-10 px-4 sm:px-6 lg:px-8 bg-slate-50 min-h-screen">
-            <div className="max-w-2xl mx-auto space-y-8 animate-fade-in-up">
-                {/* Header with Back Button */}
-                <div className="mb-8 flex items-center bg-white p-6 sm:p-8 rounded-2xl shadow-soft-xl border border-slate-100 ring-1 ring-slate-200/50">
-                    <button
-                        onClick={() => navigate('/')}
-                        className="mr-5 p-2.5 rounded-xl text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 transition-all duration-200 border border-slate-200 shadow-sm"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
-                    </button>
-                    <div>
-                        <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-1">Database</p>
-                        <h1 className="text-3xl font-black tracking-tight text-slate-900">Add New Food</h1>
-                        <p className="mt-1.5 text-sm font-medium text-slate-500">
-                            Add a custom ingredient to your personal database.
-                        </p>
-                    </div>
-                </div>
-
-                <div className="bg-white shadow-soft-xl rounded-2xl border border-slate-100 ring-1 ring-slate-200/50 overflow-hidden">
-                    <div className="p-6 sm:p-8">
-
-                        <form onSubmit={handleSubmit} className="space-y-8" noValidate>
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">Food Name</label>
-                                <input
-                                    name="name"
-                                    value={ingredient.name}
-                                    onChange={handleChange}
-                                    placeholder="e.g. Greek Yogurt, Protein Powder"
-                                    className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full shadow-sm text-base font-semibold bg-slate-50 border border-slate-200 text-slate-900 rounded-xl py-3 px-4 transition-all duration-200 placeholder-slate-400"
-                                    style={{
-                                        borderColor: errors.name ? '#ef4444' : undefined,
-                                        boxShadow: errors.name ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : undefined
-                                    }}
-                                />
-                                <ValidationError show={!!errors.name} message={errors.name} />
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-y-8 gap-x-6 sm:grid-cols-2 p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                                <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-2">Serving Size</label>
-                                    <div className="relative rounded-xl shadow-sm">
-                                        <input
-                                            type="number"
-                                            name="servingSize"
-                                            value={ingredient.servingSize}
-                                            onChange={handleChange}
-                                            className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full pl-4 pr-12 text-base font-semibold bg-white border border-slate-200 text-slate-900 rounded-xl py-3 px-4 transition-all duration-200 placeholder-slate-400"
-                                            style={{
-                                                borderColor: errors.servingSize ? '#ef4444' : undefined,
-                                                boxShadow: errors.servingSize ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : undefined
-                                            }}
-                                        />
-                                        <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none border-l border-slate-100 pl-3 my-2">
-                                            <span className="text-slate-400 font-bold text-sm">g</span>
-                                        </div>
-                                    </div>
-                                    <ValidationError show={!!errors.servingSize} message={errors.servingSize} />
-                                    <p className="mt-2 text-xs font-semibold text-slate-500">Standard serving size</p>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-2">Calories</label>
-                                    <div className="relative rounded-xl shadow-sm">
-                                        <input
-                                            type="number"
-                                            name="calories"
-                                            value={ingredient.calories}
-                                            onChange={handleChange}
-                                            className="focus:ring-slate-500/50 focus:border-slate-500 block w-full pl-4 pr-16 text-base font-bold bg-white border border-slate-200 text-slate-900 rounded-xl py-3 px-4 transition-all duration-200 placeholder-slate-400"
-                                            style={{
-                                                borderColor: errors.calories ? '#ef4444' : undefined,
-                                                boxShadow: errors.calories ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : undefined
-                                            }}
-                                        />
-                                        <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none border-l border-slate-100 pl-3 my-2">
-                                            <span className="text-slate-400 font-bold text-sm">kcal</span>
-                                        </div>
-                                    </div>
-                                    <ValidationError show={!!errors.calories} message={errors.calories} />
-                                    <p className="mt-2 text-xs font-semibold text-slate-500">Total calories per serving</p>
-                                </div>
-                            </div>
-
-                            <div className="pt-2">
-                                <h3 className="text-lg font-bold text-slate-900 mb-6">Macronutrients <span className="text-sm font-medium text-slate-500 ml-2">(per serving)</span></h3>
-                                <div className="grid grid-cols-1 gap-y-6 gap-x-6 sm:grid-cols-3">
-                                    <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100">
-                                        <label className="block text-sm font-bold text-emerald-800 mb-2">Protein</label>
-                                        <div className="relative rounded-xl shadow-sm">
-                                            <input
-                                                type="number"
-                                                name="protein"
-                                                value={ingredient.protein}
-                                                onChange={handleChange}
-                                                className="focus:ring-emerald-500/50 focus:border-emerald-500 block w-full pl-4 pr-12 text-base font-bold bg-white border border-emerald-200 text-emerald-900 rounded-xl py-3 px-4 transition-all duration-200 tabular-nums"
-                                                style={{
-                                                    borderColor: errors.protein ? '#ef4444' : undefined,
-                                                    boxShadow: errors.protein ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : undefined
-                                                }}
-                                            />
-                                            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none border-l border-emerald-100 pl-3 my-2">
-                                                <span className="text-emerald-600 font-bold text-sm">g</span>
-                                            </div>
-                                        </div>
-                                        <ValidationError show={!!errors.protein} message={errors.protein} />
-                                    </div>
-                                    <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
-                                        <label className="block text-sm font-bold text-blue-800 mb-2">Carbs</label>
-                                        <div className="relative rounded-xl shadow-sm">
-                                            <input
-                                                type="number"
-                                                name="carbs"
-                                                value={ingredient.carbs}
-                                                onChange={handleChange}
-                                                className="focus:ring-blue-500/50 focus:border-blue-500 block w-full pl-4 pr-12 text-base font-bold bg-white border border-blue-200 text-blue-900 rounded-xl py-3 px-4 transition-all duration-200 tabular-nums"
-                                                style={{
-                                                    borderColor: errors.carbs ? '#ef4444' : undefined,
-                                                    boxShadow: errors.carbs ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : undefined
-                                                }}
-                                            />
-                                            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none border-l border-blue-100 pl-3 my-2">
-                                                <span className="text-blue-600 font-bold text-sm">g</span>
-                                            </div>
-                                        </div>
-                                        <ValidationError show={!!errors.carbs} message={errors.carbs} />
-                                    </div>
-                                    <div className="bg-amber-50/50 p-4 rounded-2xl border border-amber-100">
-                                        <label className="block text-sm font-bold text-amber-800 mb-2">Fats</label>
-                                        <div className="relative rounded-xl shadow-sm">
-                                            <input
-                                                type="number"
-                                                name="fats"
-                                                value={ingredient.fats}
-                                                onChange={handleChange}
-                                                className="focus:ring-amber-500/50 focus:border-amber-500 block w-full pl-4 pr-12 text-base font-bold bg-white border border-amber-200 text-amber-900 rounded-xl py-3 px-4 transition-all duration-200 tabular-nums"
-                                                style={{
-                                                    borderColor: errors.fats ? '#ef4444' : undefined,
-                                                    boxShadow: errors.fats ? 'inset 0 0 0 1px rgba(239, 68, 68, 0.5)' : undefined
-                                                }}
-                                            />
-                                            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none border-l border-amber-100 pl-3 my-2">
-                                                <span className="text-amber-600 font-bold text-sm">g</span>
-                                            </div>
-                                        </div>
-                                        <ValidationError show={!!errors.fats} message={errors.fats} />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="pt-6 border-t border-slate-100">
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="w-full flex justify-center py-4 px-4 rounded-xl shadow-soft-md text-base font-bold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
-                                >
-                                    {loading ? 'Saving...' : 'Save Custom Ingredient'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+        <div>
+            {/* Header */}
+            <div style={{ marginBottom: 32 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 4 }}>Database</div>
+                <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text)', margin: 0 }}>Add New Food</h1>
+                <p style={{ fontSize: 14, color: 'var(--text-2)', marginTop: 4 }}>Add a custom ingredient to your personal database.</p>
             </div>
 
-            {/* Modal */}
+            <div style={{ maxWidth: 560, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '28px 28px', boxShadow: 'var(--shadow)', fontFamily: 'var(--font)' }}>
+                <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                    {/* Name */}
+                    <div>
+                        <label style={labelStyle}>Food Name</label>
+                        <input
+                            name="name"
+                            value={ingredient.name}
+                            onChange={handleChange}
+                            placeholder="e.g. Greek Yogurt, Protein Powder"
+                            style={inputStyle(!!errors.name)}
+                        />
+                        <ValidationError show={!!errors.name} message={errors.name} />
+                    </div>
+
+                    {/* Serving size + Calories */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, padding: '16px', background: 'var(--surface2)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                        <div>
+                            <label style={labelStyle}>Serving Size</label>
+                            <div style={{ position: 'relative' }}>
+                                <input type="number" name="servingSize" value={ingredient.servingSize} onChange={handleChange} style={{ ...inputStyle(!!errors.servingSize), paddingRight: 32 }} />
+                                <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: 'var(--text-3)', fontWeight: 700, pointerEvents: 'none' }}>g</span>
+                            </div>
+                            <ValidationError show={!!errors.servingSize} message={errors.servingSize} />
+                            <p style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 4 }}>Standard serving size</p>
+                        </div>
+                        <div>
+                            <label style={labelStyle}>Calories</label>
+                            <div style={{ position: 'relative' }}>
+                                <input type="number" name="calories" value={ingredient.calories} onChange={handleChange} style={{ ...inputStyle(!!errors.calories), paddingRight: 44 }} />
+                                <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: 'var(--text-3)', fontWeight: 700, pointerEvents: 'none' }}>kcal</span>
+                            </div>
+                            <ValidationError show={!!errors.calories} message={errors.calories} />
+                            <p style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 4 }}>Total calories per serving</p>
+                        </div>
+                    </div>
+
+                    {/* Macros */}
+                    <div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>
+                            Macronutrients <span style={{ fontSize: 12, color: 'var(--text-3)', fontWeight: 400 }}>(per serving)</span>
+                        </p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                            {macroFields.map(({ name, label, color, bg }) => (
+                                <div key={name} style={{ padding: '12px', background: bg, borderRadius: 'var(--radius-sm)', border: `1px solid ${bg}` }}>
+                                    <label style={{ ...labelStyle, color }}>{label}</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <input
+                                            type="number"
+                                            name={name}
+                                            value={ingredient[name]}
+                                            onChange={handleChange}
+                                            style={{ ...inputStyle(!!errors[name]), background: 'var(--surface)', paddingRight: 28 }}
+                                        />
+                                        <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 11, fontWeight: 700, color, pointerEvents: 'none' }}>g</span>
+                                    </div>
+                                    <ValidationError show={!!errors[name]} message={errors[name]} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div style={{ borderTop: '1px solid var(--border)', paddingTop: 20 }}>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            style={{
+                                width: '100%', padding: '11px', fontSize: 13, fontWeight: 700,
+                                background: loading ? 'var(--surface2)' : 'linear-gradient(135deg,#16a34a,#0d9488)',
+                                border: 'none', borderRadius: 'var(--radius-sm)',
+                                color: loading ? 'var(--text-2)' : 'white',
+                                cursor: loading ? 'not-allowed' : 'pointer',
+                                fontFamily: 'var(--font)',
+                                boxShadow: loading ? 'none' : '0 2px 8px rgba(22,163,74,.3)',
+                                transition: 'opacity .15s',
+                            }}
+                            onMouseEnter={e => { if (!loading) e.currentTarget.style.opacity = '.88' }}
+                            onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
+                        >
+                            {loading ? 'Saving...' : 'Save Custom Ingredient'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             <ConfirmModal
                 isOpen={showCalorieWarning}
                 onClose={() => setShowCalorieWarning(false)}
