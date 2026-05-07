@@ -38,10 +38,7 @@ const AddItemForm = ({ onItemAdded }) => {
         e.preventDefault()
         const newErrors = {}
 
-        if (!selectedIngredient) {
-            newErrors.ingredient = 'Please select a food item'
-        }
-
+        if (!selectedIngredient) newErrors.ingredient = 'Please select a food item'
         if (!quantity) {
             newErrors.quantity = 'Quantity is required'
         } else if (Number(quantity) <= 0) {
@@ -77,17 +74,45 @@ const AddItemForm = ({ onItemAdded }) => {
         if (errors.ingredient) setErrors({ ...errors, ingredient: '' })
     }
 
-    if (loading) { return <p className="text-sm font-medium text-slate-500 animate-pulse">Loading Ingredients...</p> }
+    if (loading) return (
+        <p style={{ fontSize: 13, color: 'var(--text-2)', fontWeight: 500 }}>Loading ingredients...</p>
+    )
+
+    const inputStyle = (hasError) => ({
+        width: '100%',
+        padding: '9px 12px',
+        fontSize: 13,
+        background: 'var(--surface2)',
+        border: `1px solid ${hasError ? 'var(--fat)' : 'var(--border)'}`,
+        borderRadius: 'var(--radius-sm)',
+        color: 'var(--text)',
+        fontFamily: 'var(--font)',
+        outline: 'none',
+        boxSizing: 'border-box',
+    })
+
+    const labelStyle = {
+        display: 'block',
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: '.08em',
+        textTransform: 'uppercase',
+        color: 'var(--text-3)',
+        marginBottom: 6,
+    }
 
     return (
         <div>
-            {errors.general && <p className="text-sm text-red-600 mb-5 bg-red-50 p-3 rounded-xl border border-red-200 font-medium">{errors.general}</p>}
+            {errors.general && (
+                <div style={{ background: 'var(--fat-bg)', border: '1px solid var(--fat)', borderRadius: 'var(--radius-sm)', padding: '10px 12px', marginBottom: 16, fontSize: 13, color: 'var(--fat)', fontWeight: 500 }}>
+                    {errors.general}
+                </div>
+            )}
 
-            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-                <div className="relative">
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                        Food Item
-                    </label>
+            <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {/* Food Item search */}
+                <div style={{ position: 'relative' }}>
+                    <label style={labelStyle}>Food Item</label>
                     <input
                         type="text"
                         value={searchTerm}
@@ -98,40 +123,61 @@ const AddItemForm = ({ onItemAdded }) => {
                         }}
                         onFocus={() => setShowSuggestions(true)}
                         placeholder="Search for food..."
-                        className="block w-full pl-4 pr-10 py-3 text-sm bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 rounded-xl transition-all duration-200 shadow-sm font-medium"
                         autoComplete="off"
-                        style={{
-                            borderColor: errors.ingredient ? '#ef4444' : undefined,
-                            boxShadow: errors.ingredient ? '0 0 0 1px rgba(239, 68, 68, 0.5)' : undefined
-                        }}
+                        style={inputStyle(!!errors.ingredient)}
                     />
                     <ValidationError show={!!errors.ingredient} message={errors.ingredient} />
 
-                    {/* Suggestions Dropdown */}
                     {showSuggestions && searchTerm && !selectedIngredient && (
-                        <div className="absolute z-20 mt-2 w-full bg-white shadow-soft-xl max-h-60 rounded-xl py-2 text-sm ring-1 ring-slate-200 overflow-auto focus:outline-none border border-slate-100">
+                        <div style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            right: 0,
+                            zIndex: 20,
+                            marginTop: 4,
+                            background: 'var(--surface2)',
+                            border: '1px solid var(--border)',
+                            borderRadius: 'var(--radius-sm)',
+                            boxShadow: 'var(--shadow-md)',
+                            maxHeight: 220,
+                            overflowY: 'auto',
+                        }}>
                             {filteredIngredients.length > 0 ? (
                                 filteredIngredients.map(ingredient => (
                                     <div
                                         key={ingredient._id}
-                                        className="cursor-pointer select-none relative py-2.5 pl-4 pr-4 hover:bg-slate-50 transition-colors"
                                         onClick={() => handleSelectIngredient(ingredient)}
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            padding: '9px 12px',
+                                            cursor: 'pointer',
+                                            borderBottom: '1px solid var(--border)',
+                                            transition: 'background .1s',
+                                        }}
+                                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,.04)'}
+                                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                     >
-                                        <div className="flex justify-between items-center">
-                                            <span className="font-semibold text-slate-800 truncate">{ingredient.name}</span>
-                                            <span className="text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200/60 px-2 py-0.5 rounded-md tabular-nums">{ingredient.calories} kcal</span>
-                                        </div>
+                                        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{ingredient.name}</span>
+                                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', fontFamily: 'var(--mono)' }}>{ingredient.calories} kcal</span>
                                     </div>
                                 ))
                             ) : (
-                                <div className="cursor-default select-none relative py-4 px-4 text-center text-slate-500">
-                                    <p className="text-sm font-medium">No ingredients found.</p>
+                                <div style={{ padding: '14px 12px', textAlign: 'center' }}>
+                                    <p style={{ fontSize: 13, color: 'var(--text-2)', fontWeight: 500, marginBottom: 10 }}>No ingredients found.</p>
                                     <button
                                         type="button"
                                         onClick={() => navigate('/ingredient')}
-                                        className="text-emerald-600 hover:text-emerald-700 font-bold text-sm mt-3 inline-flex items-center hover:underline bg-emerald-50 px-4 py-2 rounded-lg transition-colors border border-emerald-100"
+                                        style={{
+                                            fontSize: 12, fontWeight: 700, color: 'var(--green)',
+                                            background: 'var(--green-light)', border: '1px solid rgba(34,197,94,.2)',
+                                            borderRadius: 'var(--radius-sm)', padding: '6px 12px',
+                                            cursor: 'pointer', fontFamily: 'var(--font)',
+                                        }}
                                     >
-                                        <span className="mr-1 shadow-sm px-1.5 py-0.5 bg-white rounded-md text-emerald-600">+</span> Create "{searchTerm}"
+                                        + Create "{searchTerm}"
                                     </button>
                                 </div>
                             )}
@@ -139,10 +185,9 @@ const AddItemForm = ({ onItemAdded }) => {
                     )}
                 </div>
 
+                {/* Quantity */}
                 <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                        Quantity (grams)
-                    </label>
+                    <label style={labelStyle}>Quantity (grams)</label>
                     <input
                         type="number"
                         min="1"
@@ -152,37 +197,48 @@ const AddItemForm = ({ onItemAdded }) => {
                             setQuantity(e.target.value)
                             if (errors.quantity) setErrors({ ...errors, quantity: '' })
                         }}
-                        className="block w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 sm:text-sm transition-all duration-200 font-medium"
-                        style={{
-                            borderColor: errors.quantity ? '#ef4444' : undefined,
-                            boxShadow: errors.quantity ? '0 0 0 1px rgba(239, 68, 68, 0.5)' : undefined
-                        }}
+                        style={inputStyle(!!errors.quantity)}
                     />
                     <ValidationError show={!!errors.quantity} message={errors.quantity} />
                 </div>
 
+                {/* Threshold */}
                 <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                        Low-stock threshold (grams)
-                    </label>
+                    <label style={labelStyle}>Low-stock threshold (grams)</label>
                     <input
                         type="number"
                         min="0"
                         value={threshold}
                         onChange={(e) => setThreshold(e.target.value)}
-                        className="block w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 sm:text-sm transition-all duration-200 font-medium"
+                        style={inputStyle(false)}
                     />
-                    <p className="mt-2 text-[11px] font-bold text-slate-400 uppercase tracking-wide">We will flag this item when it drops below this amount (default: 100g).</p>
+                    <p style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 5, fontWeight: 500 }}>
+                        Alert when below this amount (default: 100g)
+                    </p>
                 </div>
 
-                <div className="pt-2">
-                  <button
-                      type="submit"
-                      className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 active:scale-[0.98] shadow-emerald-500/20"
-                  >
-                      Add to Pantry
-                  </button>
-                </div>
+                <button
+                    type="submit"
+                    style={{
+                        marginTop: 4,
+                        width: '100%',
+                        padding: '10px',
+                        background: 'linear-gradient(135deg,#16a34a,#0d9488)',
+                        border: 'none',
+                        borderRadius: 'var(--radius-sm)',
+                        color: 'white',
+                        fontWeight: 700,
+                        fontSize: 13,
+                        fontFamily: 'var(--font)',
+                        cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(22,163,74,.3)',
+                        transition: 'opacity .15s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.opacity = '.88' }}
+                    onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
+                >
+                    Add to Pantry
+                </button>
             </form>
         </div>
     )

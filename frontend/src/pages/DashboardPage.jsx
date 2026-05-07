@@ -8,7 +8,28 @@ import GeneratorPage from './GeneratorPage'
 import CreateIngredient from './CreateIngredient'
 import ConfirmModal from '../components/ConfirmModal'
 import PromptModal from '../components/PromptModal'
-import { PackageOpen, Sparkles, PlusCircle, AlertTriangle, ChevronRight } from 'lucide-react'
+
+function PantryIcon() {
+  return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3h18v4H3V3zm2 6h14l-1 12H6L5 9zm4 2v8m6-8v8"/></svg>
+}
+function SparklesIcon() {
+  return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M19 3l.5 1.5L21 5l-1.5.5L19 7l-.5-1.5L17 5l1.5-.5z"/><path d="M5 18l.5 1.5L7 20l-1.5.5L5 22l-.5-1.5L3 20l1.5-.5z"/></svg>
+}
+function PlusIcon() {
+  return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+}
+function AlertIcon() {
+  return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+}
+function ChevronIcon() {
+  return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+}
+
+const tabs = [
+  { id: 'pantry', label: 'Pantry', Icon: PantryIcon },
+  { id: 'generator', label: 'Meal Generator', Icon: SparklesIcon },
+  { id: 'ingredient', label: 'Create Ingredient', Icon: PlusIcon },
+]
 
 const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState('pantry')
@@ -77,9 +98,7 @@ const DashboardPage = () => {
   const handleUpdate = async (id, newQuantity) => {
     try {
       const updated = await pantryServices.updatePantryItem(id, { quantity: newQuantity })
-      setPantryItems(items => items.map(item =>
-        item._id === id ? updated : item
-      ))
+      setPantryItems(items => items.map(item => item._id === id ? updated : item))
       setLowStock(list => list.map(item => item._id === updated._id ? updated : item))
     } catch (err) {
       alert('Failed to update item')
@@ -111,182 +130,174 @@ const DashboardPage = () => {
     handleUpdateThreshold(selectedItem._id, numeric)
   }
 
-  const tabs = [
-    { id: 'pantry', label: 'Pantry', icon: PackageOpen },
-    { id: 'generator', label: 'Meal Generator', icon: Sparkles },
-    { id: 'ingredient', label: 'Create Ingredient', icon: PlusCircle }
-  ]
+  const sideCard = {
+    background: 'var(--surface)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--radius)',
+    padding: '20px 20px',
+    boxShadow: 'var(--shadow)',
+  }
 
   return (
-    <div className="space-y-8 animate-fade-in-up">
+    <div>
       {/* Header */}
-      <div>
-        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">
-          My Kitchen
-        </h2>
-        <p className="mt-3 text-base text-slate-500 max-w-2xl leading-relaxed">
-          Manage your inventory, automatically generate meals, and keep your pantry stocked with the right ingredients.
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 4 }}>
+          Pantry
+        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text)', margin: 0 }}>My Kitchen</h1>
+        <p style={{ fontSize: 14, color: 'var(--text-2)', marginTop: 4 }}>
+          Manage inventory, generate meals, and track low-stock alerts.
         </p>
       </div>
 
-      {/* Modern Pill Tabs */}
-      <div className="flex gap-2 w-full overflow-x-auto p-1.5 bg-slate-100 rounded-2xl border border-slate-200 sm:w-max hide-scrollbar">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
+      {/* Tabs */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 32, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: 4, width: 'fit-content' }}>
+        {tabs.map(({ id, label, Icon }) => {
+          const active = activeTab === id
           return (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2.5 px-6 py-2.5 font-semibold text-sm rounded-xl whitespace-nowrap transition-all duration-200 ${isActive
-                  ? 'bg-white text-emerald-700 shadow-soft-sm shadow-black/5'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50'
-                }`}
+              key={id}
+              onClick={() => setActiveTab(id)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '7px 16px',
+                background: active ? 'rgba(22,163,74,.15)' : 'transparent',
+                border: active ? '1px solid rgba(22,163,74,.3)' : '1px solid transparent',
+                borderRadius: 6,
+                color: active ? '#4ade80' : 'var(--text-2)',
+                fontSize: 13, fontWeight: active ? 600 : 500,
+                cursor: 'pointer', fontFamily: 'var(--font)',
+                transition: 'all .15s ease',
+                whiteSpace: 'nowrap',
+              }}
+              onMouseEnter={e => { if (!active) { e.currentTarget.style.color = 'var(--text)'; e.currentTarget.style.background = 'rgba(255,255,255,.04)' } }}
+              onMouseLeave={e => { if (!active) { e.currentTarget.style.color = 'var(--text-2)'; e.currentTarget.style.background = 'transparent' } }}
             >
-              <Icon size={18} className={isActive ? 'text-emerald-500' : 'text-slate-400'} />
-              {tab.label}
+              <Icon />
+              {label}
             </button>
           )
         })}
       </div>
 
-      {/* Tab Content */}
-      <div className="pt-2">
-        {/* Pantry Tab */}
-        {activeTab === 'pantry' && (
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-              {/* Left Column: Alerts & Actions */}
-              <div className="space-y-8 lg:col-span-1">
-                {/* Low Stock Alert */}
-                <div className="bg-white shadow-soft-xl rounded-2xl p-6 border border-slate-100 relative overflow-hidden ring-1 ring-slate-200/50">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-                  
-                  <div className="flex items-center justify-between mb-5 relative z-10">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 bg-amber-100 text-amber-600 rounded-xl shadow-sm">
-                        <AlertTriangle size={20} />
-                      </div>
-                      <h3 className="text-lg font-bold text-slate-900">Stock Alerts</h3>
-                    </div>
-                    <span className="inline-flex items-center px-3.5 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-amber-100 text-amber-700">
-                      {loadingLowStock ? '...' : `${lowStock.length} low`}
-                    </span>
+      {/* Pantry Tab */}
+      {activeTab === 'pantry' && (
+        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24, alignItems: 'start' }}>
+          {/* Sidebar */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Stock Alerts */}
+            <div style={sideCard}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 30, height: 30, background: 'var(--warn-bg)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--warn)' }}>
+                    <AlertIcon />
                   </div>
-                  
-                  <div className="relative z-10">
-                    {loadingLowStock ? (
-                      <div className="flex flex-col gap-3">
-                        <div className="h-10 animate-pulse bg-slate-100 rounded-lg w-full"></div>
-                        <div className="h-10 animate-pulse bg-slate-100 rounded-lg w-full"></div>
-                      </div>
-                    ) : lowStock.length === 0 ? (
-                      <p className="text-sm font-medium text-slate-500">All good! Your pantry is fully stocked.</p>
-                    ) : (
-                      <ul className="space-y-3">
-                        {lowStock.slice(0, 4).map(item => (
-                          <li key={item._id} className="flex items-center justify-between group p-3 -mx-3 rounded-xl hover:bg-slate-50 transition-colors">
-                            <div>
-                              <p className="text-sm font-semibold text-slate-800">{item.ingredient?.name || 'Unknown'}</p>
-                              <p className="text-[11px] font-medium text-slate-500 mt-1"><span className="text-amber-600 font-bold">{Math.round(item.quantity)}g</span> left • threshold {item.threshold ?? 100}g</p>
-                            </div>
-                            <button
-                              onClick={() => promptAndUpdateThreshold(item)}
-                              className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 hover:text-emerald-500 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-                            >
-                              Adjust
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    {lowStock.length > 4 && (
-                      <p className="mt-4 text-[11px] font-bold uppercase tracking-wide text-slate-400 text-center">+{lowStock.length - 4} more items</p>
-                    )}
-                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>Stock Alerts</span>
                 </div>
-
-                {/* Add Item Card */}
-                <div className="bg-white shadow-soft-xl rounded-2xl p-6 border border-slate-100 ring-1 ring-slate-200/50">
-                  <h3 className="text-lg font-bold text-slate-900 mb-5">Add to Inventory</h3>
-                  <AddItemForm onItemAdded={fetchPantry} />
-                </div>
-
-                {/* Quick Actions Card */}
-                <div className="bg-white shadow-soft-xl rounded-2xl p-6 border border-slate-100 ring-1 ring-slate-200/50">
-                  <h3 className="text-lg font-bold text-slate-900 mb-5">Quick Links</h3>
-                  <div className="space-y-3.5">
-                    <button
-                      onClick={() => setActiveTab('generator')}
-                      className="w-full group flex items-center justify-between px-5 py-4 border border-slate-200 shadow-sm text-sm font-bold rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:shadow-soft-md"
-                    >
-                      <div className="flex items-center gap-3.5">
-                        <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-emerald-100 transition-colors">
-                          <Sparkles size={18} />
-                        </div>
-                        Generate Meal
-                      </div>
-                      <ChevronRight size={16} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
-                    </button>
-                    
-                    <button
-                      onClick={() => setActiveTab('ingredient')}
-                      className="w-full group flex items-center justify-between px-5 py-4 border border-slate-200 shadow-sm text-sm font-bold rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 hover:shadow-soft-md"
-                    >
-                      <div className="flex items-center gap-3.5">
-                        <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-100 transition-colors">
-                          <PlusCircle size={18} />
-                        </div>
-                        Create Ingredient
-                      </div>
-                      <ChevronRight size={16} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
-                    </button>
-                  </div>
-                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--warn)', background: 'var(--warn-bg)', padding: '2px 8px', borderRadius: 99, border: '1px solid rgba(245,158,11,.2)' }}>
+                  {loadingLowStock ? '…' : `${lowStock.length} low`}
+                </span>
               </div>
 
-              {/* Right Column: Pantry List */}
-              <div className="lg:col-span-2">
-                <div className="h-full flex flex-col">
-                  <div className="grow bg-transparent">
-                    {loading ? (
-                      <div className="flex justify-center items-center h-64">
-                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-500"></div>
-                      </div>
-                    ) : error ? (
-                      <div className="text-red-600 text-center py-10 bg-red-50 m-6 rounded-xl border border-red-100 font-medium">{error}</div>
-                    ) : (
-                      <PantryList items={pantryItems} onDelete={handleDelete} onUpdate={handleUpdate} onUpdateThreshold={handleUpdateThreshold} />
-                    )}
-                  </div>
+              {loadingLowStock ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {[1, 2].map(i => <div key={i} style={{ height: 36, background: 'var(--surface2)', borderRadius: 6, animation: 'pulse 1.5s infinite' }} />)}
                 </div>
+              ) : lowStock.length === 0 ? (
+                <p style={{ fontSize: 13, color: 'var(--text-2)' }}>All good — pantry fully stocked.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {lowStock.slice(0, 4).map(item => (
+                    <div
+                      key={item._id}
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--border)' }}
+                    >
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>{item.ingredient?.name || 'Unknown'}</p>
+                        <p style={{ fontSize: 11, color: 'var(--text-3)' }}>
+                          <span style={{ color: 'var(--warn)', fontWeight: 700 }}>{Math.round(item.quantity)}g</span> · threshold {item.threshold ?? 100}g
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => promptAndUpdateThreshold(item)}
+                        style={{ fontSize: 11, fontWeight: 700, color: 'var(--green)', background: 'var(--green-light)', border: '1px solid rgba(34,197,94,.2)', borderRadius: 4, padding: '4px 8px', cursor: 'pointer', fontFamily: 'var(--font)' }}
+                      >
+                        Adjust
+                      </button>
+                    </div>
+                  ))}
+                  {lowStock.length > 4 && (
+                    <p style={{ fontSize: 11, color: 'var(--text-3)', fontWeight: 600, marginTop: 8, textAlign: 'center' }}>+{lowStock.length - 4} more</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Add Item */}
+            <div style={sideCard}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 16 }}>Add to Inventory</p>
+              <AddItemForm onItemAdded={fetchPantry} />
+            </div>
+
+            {/* Quick Links */}
+            <div style={sideCard}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>Quick Links</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {[
+                  { label: 'Generate Meal', tab: 'generator', icon: <SparklesIcon />, color: 'var(--green)', bg: 'var(--green-light)' },
+                  { label: 'Create Ingredient', tab: 'ingredient', icon: <PlusIcon />, color: 'var(--protein)', bg: 'var(--protein-bg)' },
+                ].map(({ label, tab, icon, color, bg }) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '10px 12px', background: 'var(--surface2)', border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontFamily: 'var(--font)',
+                      transition: 'all .15s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.background = bg }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--surface2)' }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
+                      <span style={{ color }}>{icon}</span>
+                      {label}
+                    </div>
+                    <span style={{ color: 'var(--text-3)' }}><ChevronIcon /></span>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
-        )}
 
-        {/* Generator Tab */}
-        {activeTab === 'generator' && (
-          <div className="animate-fade-in-up">
-            <GeneratorPage />
+          {/* Pantry List */}
+          <div>
+            {loading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
+                <div style={{ width: 32, height: 32, border: '3px solid var(--border)', borderTopColor: 'var(--green)', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+              </div>
+            ) : error ? (
+              <div style={{ background: 'var(--fat-bg)', border: '1px solid var(--fat)', borderRadius: 'var(--radius)', padding: 20, textAlign: 'center', fontSize: 13, color: 'var(--fat)', fontWeight: 500 }}>
+                {error}
+              </div>
+            ) : (
+              <PantryList items={pantryItems} onDelete={handleDelete} onUpdate={handleUpdate} onUpdateThreshold={handleUpdateThreshold} />
+            )}
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Create Ingredient Tab */}
-        {activeTab === 'ingredient' && (
-          <div className="animate-fade-in-up">
-            <CreateIngredient />
-          </div>
-        )}
-      </div>
+      {/* Generator Tab */}
+      {activeTab === 'generator' && <GeneratorPage />}
+
+      {/* Create Ingredient Tab */}
+      {activeTab === 'ingredient' && <CreateIngredient />}
 
       {/* Modals */}
       <ConfirmModal
         isOpen={showDeleteModal}
-        onClose={() => {
-          setShowDeleteModal(false)
-          setSelectedItem(null)
-        }}
+        onClose={() => { setShowDeleteModal(false); setSelectedItem(null) }}
         onConfirm={() => executeDelete()}
         title="Remove Item"
         message="Are you sure you want to remove this item from your pantry?"
@@ -297,10 +308,7 @@ const DashboardPage = () => {
 
       <PromptModal
         isOpen={showThresholdModal}
-        onClose={() => {
-          setShowThresholdModal(false)
-          setSelectedItem(null)
-        }}
+        onClose={() => { setShowThresholdModal(false); setSelectedItem(null) }}
         onSubmit={executeUpdateThreshold}
         title="Set Low-Stock Threshold"
         message="Enter the threshold (in grams) below which you want to be alerted:"
