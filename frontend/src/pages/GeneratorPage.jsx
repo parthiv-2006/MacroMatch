@@ -9,7 +9,7 @@ import ConfirmModal from "../components/ConfirmModal";
 import PromptModal from "../components/PromptModal";
 import { toast } from "react-toastify";
 
-const GeneratorPage = () => {
+const GeneratorPage = ({ embedded = false }) => {
     const [formData, setFormData] = useState({ targetProtein: '', targetCarbs: '', targetFats: '', flavorProfile: 'savory' })
     const [errors, setErrors] = useState({})
     const [loading, setLoading] = useState(false)
@@ -176,12 +176,15 @@ const GeneratorPage = () => {
     return (
         <div style={{ fontFamily: 'var(--font)' }}>
             {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
+            {(!embedded || selectedMeals.length > 0) && (
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: embedded ? 20 : 32, flexWrap: 'wrap', gap: 16 }}>
+                {!embedded && (
                 <div>
                     <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 4 }}>Smart Engine</div>
                     <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text)', margin: 0 }}>Meal Generator</h1>
                     <p style={{ fontSize: 14, color: 'var(--text-2)', marginTop: 4 }}>Enter your macro targets and let our algorithm build the perfect meal plan.</p>
                 </div>
+                )}
                 {selectedMeals.length > 0 && (
                     <button
                         onClick={handleConsume}
@@ -202,9 +205,11 @@ const GeneratorPage = () => {
                     </button>
                 )}
             </div>
+            )}
 
-            {/* Form */}
-            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '28px', boxShadow: 'var(--shadow)', marginBottom: 28 }}>
+            <div className="split-layout">
+            {/* Config panel */}
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px', boxShadow: 'var(--shadow)', position: 'sticky', top: 84 }}>
                 <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 20 }}>Target Macros</p>
                 <form onSubmit={onSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                     {/* Flavor Profile */}
@@ -351,9 +356,30 @@ const GeneratorPage = () => {
                 </form>
             </div>
 
-            {/* Results */}
-            {(mealPlans.length > 0 || reverseResult) && (
-                <div ref={shoppingListRef}>
+            {/* Results panel */}
+            <div ref={shoppingListRef} style={{ minHeight: 420 }}>
+                {(loading || reverseLoading) && mealPlans.length === 0 && !reverseResult ? (
+                    <div style={{ height: 420, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', gap: 16 }}>
+                        <div style={{ width: 32, height: 32, border: '3px solid var(--border)', borderTopColor: 'var(--green)', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-2)' }}>
+                            {loading ? 'Solving for the optimal meal…' : 'Building your shopping list…'}
+                        </p>
+                    </div>
+                ) : !(mealPlans.length > 0 || reverseResult) ? (
+                    <div style={{ height: 420, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--surface)', border: '1px dashed var(--border-2)', borderRadius: 'var(--radius)', textAlign: 'center', padding: 24 }}>
+                        <div style={{ width: 52, height: 52, background: 'var(--surface2)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/>
+                                <path d="M19 3l.5 1.5L21 5l-1.5.5L19 7l-.5-1.5L17 5l1.5-.5z"/>
+                            </svg>
+                        </div>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-2)', marginBottom: 6 }}>Set your targets and generate</p>
+                        <p style={{ fontSize: 13, color: 'var(--text-3)', maxWidth: 300, lineHeight: 1.6 }}>
+                            Meal options that hit your exact macros will appear here, built from your pantry inventory.
+                        </p>
+                    </div>
+                ) : (
+                <>
                     {/* Tabs */}
                     {mealPlans.length > 0 && reverseResult && (
                         <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--border)', marginBottom: 24 }}>
@@ -570,8 +596,10 @@ const GeneratorPage = () => {
                             )}
                         </div>
                     )}
-                </div>
-            )}
+                </>
+                )}
+            </div>
+            </div>
 
             {/* Modals */}
             <ConfirmModal
