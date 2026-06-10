@@ -4,8 +4,9 @@ import { useState } from "react"
 import { toast } from "react-toastify"
 import ValidationError from "../components/ValidationError"
 import ConfirmModal from "../components/ConfirmModal"
+import MacroBar from "../components/ui/MacroBar"
 
-function CreateIngredient() {
+function CreateIngredient({ embedded = false }) {
     const navigate = useNavigate()
     const [ingredient, setIngredient] = useState({
         name: '', calories: '', protein: '', carbs: '', fats: '', servingSize: 100
@@ -91,13 +92,16 @@ function CreateIngredient() {
     return (
         <div>
             {/* Header */}
+            {!embedded && (
             <div style={{ marginBottom: 32 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 4 }}>Database</div>
                 <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text)', margin: 0 }}>Add New Food</h1>
                 <p style={{ fontSize: 14, color: 'var(--text-2)', marginTop: 4 }}>Add a custom ingredient to your personal database.</p>
             </div>
+            )}
 
-            <div style={{ maxWidth: 560, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '28px 28px', boxShadow: 'var(--shadow)', fontFamily: 'var(--font)' }}>
+            <div className="split-layout-wide">
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '28px 28px', boxShadow: 'var(--shadow)', fontFamily: 'var(--font)' }}>
                 <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                     {/* Name */}
                     <div>
@@ -180,6 +184,80 @@ function CreateIngredient() {
                         </button>
                     </div>
                 </form>
+            </div>
+
+            {/* Live nutrition preview */}
+            <div style={{ position: 'sticky', top: 84, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {(() => {
+                    const p = Number(ingredient.protein) || 0
+                    const c = Number(ingredient.carbs) || 0
+                    const f = Number(ingredient.fats) || 0
+                    const entered = Number(ingredient.calories) || 0
+                    const computed = Math.round(p * 4 + c * 4 + f * 9)
+                    const total = p + c + f
+                    const mismatch = entered > 0 && computed > 0 && Math.abs(entered - computed) > entered * 0.2
+                    const pctOf = (kcal) => computed > 0 ? Math.round((kcal / computed) * 100) : 0
+                    return (
+                        <>
+                            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px', boxShadow: 'var(--shadow)' }}>
+                                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 16 }}>
+                                    Nutrition Preview <span style={{ fontWeight: 500, textTransform: 'none', letterSpacing: 0 }}>· per {Number(ingredient.servingSize) || 100}g serving</span>
+                                </p>
+
+                                {total === 0 && entered === 0 ? (
+                                    <div style={{ padding: '36px 16px', textAlign: 'center', border: '1px dashed var(--border-2)', borderRadius: 'var(--radius-sm)' }}>
+                                        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-2)', marginBottom: 4 }}>Nothing to preview yet</p>
+                                        <p style={{ fontSize: 12, color: 'var(--text-3)' }}>Fill in the macros to see a live breakdown.</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 16 }}>
+                                            <span style={{ fontSize: 34, fontWeight: 700, fontFamily: 'var(--mono)', color: 'var(--cal)', letterSpacing: '-0.04em' }}>{entered || computed}</span>
+                                            <span style={{ fontSize: 12, color: 'var(--text-3)', fontWeight: 600 }}>kcal</span>
+                                        </div>
+
+                                        <div style={{ marginBottom: 18 }}>
+                                            <MacroBar protein={p} carbs={c} fat={f} size="md" />
+                                        </div>
+
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                                            {[
+                                                { label: 'Protein', grams: p, kcal: p * 4, color: 'var(--protein)' },
+                                                { label: 'Carbs', grams: c, kcal: c * 4, color: 'var(--carbs)' },
+                                                { label: 'Fats', grams: f, kcal: f * 9, color: 'var(--fat)' },
+                                            ].map(({ label, grams, kcal, color }) => (
+                                                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid var(--border)' }}>
+                                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: 'var(--text-2)' }}>
+                                                        <span style={{ width: 9, height: 9, borderRadius: '50%', background: color }} />
+                                                        {label}
+                                                    </span>
+                                                    <span style={{ fontSize: 12, fontFamily: 'var(--mono)' }}>
+                                                        <span style={{ color: 'var(--text)', fontWeight: 700 }}>{grams}g</span>
+                                                        <span style={{ color: 'var(--text-3)', marginLeft: 10 }}>{pctOf(kcal)}% of kcal</span>
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {mismatch && (
+                                            <div style={{ marginTop: 16, padding: '10px 14px', background: 'var(--warn-bg)', border: '1px solid rgba(245,158,11,.25)', borderRadius: 'var(--radius-sm)', fontSize: 12, color: 'var(--warn)', fontWeight: 600, lineHeight: 1.5 }}>
+                                                Your macros sum to ~{computed} kcal but you entered {entered} kcal. Double-check the label.
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+
+                            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '20px 24px', boxShadow: 'var(--shadow)' }}>
+                                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 10 }}>How this is used</p>
+                                <p style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.65, margin: 0 }}>
+                                    The meal solver treats every ingredient as scalable per gram, so accurate per-serving values here directly improve how precisely generated meals hit your macro targets.
+                                </p>
+                            </div>
+                        </>
+                    )
+                })()}
+            </div>
             </div>
 
             <ConfirmModal
