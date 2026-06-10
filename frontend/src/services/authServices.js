@@ -22,6 +22,24 @@ const logout = () => {
     localStorage.removeItem('user')
 }
 
-const authService = {register, login, logout}
+const getAuthHeader = () => {
+    const user = JSON.parse(localStorage.getItem('user'))
+    if (user && user.token) {
+        return { Authorization: `Bearer ${user.token}` }
+    }
+    return {}
+}
+
+const getProfile = async () => {
+    const response = await axios.get(API_URL + 'me', { headers: getAuthHeader() })
+    return response.data
+}
+
+const updateGoals = async (goals) => {
+    const response = await axios.put(API_URL + 'goals', goals, { headers: getAuthHeader() })
+    return response.data
+}
+
+const authService = {register, login, logout, getProfile, updateGoals}
 
 export default authService

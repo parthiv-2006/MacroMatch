@@ -1,17 +1,20 @@
-import { createContext, useState, useEffect, useCallback } from 'react'
+import { createContext, useState, useCallback } from 'react'
 import authService from '../services/authServices'
 
 const AuthContext = createContext()
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
+const readStoredUser = () => {
+  try {
     const storedUser = localStorage.getItem('user')
-    if (storedUser) setUser(JSON.parse(storedUser))
-    setLoading(false)
-  }, [])
+    return storedUser ? JSON.parse(storedUser) : null
+  } catch {
+    return null
+  }
+}
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(readStoredUser)
+  const loading = false // user is restored synchronously from localStorage
 
   const register = useCallback(async (userData) => {
     const data = await authService.register(userData)
@@ -33,8 +36,17 @@ export const AuthProvider = ({ children }) => {
     setUser(null)
   }, [])
 
+  // Merge partial updates (e.g. new goals) into the stored user
+  const updateUser = useCallback((patch) => {
+    setUser(prev => {
+      const next = { ...prev, ...patch }
+      localStorage.setItem('user', JSON.stringify(next))
+      return next
+    })
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading, updateUser }}>
       {children}
     </AuthContext.Provider>
   )
