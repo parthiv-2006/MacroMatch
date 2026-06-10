@@ -1,5 +1,6 @@
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AuthContext from "../context/AuthContext";
 import solverServices from "../services/solverServices";
 import pantryServices from "../services/pantryServices";
 import recipeServices from "../services/recipeServices";
@@ -23,10 +24,45 @@ const GeneratorPage = () => {
     const [selectedPlan, setSelectedPlan] = useState(null)
     const shoppingListRef = useRef(null)
     const navigate = useNavigate()
+    const { user } = useContext(AuthContext)
 
     const onChange = (e) => {
         setFormData((prevState) => ({ ...prevState, [e.target.name]: e.target.value }))
         if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' })
+    }
+
+    const setMacro = (name, value) => {
+        setFormData(prev => ({ ...prev, [name]: value }))
+        if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
+    }
+
+    const previewKcal = Math.round(
+        (Number(formData.targetProtein) || 0) * 4 +
+        (Number(formData.targetCarbs) || 0) * 4 +
+        (Number(formData.targetFats) || 0) * 9
+    )
+
+    // Per-meal presets (roughly a third of common daily splits)
+    const presets = [
+        { id: 'cutting',  label: 'Cutting',  protein: 45, carbs: 30, fats: 12 },
+        { id: 'balanced', label: 'Balanced', protein: 35, carbs: 55, fats: 18 },
+        { id: 'bulking',  label: 'Bulking',  protein: 45, carbs: 80, fats: 25 },
+        ...(user?.goals ? [{
+            id: 'goals', label: 'My Goals ÷ 3',
+            protein: Math.round((user.goals.protein || 0) / 3),
+            carbs: Math.round((user.goals.carbs || 0) / 3),
+            fats: Math.round((user.goals.fats || 0) / 3),
+        }] : []),
+    ]
+
+    const applyPreset = (preset) => {
+        setFormData(prev => ({
+            ...prev,
+            targetProtein: String(preset.protein),
+            targetCarbs: String(preset.carbs),
+            targetFats: String(preset.fats),
+        }))
+        setErrors({})
     }
 
     const onSubmit = async (e) => {
@@ -132,9 +168,9 @@ const GeneratorPage = () => {
     })
 
     const macroFields = [
-        { name: 'targetProtein', label: 'Protein', color: 'var(--protein)', placeholder: '30' },
-        { name: 'targetCarbs', label: 'Carbs', color: 'var(--carbs)', placeholder: '50' },
-        { name: 'targetFats', label: 'Fats', color: 'var(--fat)', placeholder: '15' },
+        { name: 'targetProtein', label: 'Protein', color: 'var(--protein)', placeholder: '30', max: 150 },
+        { name: 'targetCarbs', label: 'Carbs', color: 'var(--carbs)', placeholder: '50', max: 250 },
+        { name: 'targetFats', label: 'Fats', color: 'var(--fat)', placeholder: '15', max: 100 },
     ]
 
     return (
@@ -195,25 +231,77 @@ const GeneratorPage = () => {
                         </div>
                     </div>
 
-                    {/* Macro Inputs */}
+                    {/* Presets */}
+                    <div>
+                        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 8 }}>Quick Presets <span style={{ fontWeight: 500, textTransform: 'none', letterSpacing: 0 }}>(per meal)</span></p>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                            {presets.map(preset => (
+                                <button
+                                    key={preset.id}
+                                    type="button"
+                                    onClick={() => applyPreset(preset)}
+                                    style={{
+                                        padding: '6px 14px', fontSize: 12, fontWeight: 700,
+                                        background: 'var(--surface2)', border: '1px solid var(--border)',
+                                        borderRadius: 99, color: 'var(--text-2)',
+                                        cursor: 'pointer', fontFamily: 'var(--font)', transition: 'all .15s',
+                                    }}
+                                    onMouseEnter={e => { e.currentTarget.style.color = 'var(--green)'; e.currentTarget.style.borderColor = 'rgba(34,197,94,.4)'; e.currentTarget.style.background = 'var(--green-light)' }}
+                                    onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-2)'; e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--surface2)' }}
+                                >
+                                    {preset.label}
+                                    <span style={{ marginLeft: 6, fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--text-3)', fontWeight: 600 }}>
+                                        {preset.protein}P·{preset.carbs}C·{preset.fats}F
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Macro Inputs with sliders */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
-                        {macroFields.map(({ name, label, color, placeholder }) => (
+                        {macroFields.map(({ name, label, color, placeholder, max }) => (
                             <div key={name}>
-                                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color, marginBottom: 6 }}>{label}</label>
-                                <div style={{ position: 'relative' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                    <label style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color }}>{label}</label>
+                                </div>
+                                <div style={{ position: 'relative', marginBottom: 10 }}>
                                     <input
                                         type="number"
                                         name={name}
                                         value={formData[name]}
                                         onChange={onChange}
                                         placeholder={placeholder}
-                                        style={{ ...inputStyle(!!errors[name]), paddingRight: 28 }}
+                                        style={{ ...inputStyle(!!errors[name]), paddingRight: 28, fontFamily: 'var(--mono)' }}
                                     />
                                     <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 11, fontWeight: 700, color, pointerEvents: 'none' }}>g</span>
                                 </div>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max={max}
+                                    value={Number(formData[name]) || 0}
+                                    onChange={e => setMacro(name, e.target.value)}
+                                    style={{ color }}
+                                />
                                 <ValidationError show={!!errors[name]} message={errors[name]} />
                             </div>
                         ))}
+                    </div>
+
+                    {/* Live calorie preview */}
+                    <div style={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        padding: '12px 16px', background: 'var(--cal-bg)',
+                        border: '1px solid rgba(167,139,250,.25)', borderRadius: 'var(--radius-sm)',
+                    }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-2)' }}>
+                            Estimated meal energy
+                            <span style={{ fontSize: 11, color: 'var(--text-3)', marginLeft: 8 }}>P×4 + C×4 + F×9</span>
+                        </span>
+                        <span style={{ fontSize: 20, fontWeight: 700, fontFamily: 'var(--mono)', color: 'var(--cal)', letterSpacing: '-0.03em' }}>
+                            {previewKcal} <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)' }}>kcal</span>
+                        </span>
                     </div>
 
                     {/* Buttons */}
