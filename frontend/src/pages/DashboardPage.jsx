@@ -8,6 +8,7 @@ import GeneratorPage from './GeneratorPage'
 import CreateIngredient from './CreateIngredient'
 import ConfirmModal from '../components/ConfirmModal'
 import PromptModal from '../components/PromptModal'
+import { toast } from 'react-toastify'
 
 function PantryIcon() {
   return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3h18v4H3V3zm2 6h14l-1 12H6L5 9zm4 2v8m6-8v8"/></svg>
@@ -91,7 +92,7 @@ const DashboardPage = () => {
       setPantryItems(items => items.filter(item => item._id !== itemId))
       fetchLowStock()
     } catch (err) {
-      alert("Failed to delete Pantry Item")
+      toast.error("Failed to delete pantry item")
     }
   }
 
@@ -101,7 +102,7 @@ const DashboardPage = () => {
       setPantryItems(items => items.map(item => item._id === id ? updated : item))
       setLowStock(list => list.map(item => item._id === updated._id ? updated : item))
     } catch (err) {
-      alert('Failed to update item')
+      toast.error('Failed to update item')
     }
   }
 
@@ -111,7 +112,7 @@ const DashboardPage = () => {
       setPantryItems(items => items.map(item => item._id === id ? updated : item))
       fetchLowStock()
     } catch (err) {
-      alert('Failed to update threshold')
+      toast.error('Failed to update threshold')
     }
   }
 
@@ -124,7 +125,7 @@ const DashboardPage = () => {
     if (!value || !selectedItem) return
     const numeric = Number(value)
     if (Number.isNaN(numeric) || numeric < 0) {
-      alert('Please enter a valid non-negative number')
+      toast.error('Please enter a valid non-negative number')
       return
     }
     handleUpdateThreshold(selectedItem._id, numeric)
