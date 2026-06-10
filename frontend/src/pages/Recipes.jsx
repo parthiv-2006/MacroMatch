@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import recipeServices from '../services/recipeServices'
 import pantryServices from '../services/pantryServices'
@@ -16,7 +16,24 @@ const Recipes = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false)
     const [showCookModal, setShowCookModal] = useState(false)
     const [selectedRecipe, setSelectedRecipe] = useState(null)
+    const [search, setSearch] = useState('')
+    const [sortBy, setSortBy] = useState('name')
     const navigate = useNavigate()
+
+    const visibleRecipes = useMemo(() => {
+        const term = search.trim().toLowerCase()
+        const filtered = term
+            ? recipes.filter(r =>
+                r.name.toLowerCase().includes(term) ||
+                r.ingredients.some(i => i.name.toLowerCase().includes(term)))
+            : recipes
+        const sorters = {
+            name: (a, b) => a.name.localeCompare(b.name),
+            calories: (a, b) => (b.totalMacros?.calories || 0) - (a.totalMacros?.calories || 0),
+            protein: (a, b) => (b.totalMacros?.protein || 0) - (a.totalMacros?.protein || 0),
+        }
+        return [...filtered].sort(sorters[sortBy] || sorters.name)
+    }, [recipes, search, sortBy])
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -109,8 +126,55 @@ const Recipes = () => {
                     <div style={{ width: 36, height: 36, border: '3px solid var(--border)', borderTopColor: 'var(--green)', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
                 </div>
             ) : recipes.length > 0 ? (
+                <>
+                {/* Search + sort toolbar */}
+                <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ position: 'relative', flex: '1 1 260px', maxWidth: 360 }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            placeholder="Search recipes or ingredients…"
+                            style={{ width: '100%', padding: '9px 12px 9px 34px', fontSize: 13, boxSizing: 'border-box' }}
+                        />
+                    </div>
+                    <div style={{ display: 'flex', gap: 4, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: 4 }}>
+                        {[
+                            { id: 'name', label: 'A–Z' },
+                            { id: 'calories', label: 'Calories' },
+                            { id: 'protein', label: 'Protein' },
+                        ].map(({ id, label }) => (
+                            <button
+                                key={id}
+                                onClick={() => setSortBy(id)}
+                                style={{
+                                    padding: '6px 14px', fontSize: 12, fontWeight: 600,
+                                    background: sortBy === id ? 'var(--surface2)' : 'transparent',
+                                    border: sortBy === id ? '1px solid var(--border)' : '1px solid transparent',
+                                    borderRadius: 5, color: sortBy === id ? 'var(--text)' : 'var(--text-2)',
+                                    cursor: 'pointer', fontFamily: 'var(--font)', transition: 'all .15s',
+                                }}
+                            >
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)' }}>
+                        {visibleRecipes.length} of {recipes.length}
+                    </span>
+                </div>
+
+                {visibleRecipes.length === 0 ? (
+                    <div style={{ padding: '48px 24px', textAlign: 'center', background: 'var(--surface)', border: '1px dashed var(--border-2)', borderRadius: 'var(--radius)' }}>
+                        <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>No recipes match "{search}"</p>
+                        <p style={{ fontSize: 13, color: 'var(--text-2)' }}>Try a different name or ingredient.</p>
+                    </div>
+                ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
-                    {recipes.map((recipe) => (
+                    {visibleRecipes.map((recipe) => (
                         <div
                             key={recipe._id}
                             style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', overflow: 'hidden', fontFamily: 'var(--font)', transition: 'border-color .15s' }}
@@ -207,6 +271,8 @@ const Recipes = () => {
                         </div>
                     ))}
                 </div>
+                )}
+                </>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '72px 24px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', textAlign: 'center' }}>
                     <div style={{ width: 52, height: 52, background: 'var(--surface2)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
