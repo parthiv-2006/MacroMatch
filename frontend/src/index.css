@@ -132,6 +132,12 @@ input[type=range]::-moz-range-thumb {
 .animate-pulse-dot  { animation: pulse-dot  1.25s cubic-bezier(0.455,0.03,0.515,0.955) -0.4s infinite; }
 .animate-spin       { animation: spin 0.8s linear infinite; }
 
+/* ── Auth layout ──────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .auth-brand-panel { display: none !important; }
+  .auth-mobile-logo { display: flex !important; }
+}
+
 /* ── Toast overrides ──────────────────────────────────────────────────── */
 .Toastify__toast {
   background: var(--surface2) !important;
