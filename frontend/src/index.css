@@ -132,6 +132,23 @@ input[type=range]::-moz-range-thumb {
 .animate-pulse-dot  { animation: pulse-dot  1.25s cubic-bezier(0.455,0.03,0.515,0.955) -0.4s infinite; }
 .animate-spin       { animation: spin 0.8s linear infinite; }
 
+/* ── Split page layouts ───────────────────────────────────────────────── */
+.split-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.split-layout-wide {
+  display: grid;
+  grid-template-columns: minmax(420px, 560px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 1000px) {
+  .split-layout, .split-layout-wide { grid-template-columns: 1fr; }
+}
+
 /* ── Auth layout ──────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .auth-brand-panel { display: none !important; }

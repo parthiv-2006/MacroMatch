@@ -181,7 +181,7 @@ const AppShell = () => {
       </nav>
 
       {/* Page content */}
-      <main style={{ flex: 1, maxWidth: 1600, width: '100%', margin: '0 auto', padding: '48px 48px' }}>
+      <main style={{ flex: 1, maxWidth: 1280, width: '100%', margin: '0 auto', padding: '36px 40px' }}>
         <Outlet />
       </main>
     </div>
