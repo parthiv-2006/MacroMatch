@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
+import AuthContext from '../context/AuthContext'
 import pantryServices from '../services/pantryServices'
 import recipeServices from '../services/recipeServices'
 import ConfirmModal from '../components/ConfirmModal'
@@ -14,6 +15,8 @@ const History = () => {
     const [showSaveRecipeModal, setShowSaveRecipeModal] = useState(false)
     const [selectedLog, setSelectedLog] = useState(null)
     const navigate = useNavigate()
+    const { user } = useContext(AuthContext)
+    const calorieGoal = user?.goals?.calories || 2200
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -67,10 +70,39 @@ const History = () => {
         }
     }
 
-    const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', {
-        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+    const formatTime = (dateString) => new Date(dateString).toLocaleTimeString('en-US', {
         hour: '2-digit', minute: '2-digit'
     })
+
+    const formatDayHeading = (date) => {
+        const today = new Date()
+        const yesterday = new Date(); yesterday.setDate(today.getDate() - 1)
+        const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+        if (sameDay(date, today)) return 'Today'
+        if (sameDay(date, yesterday)) return 'Yesterday'
+        return date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })
+    }
+
+    // Group logs by calendar day (newest first) with summed macros per day
+    const groupedByDay = useMemo(() => {
+        const groups = new Map()
+        const sorted = [...history].sort((a, b) => new Date(b.date) - new Date(a.date))
+        sorted.forEach(log => {
+            const d = new Date(log.date)
+            const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+            if (!groups.has(key)) {
+                groups.set(key, { date: d, logs: [], totals: { calories: 0, protein: 0, carbs: 0, fats: 0 } })
+            }
+            const group = groups.get(key)
+            group.logs.push(log)
+            const m = log.totalMacros || {}
+            group.totals.calories += m.calories || 0
+            group.totals.protein += m.protein || 0
+            group.totals.carbs += m.carbs || 0
+            group.totals.fats += m.fats || 0
+        })
+        return Array.from(groups.values())
+    }, [history])
 
     const card = { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)', overflow: 'hidden', fontFamily: 'var(--font)' }
     const actionBtn = (color, bg, hoverColor, hoverBg) => ({
@@ -95,8 +127,31 @@ const History = () => {
                     <div style={{ width: 36, height: 36, border: '3px solid var(--border)', borderTopColor: 'var(--green)', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
                 </div>
             ) : history.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    {history.map((log) => (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+                    {groupedByDay.map((group) => (
+                        <div key={group.date.toISOString()}>
+                            {/* Day header */}
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+                                <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+                                    <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--text)' }}>
+                                        {formatDayHeading(group.date)}
+                                    </span>
+                                    <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)' }}>
+                                        {group.logs.length} meal{group.logs.length !== 1 ? 's' : ''}
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <span style={{ fontSize: 12, fontFamily: 'var(--mono)', fontWeight: 700, color: group.totals.calories > calorieGoal ? 'var(--warn)' : 'var(--cal)', background: 'var(--cal-bg)', border: '1px solid rgba(167,139,250,.25)', padding: '3px 10px', borderRadius: 99 }}>
+                                        {Math.round(group.totals.calories)} / {calorieGoal} kcal
+                                    </span>
+                                    <MacroPill type="protein" value={Math.round(group.totals.protein)} compact />
+                                    <MacroPill type="carbs" value={Math.round(group.totals.carbs)} compact />
+                                    <MacroPill type="fat" value={Math.round(group.totals.fats)} compact />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                            {group.logs.map((log) => (
                         <div key={log._id} style={card}>
                             {/* Card header */}
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: 'var(--surface2)', borderBottom: '1px solid var(--border)' }}>
@@ -106,7 +161,7 @@ const History = () => {
                                             <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>
                                         </svg>
                                     </div>
-                                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>{formatDate(log.date)}</span>
+                                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>{formatTime(log.date)}</span>
                                     <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', background: 'var(--surface)', border: '1px solid var(--border)', padding: '2px 8px', borderRadius: 99 }}>
                                         {log.items.length} item{log.items.length !== 1 ? 's' : ''}
                                     </span>
@@ -165,6 +220,9 @@ const History = () => {
                                         ))}
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                            ))}
                             </div>
                         </div>
                     ))}
