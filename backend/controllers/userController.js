@@ -51,6 +51,7 @@ const registerUser = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      goals: user.goals,
       token: generateToken(user._id),
     })
   } catch (err) {
@@ -81,6 +82,7 @@ const loginUser = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      goals: user.goals,
       token: generateToken(user._id),
     })
   } catch (err) {
@@ -88,4 +90,38 @@ const loginUser = async (req, res) => {
   }
 }
 
-module.exports = { registerUser, loginUser }
+const getMe = async (req, res) => {
+  // req.user is attached by the protect middleware (password excluded)
+  return res.json(req.user)
+}
+
+const updateGoals = async (req, res) => {
+  const { calories, protein, carbs, fats } = req.body || {}
+  const updates = { calories, protein, carbs, fats }
+
+  for (const [key, value] of Object.entries(updates)) {
+    if (value === undefined) continue
+    const num = Number(value)
+    if (Number.isNaN(num) || num < 0 || num > 20000) {
+      return res.status(400).json({ message: `Invalid value for ${key}` })
+    }
+    updates[key] = num
+  }
+
+  try {
+    const user = await User.findById(req.user._id)
+    if (!user) return res.status(404).json({ message: "User not found" })
+
+    const currentGoals = user.goals ? user.goals.toObject() : { calories: 2200, protein: 140, carbs: 220, fats: 70 }
+    user.goals = { ...currentGoals, ...Object.fromEntries(
+      Object.entries(updates).filter(([, v]) => v !== undefined)
+    )}
+    await user.save()
+
+    return res.json({ goals: user.goals })
+  } catch (err) {
+    return res.status(500).json({ message: err.message })
+  }
+}
+
+module.exports = { registerUser, loginUser, getMe, updateGoals }
