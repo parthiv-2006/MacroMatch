@@ -290,10 +290,10 @@ const DashboardPage = () => {
       )}
 
       {/* Generator Tab */}
-      {activeTab === 'generator' && <GeneratorPage />}
+      {activeTab === 'generator' && <GeneratorPage embedded />}
 
       {/* Create Ingredient Tab */}
-      {activeTab === 'ingredient' && <CreateIngredient />}
+      {activeTab === 'ingredient' && <CreateIngredient embedded />}
 
       {/* Modals */}
       <ConfirmModal
