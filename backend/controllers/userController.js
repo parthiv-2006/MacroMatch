@@ -124,4 +124,4 @@ const updateGoals = async (req, res) => {
   }
 }
 
-module.exports = { registerUser, loginUser, getMe, updateGoals }
+module.exports = { registerUser, loginUser, getMe, updateGoals, validatePassword }

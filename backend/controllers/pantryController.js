@@ -238,4 +238,4 @@ const getLowStockItems = async (req, res) => {
     }
 }
 
-module.exports = { getPantryItems, postPantryItem, deletePantryItem, updatePantryItem, consumePantryItems, getMealHistory, deleteMealLog, getLowStockItems }
+module.exports = { getPantryItems, postPantryItem, deletePantryItem, updatePantryItem, consumePantryItems, getMealHistory, deleteMealLog, getLowStockItems, toPantryItemResponse }

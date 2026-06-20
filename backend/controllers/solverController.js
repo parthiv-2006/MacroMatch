@@ -202,4 +202,4 @@ const generateReverseMeal = async (req, res) => {
     }
 }
 
-module.exports = { generateMeal, generateReverseMeal }
+module.exports = { generateMeal, generateReverseMeal, solveFromAllIngredients }
