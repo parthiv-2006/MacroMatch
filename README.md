@@ -17,107 +17,88 @@ Hitting precise macro targets requires knowing not just what to eat but exactly 
 
 ## Screenshots
 
-### Login
-
-![Login page with feature highlights on the left and sign-in form on the right](.github/assets/screenshots/auth-login.png)
-
-JWT-based authentication. The left panel describes the three core features; the right panel issues a 7-day token on successful login that gates every API call downstream.
-
----
-
-### Register
-
-![Registration form with full name, email, password, and confirm-password fields](.github/assets/screenshots/auth-register.png)
-
-One-step account creation. Password is bcrypt-hashed before storage; the plaintext value is never persisted anywhere in the system.
-
----
-
-### Pantry Dashboard
-
-![Pantry table showing 26 ingredients with quantity, threshold, macro bars, and low-stock alerts on the left sidebar](.github/assets/screenshots/dashboard-pantry.png)
-
-The main view after login. The left column holds the low-stock alert panel and the add-item form; the right column shows the full pantry table with inline quantity and threshold editing. Each row includes a colour-coded macro distribution bar.
-
----
-
-### Low-Stock Alerts
-
-![Left sidebar panel listing ingredients below their configured thresholds](.github/assets/screenshots/dashboard-low-stock.png)
-
-Each pantry item carries a user-configurable threshold (default 100g). The alerts panel surfaces items below it in real time, pulling from `/api/pantry/low-stock` without reloading the full inventory.
-
----
-
-### Meal Generator Form
-
-![Generator form with flavor profile toggle (Savory / Sweet / Neutral), four quick presets, protein/carbs/fats sliders, and estimated kcal readout](.github/assets/screenshots/generator-form.png)
-
-Both generation modes share the same input form. Quick presets (Cutting, Balanced, Bulking, My Goals / 3) pre-fill the sliders. The flavor toggle filters which ingredients the LP solver can select before the model is built, preventing the solver from pairing chicken with honey.
-
----
-
-### Meal Generator Results
-
-![Three recipe option cards, each listing ingredient names and gram amounts with PRO / CRB / FAT totals at the bottom](.github/assets/screenshots/generator-results.png)
-
-Up to three LP solutions, each produced by a separate solver run with randomized cost coefficients to steer the simplex algorithm toward different vertices of the feasibility polytope. Clicking the bookmark icon saves the plan as a named recipe.
-
----
-
-### Shopping List Mode
-
-![Shopping list view showing the LP-optimal recipe with ingredient gram amounts and a breakdown of what the pantry already covers](.github/assets/screenshots/generator-shopping.png)
-
-The reverse-mode result: the solver runs against all 85 ingredients (not the current pantry), caps each variable at 400g, then diffs the result against available stock to produce a per-item shortfall list showing exactly what to buy.
-
----
-
-### Analytics Dashboard
-
-![Analytics dashboard with today's calorie ring, macro progress bars, three KPI cards, a macro trends area chart, and a pantry distribution donut chart](.github/assets/screenshots/analytics-macro-trends.png)
-
-The dashboard aggregates all consumption events for the selected range (7 or 30 days). The calorie ring shows today's intake vs. the configured daily target. The three KPI cards show total calories, average daily protein, and the peak protein day. Both charts are built from `MealLog.totalMacros` without touching the `Ingredient` collection at read time.
-
----
-
-### Pantry Distribution
-
-![Donut chart dividing pantry inventory across food categories with a legend showing percentages for Protein Sources, Grains and Carbs, Fats and Oils, Dairy, Fruits, and Vegetables](.github/assets/screenshots/analytics-pantry-distribution.png)
-
-Category breakdown of current pantry stock computed client-side from pantry item quantities. No separate API call is needed; the breakdown derives from the same payload that powers the pantry table.
-
----
-
-### Meal History
-
-![History page listing logged meals with per-entry ingredient names, gram amounts, and macro totals](.github/assets/screenshots/history.png)
-
-Every consumption event writes a `MealLog` document with per-ingredient macros computed at write time as `amount / servingSize * nutrient`. Entries are sorted newest-first and can be deleted individually.
-
----
-
-### Saved Recipes
-
-![Recipes page showing six named meal plans in a three-column grid, each card displaying kcal, macro pills, ingredients list, and a Cook Recipe button](.github/assets/screenshots/recipes.png)
-
-Saved meal plans with pre-computed `totalMacros`. The search bar filters by recipe name or ingredient. Sorting by A-Z, Calories, or Protein is available. The Cook Recipe action runs the same `/api/pantry/consume` path as direct consumption and writes an identical `MealLog` entry.
-
----
-
-### Create Custom Ingredient
-
-![Custom ingredient creation form with fields for name, calories, protein, carbs, fats, serving size, category, and flavor profile](.github/assets/screenshots/create-ingredient.png)
-
-Users can add ingredients not in the shared library. The `category` and `flavor` fields are enum-validated at the model layer; the `flavor` value controls whether the ingredient is eligible for Savory, Sweet, or Neutral solver runs.
-
----
-
-### Mobile View (390px)
-
-![Pantry dashboard on a 390px-wide screen with navigation collapsed to a top bar and the two-column layout stacked vertically](.github/assets/screenshots/dashboard-mobile-390.png)
-
-Responsive layout at 390px width. The two-column pantry layout stacks vertically, keeping the add form and low-stock panel accessible on small screens without a separate mobile build.
+<table>
+<tr>
+<td width="50%">
+<img src=".github/assets/screenshots/auth-login.png" alt="Login page"/>
+<br/>
+<sub><b>Login</b> — JWT issued on sign-in gates every API call. The left panel surfaces the three core features for first-time visitors.</sub>
+</td>
+<td width="50%">
+<img src=".github/assets/screenshots/auth-register.png" alt="Register page"/>
+<br/>
+<sub><b>Register</b> — One-step account creation. Password is bcrypt-hashed before storage; the plaintext value is never persisted.</sub>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src=".github/assets/screenshots/dashboard-pantry.png" alt="Pantry dashboard"/>
+<br/>
+<sub><b>Pantry Dashboard</b> — Full inventory table with inline quantity and threshold editing. Each row includes a colour-coded macro distribution bar.</sub>
+</td>
+<td width="50%">
+<img src=".github/assets/screenshots/dashboard-low-stock.png" alt="Low-stock alerts panel"/>
+<br/>
+<sub><b>Low-Stock Alerts</b> — Items below their configured threshold (default 100g) surface here in real time via <code>/api/pantry/low-stock</code>.</sub>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src=".github/assets/screenshots/generator-form.png" alt="Meal generator form"/>
+<br/>
+<sub><b>Generator Form</b> — Flavor profile toggle, four quick presets (Cutting / Balanced / Bulking / My Goals ÷ 3), and protein/carbs/fats sliders with a live kcal estimate.</sub>
+</td>
+<td width="50%">
+<img src=".github/assets/screenshots/generator-results.png" alt="Meal generator results"/>
+<br/>
+<sub><b>Generator Results</b> — Up to three LP solutions with randomized cost coefficients. Bookmark icon saves any plan as a named recipe.</sub>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src=".github/assets/screenshots/generator-shopping.png" alt="Shopping list mode"/>
+<br/>
+<sub><b>Shopping List Mode</b> — Solves against all 85 ingredients, caps each at 400g, then diffs the result against current pantry stock to show exactly what to buy.</sub>
+</td>
+<td width="50%">
+<img src=".github/assets/screenshots/analytics-macro-trends.png" alt="Analytics dashboard"/>
+<br/>
+<sub><b>Analytics Dashboard</b> — Calorie ring vs. daily target, macro progress bars, three KPI cards, and a 7/30-day area chart built from <code>MealLog.totalMacros</code>.</sub>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src=".github/assets/screenshots/analytics-pantry-distribution.png" alt="Pantry distribution chart"/>
+<br/>
+<sub><b>Pantry Distribution</b> — Donut chart breaking current stock across 6 categories, computed client-side from the same pantry payload. No extra API call needed.</sub>
+</td>
+<td width="50%">
+<img src=".github/assets/screenshots/history.png" alt="Meal history"/>
+<br/>
+<sub><b>Meal History</b> — Every consumption event logged with per-ingredient macros computed at write time as <code>amount / servingSize * nutrient</code>. Sorted newest-first, deletable individually.</sub>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src=".github/assets/screenshots/recipes.png" alt="Saved recipes"/>
+<br/>
+<sub><b>Saved Recipes</b> — Named meal plans in a searchable, sortable grid. Cook Recipe runs the same <code>/api/pantry/consume</code> path as direct consumption.</sub>
+</td>
+<td width="50%">
+<img src=".github/assets/screenshots/create-ingredient.png" alt="Create custom ingredient"/>
+<br/>
+<sub><b>Custom Ingredient</b> — Add foods not in the shared library. The <code>category</code> and <code>flavor</code> enums are validated at the model layer and control LP solver eligibility.</sub>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src=".github/assets/screenshots/dashboard-mobile-390.png" alt="Mobile view at 390px"/>
+<br/>
+<sub><b>Mobile (390px)</b> — The two-column pantry layout stacks vertically at narrow widths, keeping the add form and low-stock panel accessible without a separate mobile build.</sub>
+</td>
+<td width="50%"></td>
+</tr>
+</table>
 
 ---
 
