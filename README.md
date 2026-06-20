@@ -15,16 +15,6 @@ Hitting precise macro targets requires knowing not just what to eat but exactly 
 
 ---
 
-## Demo
-
-[![Visit Live App](https://img.shields.io/badge/Visit%20Live%20App-macro--match--cyan.vercel.app-22c55e?style=for-the-badge&logo=vercel)](https://macro-match-cyan.vercel.app/)
-
-**Demo video:** full user flow in under 90 seconds:
-
-> _Author: upload a screen recording and replace this note with the release asset URL (`https://github.com/parthiv-2006/MacroMatch/releases/download/v1.0.0/demo.mp4`)._
-
----
-
 ## Screenshots
 
 ### Pantry Dashboard

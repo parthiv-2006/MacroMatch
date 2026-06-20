@@ -70,3 +70,14 @@ uploads/
 *.bak
 *.tmp
 Instructions.md
+
+# ===== Local design / AI artefacts =====
+Claude Code Prompt.md
+MacroMatch Redesign.html
+tweaks-panel*.jsx
+login-redesign.png
+pantry-*.png
+register-redesign.png
+generator-split.png
+create-ingredient-preview.png
+.omc/
