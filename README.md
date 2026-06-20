@@ -3,6 +3,7 @@
 Computes exact ingredient quantities through linear programming to hit precise macro targets, built for users who track protein, carbs, and fats against a real pantry inventory.
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-macro--match--cyan.vercel.app-brightgreen?style=for-the-badge)](https://macro-match-cyan.vercel.app/)
+[![Backend Tests](https://github.com/parthiv-2006/MacroMatch/actions/workflows/test.yml/badge.svg)](https://github.com/parthiv-2006/MacroMatch/actions/workflows/test.yml)
 [![License](https://img.shields.io/badge/License-ISC-blue?style=for-the-badge)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-16%2B-green?style=for-the-badge&logo=node.js)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)](https://react.dev/)
@@ -249,7 +250,25 @@ Open `http://localhost:5173`. The Vite dev server proxies `/api/*` requests to `
 
 ## Testing
 
-No automated test suite currently exists. The `backend/__tests__` directory is present but empty, and `npm test` in `backend/package.json` exits with an error by default. All verification is manual against the live seed data.
+The backend has a Jest unit test suite covering the core business logic. Tests run in CI on every push and pull request to `main` via GitHub Actions (see badge above).
+
+```bash
+cd backend
+npm test
+```
+
+**What is tested:**
+
+| File | Coverage |
+|------|----------|
+| `utils/macroSolver.js` | LP solve returns distinct plans, handles empty pantry and infeasible targets |
+| `controllers/userController.js` | All `validatePassword` rules (length, case, digit, special char) |
+| `controllers/pantryController.js` | `toPantryItemResponse` — `isLowStock` flag and threshold defaulting |
+| `controllers/solverController.js` | `solveFromAllIngredients` — plan shape, totals, infeasible case, per-ingredient cap |
+| `middleware/authMiddleware.js` | No token, invalid token, user not found, valid token attaches `req.user` |
+| `middleware/errorMiddleware.js` | Stack trace suppression in production, status code passthrough |
+
+All tests run without a live database connection — Mongoose models are mocked where needed.
 
 ---
 
