@@ -1,6 +1,6 @@
 # MacroMatch
 
-Computes exact ingredient quantities through linear programming to hit precise macro targets, for users who track protein, carbs, and fats against a pantry inventory.
+Computes exact ingredient quantities through linear programming to hit precise macro targets, built for users who track protein, carbs, and fats against a real pantry inventory.
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-macro--match--cyan.vercel.app-brightgreen?style=for-the-badge)](https://macro-match-cyan.vercel.app/)
 [![License](https://img.shields.io/badge/License-ISC-blue?style=for-the-badge)](LICENSE)
@@ -11,67 +11,128 @@ Computes exact ingredient quantities through linear programming to hit precise m
 
 ## What It Is
 
-Hitting precise macro targets requires knowing not just what to eat but exactly how many grams of each ingredient. MacroMatch takes a user's pantry and a set of macro goals (protein, carbs, fats in grams), runs a constrained LP model against available stock, and returns up to three structurally distinct meal plans that satisfy all targets within a ±5g tolerance band. A second mode inverts the problem: it solves against the full ingredient library and produces a shopping list showing exactly what the pantry is missing to hit the same targets.
+Hitting precise macro targets requires knowing not just what to eat but exactly how many grams of each ingredient. MacroMatch takes a user's pantry and a set of macro goals (protein, carbs, fats in grams), runs a constrained LP model against available stock, and returns up to three structurally distinct meal plans that satisfy all targets within a 5g tolerance band. A second mode inverts the problem: it solves against the full ingredient library and produces a shopping list showing exactly what the pantry is missing to hit the same targets.
 
 ---
 
 ## Screenshots
 
-### Pantry Dashboard
-![Pantry dashboard showing current inventory table, low-stock alerts panel, and add-item form on the left](.github/assets/screenshots/dashboard-pantry.png)
-The main view after login; the left column holds the low-stock alert panel and ingredient add form, the right column shows the full pantry table with inline quantity editing.
+### Login
 
-### Low-Stock Alert Panel
-![Low-stock panel listing four ingredients below their configured thresholds with gram counts](.github/assets/screenshots/dashboard-low-stock.png)
-Each pantry item carries a user-configurable threshold (default 100g); the panel surfaces items below it without a page reload, fetching from `/api/pantry/low-stock`.
+![Login page with feature highlights on the left and sign-in form on the right](.github/assets/screenshots/auth-login.png)
+
+JWT-based authentication. The left panel describes the three core features; the right panel issues a 7-day token on successful login that gates every API call downstream.
+
+---
+
+### Register
+
+![Registration form with full name, email, password, and confirm-password fields](.github/assets/screenshots/auth-register.png)
+
+One-step account creation. Password is bcrypt-hashed before storage; the plaintext value is never persisted anywhere in the system.
+
+---
+
+### Pantry Dashboard
+
+![Pantry table showing 26 ingredients with quantity, threshold, macro bars, and low-stock alerts on the left sidebar](.github/assets/screenshots/dashboard-pantry.png)
+
+The main view after login. The left column holds the low-stock alert panel and the add-item form; the right column shows the full pantry table with inline quantity and threshold editing. Each row includes a colour-coded macro distribution bar.
+
+---
+
+### Low-Stock Alerts
+
+![Left sidebar panel listing ingredients below their configured thresholds](.github/assets/screenshots/dashboard-low-stock.png)
+
+Each pantry item carries a user-configurable threshold (default 100g). The alerts panel surfaces items below it in real time, pulling from `/api/pantry/low-stock` without reloading the full inventory.
+
+---
 
 ### Meal Generator Form
-![Generator form with protein, carbs, and fats number inputs plus a Savory/Sweet/Neutral flavor toggle](.github/assets/screenshots/generator-form.png)
-Both generation modes share the same input form; the flavor toggle filters which ingredients the LP solver can select before the model is built.
+
+![Generator form with flavor profile toggle (Savory / Sweet / Neutral), four quick presets, protein/carbs/fats sliders, and estimated kcal readout](.github/assets/screenshots/generator-form.png)
+
+Both generation modes share the same input form. Quick presets (Cutting, Balanced, Bulking, My Goals / 3) pre-fill the sliders. The flavor toggle filters which ingredients the LP solver can select before the model is built, preventing the solver from pairing chicken with honey.
+
+---
 
 ### Meal Generator Results
-![Three meal plan cards, each listing ingredient names and gram amounts with macro totals at the bottom](.github/assets/screenshots/generator-results.png)
-Up to three LP solutions, each produced by a separate solver run with randomized cost coefficients; clicking a card selects it for consumption, and the bookmark icon saves it as a named recipe.
 
-### Shopping List Tab
-![Shopping list view showing optimum recipe on the left and missing ingredients with gram shortfalls on the right](.github/assets/screenshots/generator-shopping.png)
-The reverse-mode result: the LP-optimal recipe on the left, ingredients the pantry cannot cover on the right, and a full pantry usage breakdown table below.
+![Three recipe option cards, each listing ingredient names and gram amounts with PRO / CRB / FAT totals at the bottom](.github/assets/screenshots/generator-results.png)
 
-### Analytics Dashboard: Macro Trends
-![Stacked area chart showing daily protein, carbs, and fats intake over seven days](.github/assets/screenshots/analytics-macro-trends.png)
-7-day and 30-day area charts built from `MealLog.totalMacros`; data points aggregate all consumption events per calendar day, computed client-side on the fetched history array.
+Up to three LP solutions, each produced by a separate solver run with randomized cost coefficients to steer the simplex algorithm toward different vertices of the feasibility polytope. Clicking the bookmark icon saves the plan as a named recipe.
 
-### Analytics Dashboard: Pantry Distribution
-![Donut chart dividing pantry inventory across food categories with a legend showing percentages](.github/assets/screenshots/analytics-pantry-distribution.png)
-Category breakdown of current pantry stock (protein sources, grains, fats, vegetables, etc.); percentages computed client-side from pantry item quantities without a separate API call.
+---
+
+### Shopping List Mode
+
+![Shopping list view showing the LP-optimal recipe with ingredient gram amounts and a breakdown of what the pantry already covers](.github/assets/screenshots/generator-shopping.png)
+
+The reverse-mode result: the solver runs against all 85 ingredients (not the current pantry), caps each variable at 400g, then diffs the result against available stock to produce a per-item shortfall list showing exactly what to buy.
+
+---
+
+### Analytics Dashboard
+
+![Analytics dashboard with today's calorie ring, macro progress bars, three KPI cards, a macro trends area chart, and a pantry distribution donut chart](.github/assets/screenshots/analytics-macro-trends.png)
+
+The dashboard aggregates all consumption events for the selected range (7 or 30 days). The calorie ring shows today's intake vs. the configured daily target. The three KPI cards show total calories, average daily protein, and the peak protein day. Both charts are built from `MealLog.totalMacros` without touching the `Ingredient` collection at read time.
+
+---
+
+### Pantry Distribution
+
+![Donut chart dividing pantry inventory across food categories with a legend showing percentages for Protein Sources, Grains and Carbs, Fats and Oils, Dairy, Fruits, and Vegetables](.github/assets/screenshots/analytics-pantry-distribution.png)
+
+Category breakdown of current pantry stock computed client-side from pantry item quantities. No separate API call is needed; the breakdown derives from the same payload that powers the pantry table.
+
+---
 
 ### Meal History
-![History page listing logged meals with ingredient names, gram amounts, and macro totals per entry](.github/assets/screenshots/history.png)
-Every consumption event writes a `MealLog` document with per-ingredient macros; entries are sorted newest-first and can be deleted individually.
+
+![History page listing logged meals with per-entry ingredient names, gram amounts, and macro totals](.github/assets/screenshots/history.png)
+
+Every consumption event writes a `MealLog` document with per-ingredient macros computed at write time as `amount / servingSize * nutrient`. Entries are sorted newest-first and can be deleted individually.
+
+---
 
 ### Saved Recipes
-![Recipes page showing named meal plans with total macro summaries and Cook/Delete action buttons](.github/assets/screenshots/recipes.png)
-Saved meal plans with pre-computed `totalMacros`; the "Cook" action runs the same pantry deduction and meal log write path as direct consumption.
 
-### Login Page (Desktop)
-![Dark-themed login form with email and password fields](.github/assets/screenshots/auth-login.png)
-JWT issued on successful login, stored in `localStorage`; `ProtectedRoute` checks `AuthContext` and redirects unauthenticated requests to this page before any API call fires.
+![Recipes page showing six named meal plans in a three-column grid, each card displaying kcal, macro pills, ingredients list, and a Cook Recipe button](.github/assets/screenshots/recipes.png)
 
-### Pantry Dashboard (Mobile)
-![Pantry dashboard on a 390px-wide screen with stacked column layout](.github/assets/screenshots/dashboard-mobile-390.png)
-Responsive layout at 390px width; the two-column pantry layout stacks vertically, keeping the add form and low-stock panel accessible on small screens.
+Saved meal plans with pre-computed `totalMacros`. The search bar filters by recipe name or ingredient. Sorting by A-Z, Calories, or Protein is available. The Cook Recipe action runs the same `/api/pantry/consume` path as direct consumption and writes an identical `MealLog` entry.
+
+---
+
+### Create Custom Ingredient
+
+![Custom ingredient creation form with fields for name, calories, protein, carbs, fats, serving size, category, and flavor profile](.github/assets/screenshots/create-ingredient.png)
+
+Users can add ingredients not in the shared library. The `category` and `flavor` fields are enum-validated at the model layer; the `flavor` value controls whether the ingredient is eligible for Savory, Sweet, or Neutral solver runs.
+
+---
+
+### Mobile View (390px)
+
+![Pantry dashboard on a 390px-wide screen with navigation collapsed to a top bar and the two-column layout stacked vertically](.github/assets/screenshots/dashboard-mobile-390.png)
+
+Responsive layout at 390px width. The two-column pantry layout stacks vertically, keeping the add form and low-stock panel accessible on small screens without a separate mobile build.
 
 ---
 
 ## Features
 
-- **LP meal generation:** each pantry item maps to an LP variable whose protein, carbs, and fats coefficients are `macro_per_100g / 100`. Constraints enforce ±5g tolerance bands on all three macros. The solver runs up to 15 iterations with per-variable costs randomized uniformly in [0.5, 1.5), and duplicate solutions are filtered by a sorted `"ingredient:grams"` canonical signature.
-- **Reverse shopping list:** solves against all 78 seeded ingredients (not the user's pantry), caps each variable at 400g, then diffs the solution against current stock to produce a per-item shortfall list.
-- **Flavor profile filtering:** ingredients carry a `flavor` enum (`savory`, `sweet`, `neutral`). Savory mode admits savory and neutral items; sweet mode admits sweet and neutral; neutral restricts to neutral only. This prevents the solver from pairing chicken with honey.
+- **LP meal generation:** each pantry item maps to an LP variable whose protein, carbs, and fats coefficients are `macro_per_100g / 100`. Constraints enforce a 5g tolerance band on all three macros. The solver runs up to 15 iterations with per-variable costs randomized uniformly in [0.5, 1.5), and duplicate solutions are filtered by a sorted `"ingredient:grams"` canonical signature.
+- **Reverse shopping list:** solves against all 85 seeded ingredients (not the user's pantry), caps each variable at 400g, then diffs the solution against current stock to produce a per-item shortfall list.
+- **Flavor profile filtering:** ingredients carry a `flavor` enum (`savory`, `sweet`, `neutral`). Savory mode admits savory and neutral items; sweet mode admits sweet and neutral; neutral restricts to neutral only.
+- **Quick macro presets:** four one-click presets (Cutting 45P/30C/12F, Balanced 35P/55C/18F, Bulking 45P/80C/25F, and a personalised My Goals / 3 derived from the user's daily targets) pre-fill the generator sliders.
 - **Per-user pantry:** a compound MongoDB index on `(user, ingredient)` prevents duplicate entries. Each item carries a configurable low-stock threshold; the `/api/pantry/low-stock` endpoint returns items where `quantity < threshold` without loading the full inventory.
 - **Denormalized meal logs:** consumption writes a `MealLog` with per-item macros computed at write time as `amount / servingSize * nutrient`. Analytics queries read directly from `totalMacros` without touching the `Ingredient` collection.
 - **Recipe persistence:** any generated plan can be saved with a custom name. Cooking a recipe runs the identical `/api/pantry/consume` path and produces the same `MealLog` entry as direct consumption.
-- **Analytics charts:** Recharts `AreaChart` for 7-day and 30-day macro trends; `PieChart` for pantry inventory distribution across 8 categories. A KPI strip shows total calories, average daily protein, and the peak protein day for the selected range.
+- **Analytics charts:** Recharts `AreaChart` for 7-day and 30-day macro trends; `PieChart` for pantry inventory distribution across 6 categories. A KPI strip shows total calories, average daily protein, and the peak protein day for the selected range.
+- **Custom ingredients:** users can create private ingredients with custom macro values, serving sizes, categories, and flavor profiles that participate in the LP solver the same way shared ingredients do.
+- **Daily goal tracking:** a calorie ring and three macro progress bars on the analytics dashboard compare today's logged intake against the user's configured daily targets.
 
 ---
 
@@ -79,11 +140,11 @@ Responsive layout at 390px width; the two-column pantry layout stacks vertically
 
 | Layer | Technology | Why |
 |-------|-----------|-----|
-| LP solver | javascript-lp-solver 0.4.24 | Pure-JS revised simplex implementation with no native add-ons; deploys to any Node.js host, including Render's free tier, without a compile step |
-| API framework | Express 5 | Express 5 propagates errors thrown in async handlers automatically; without it, every controller would need an explicit `try/catch` or an `asyncHandler` wrapper |
+| LP solver | javascript-lp-solver 0.4.24 | Pure-JS revised simplex implementation with no native add-ons; deploys to any Node.js host without a compile step |
+| API framework | Express 5 | Express 5 propagates errors thrown in async handlers automatically; without it, every controller needs an explicit `try/catch` or an `asyncHandler` wrapper |
 | ODM | Mongoose 9 | Schema-level enum validation on `flavor` and `category` catches bad ingredient data at the model layer; the compound unique index on `PantryItem(user, ingredient)` is declared in the schema, not in a separate migration |
-| Database | MongoDB Atlas | `MealLog.items` is a variable-length array of ingredient entries per meal; a document store avoids a many-to-many junction table and the join overhead on history reads |
-| Frontend library | React 19 | The 200-400ms LP solver response (15 iterations, typical pantry) does not block the input form; `useCallback` on `AuthContext` methods prevents re-renders across the context tree on every keystroke |
+| Database | MongoDB Atlas | `MealLog.items` is a variable-length array of ingredient entries per meal; a document store avoids a many-to-many junction table and join overhead on history reads |
+| Frontend library | React 19 | The 200-400ms LP solver response does not block the input form; `useCallback` on `AuthContext` methods prevents re-renders across the context tree on every keystroke |
 | Build tool | Vite 7 + @tailwindcss/vite | Tailwind 4's Vite plugin compiles utility classes in a single pipeline pass, removing the separate PostCSS step and cutting CSS rebuild time in development |
 | Charts | Recharts 2.13 | `AreaChart` and `PieChart` primitives accept the raw `MealLog` aggregate arrays directly; no adapter layer between the API response shape and the chart data format |
 | Auth | JWT + bcryptjs | Stateless tokens; the `protect` middleware re-fetches the user by ID on every protected request, so a deleted account cannot authenticate with a cached token |
@@ -108,7 +169,7 @@ Express 5 API  (Node.js)
         v
 MongoDB Atlas
   |-- users          email unique index; bcrypt hash, no plaintext password
-  |-- ingredients    78 shared records; name unique; flavor + category enums
+  |-- ingredients    85 shared records; name unique; flavor + category enums
   |-- pantryitems    compound unique index (user, ingredient); threshold field
   |-- meallogs       per-consumption events; totalMacros denormalized at write
   `-- recipes        user-scoped; ingredients array; totalMacros pre-computed
@@ -124,11 +185,11 @@ Meal logs denormalize macros at the point of consumption rather than on read. Th
 
 ### Pantry-based generation
 
-The user enters protein, carbs, and fats targets (e.g., 35g / 60g / 20g) and selects a flavor profile. The frontend POSTs to `POST /api/generate`. The backend loads the user's `PantryItem` records with `find({ user }).populate('ingredient')`, filters by flavor, and calls `solveMultipleMeals(targets, filteredItems, 3)`.
+The user enters protein, carbs, and fats targets and selects a flavor profile. The frontend POSTs to `POST /api/generate`. The backend loads the user's `PantryItem` records with `find({ user }).populate('ingredient')`, filters by flavor, and calls `solveMultipleMeals(targets, filteredItems, 3)`.
 
 Inside `solveMultipleMeals`, each pantry item becomes an LP variable with protein, carbs, and fats coefficients of `macro_per_100g / 100`. The item's pantry quantity is the variable's upper bound. The model minimizes a `cost` objective. On each of up to 15 iterations, every variable receives a cost randomized uniformly in [0.5, 1.5), which steers the simplex algorithm toward different vertices of the feasibility polytope. After each feasible result, the nonzero ingredient-quantity pairs are sorted alphabetically and joined as `"Ingredient:grams|..."`, then checked against a `Set`; duplicates are discarded. The loop exits when 3 unique plans accumulate or 15 iterations exhaust.
 
-The response returns the plan array. The user selects one or more plans and clicks "Consume Selected". The frontend aggregates quantities across all selected plans (summing grams for any ingredient appearing in multiple plans) and POSTs to `POST /api/pantry/consume`. The controller resolves each ingredient name to an `ObjectId` via `Ingredient.findOne({ name })`, deducts the gram amount from the matching `PantryItem`, deletes items at or below 0.1g (a floating-point precision threshold), and writes a `MealLog` with per-ingredient macros computed as `amount / servingSize * nutrient_per_serving`.
+The response returns the plan array. The user selects one or more plans and clicks Consume. The frontend aggregates quantities across all selected plans (summing grams for any ingredient appearing in multiple plans) and POSTs to `POST /api/pantry/consume`. The controller resolves each ingredient name to an `ObjectId` via `Ingredient.findOne({ name })`, deducts the gram amount from the matching `PantryItem`, deletes items at or below 0.1g (a floating-point precision threshold), and writes a `MealLog` with per-ingredient macros computed as `amount / servingSize * nutrient_per_serving`.
 
 ### Reverse (shopping list) mode
 
@@ -184,7 +245,7 @@ npm install
 
 ### Seed the ingredient database
 
-The LP solver requires ingredient documents to exist. The seed script upserts 78 foods across proteins, carbs, fats, vegetables, fruits, and dairy using `findOneAndUpdate` with `upsert: true`, so it is safe to run multiple times:
+The LP solver requires ingredient documents to exist. The seed script upserts 85 foods across proteins, carbs, fats, vegetables, fruits, and dairy using `findOneAndUpdate` with `upsert: true`, so it is safe to run multiple times:
 
 ```bash
 cd backend
@@ -234,7 +295,7 @@ MacroMatch/
 │   ├── routes/                        thin Express routers; all protected routes apply authMiddleware
 │   ├── utils/
 │   │   └── macroSolver.js             LP model builder; randomized cost loop; Set-based deduplication
-│   ├── seedIngredients.js             upserts 78 ingredients via findOneAndUpdate with upsert: true
+│   ├── seedIngredients.js             upserts 85 ingredients via findOneAndUpdate with upsert: true
 │   └── server.js                      app setup, CORS config, route mounting, DB connect + listen
 │
 └── frontend/src/
@@ -248,11 +309,12 @@ MacroMatch/
     ├── context/
     │   └── AuthContext.jsx         login, register, logout; user state persisted to localStorage
     ├── pages/
-    │   ├── AnalyticsDashboard.jsx  macro area chart + pantry donut chart + three KPI cards
-    │   ├── Dashboard.jsx           pantry inventory table, low-stock panel, add-item form
+    │   ├── AnalyticsDashboard.jsx  calorie ring, macro bars, area chart, pantry donut, KPI cards
+    │   ├── CreateIngredient.jsx    custom ingredient form with category and flavor enum fields
+    │   ├── DashboardPage.jsx       pantry inventory table, low-stock panel, add-item form
     │   ├── GeneratorPage.jsx       LP result cards (selectable), shopping list tab, consume action
     │   ├── History.jsx             MealLog list sorted newest-first with per-entry macro breakdown
-    │   └── Recipes.jsx             saved recipes with cook and delete actions
+    │   └── Recipes.jsx             saved recipes with cook, delete, search, and sort actions
     └── services/                   Axios wrappers for each API surface; token read from localStorage per call
 ```
 
