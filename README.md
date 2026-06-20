@@ -3,7 +3,7 @@
 Computes exact ingredient quantities through linear programming to hit precise macro targets, built for users who track protein, carbs, and fats against a real pantry inventory.
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-macro--match--cyan.vercel.app-brightgreen?style=for-the-badge)](https://macro-match-cyan.vercel.app/)
-[![Backend Tests](https://github.com/parthiv-2006/MacroMatch/actions/workflows/test.yml/badge.svg)](https://github.com/parthiv-2006/MacroMatch/actions/workflows/test.yml)
+[![Backend Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/parthiv-2006/MacroMatch/main/.github/badges/test-results.json)](https://github.com/parthiv-2006/MacroMatch/actions/workflows/test.yml)
 [![License](https://img.shields.io/badge/License-ISC-blue?style=for-the-badge)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-16%2B-green?style=for-the-badge&logo=node.js)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)](https://react.dev/)

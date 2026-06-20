@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: ["main"]
 
+permissions:
+  contents: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -25,4 +28,33 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test
+        run: npm test -- --json --outputFile=/tmp/jest-results.json
+
+      - name: Write test results badge
+        if: always()
+        run: |
+          node -e "
+            const fs = require('fs');
+            const r = JSON.parse(fs.readFileSync('/tmp/jest-results.json', 'utf8'));
+            const passed = r.numPassedTests;
+            const total = r.numTotalTests;
+            const color = passed === total && total > 0 ? 'brightgreen' : 'red';
+            const badge = {
+              schemaVersion: 1,
+              label: 'tests',
+              message: passed + ' / ' + total + ' passing',
+              color
+            };
+            fs.mkdirSync('../.github/badges', { recursive: true });
+            fs.writeFileSync('../.github/badges/test-results.json', JSON.stringify(badge, null, 2));
+          "
+
+      - name: Commit badge (push events only)
+        if: always() && github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ../.github/badges/test-results.json
+          git diff --staged --quiet || git commit -m "chore: update test results badge [skip ci]"
+          git push
+        working-directory: backend
